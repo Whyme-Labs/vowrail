@@ -15,7 +15,7 @@ Vowrail separates:
 2. **Agents**: probabilistic suggestions, seller interactions, and offer evaluations.
 3. **Gateway**: mandatory, deterministic state transitions and authorization checks.
 4. **Execution**: a PayPal **Sandbox** checkout that cannot bypass the selected-offer policy.
-5. **Evidence**: an auditable event history; stronger durable receipts are planned.
+5. **Evidence**: policy events and checkout locks retained in a local journal across server restarts.
 
 A round is a *single coordinated opportunity* for participating merchants to submit offers for one buyer intent, not one LLM message or one seller response. The proposed consumer default is at most two negotiation rounds, with a buyer-approved configurable limit.
 
@@ -30,6 +30,8 @@ npm start
 ```
 
 Create an intent, run up to two coordinated rounds with **simulated** sellers, select a qualifying quote, and inspect enforcement events. A model-assisted buyer recommendation is optional and must be configured explicitly; deterministic fallback is clearly identified as non-AI. With `AI_MERCHANTS=1` and model credentials, one synthetic merchant also uses a real model call for each round, with fixed seller-side bid bounds.
+
+`npm start` preserves synthetic mandates, offers, round replay records and payment references in the ignored `.vowrail/journal/` directory. Keep that directory across restarts; set `VOWRAIL_STATE_DIR` to choose another private local directory. Interrupted checkout resumes through read-only reconciliation, with attempted captures still locked. See [local journal recovery](docs/LOCAL_JOURNAL.md). No credentials or raw payer payloads are stored there.
 
 To exercise **real PayPal Sandbox** APIs, copy `.env.example` into your own environment and set the credentials in the shell before starting the server. `node --env-file=.env` is supported on Node 22+. The demo merchant is one configured PayPal Sandbox account; simulated sellers are **not** onboarded PayPal merchants.
 
@@ -50,6 +52,7 @@ Never commit client secrets. There are **no live PayPal endpoints** in the proto
 - [Milestones, acceptance gates and backlog](docs/ROADMAP.md)
 - [API and developer guide](docs/API.md)
 - [Architecture decisions](docs/DECISIONS.md)
+- [Local journal and restart recovery](docs/LOCAL_JOURNAL.md)
 
 Progress is tracked in [GitHub issues](../../issues). The focus is a functional, experimentally validated submission for the [PayPal AI Hackathon 2026](https://paypalaihackathon.devpost.com/). Deadline: **12 November 2026, 12:00 PST** (**13 November, 04:00 MYT**). The rules require a working AI + PayPal application, public open-source repository, and public demo video under three minutes.
 
@@ -57,7 +60,7 @@ Progress is tracked in [GitHub issues](../../issues). The focus is a functional,
 
 ## Scope and honesty
 
-The reference demo has local process memory only, scripted seller bids, no buyer login, no merchant authentication, and no transaction durability across restarts. It is a demonstration of the control boundary, **not a production-secure wallet**. The issue backlog tracks durable state, authentication, real AI negotiation, PayPal reconciliation, and deployment.
+The reference demo has local journal recovery, scripted seller bids, no buyer login and no merchant authentication. The journal is for a small local demo on one trusted machine; it is not a hosted transactional database or a production-secure wallet. The issue backlog tracks authentication, real AI negotiation, real Sandbox evidence, durable deployment and payment recovery.
 
 ## License
 

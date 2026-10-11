@@ -85,6 +85,14 @@ test('approved order after a capture attempt stays locked even after repeated re
   assert.equal(f.calls.capture, 1);
 });
 
+test('capture directly rejects an existing attempt even if approval state is inconsistent', async () => {
+  const f = await checkoutFixture();
+  f.gateway.intents.get(f.id).checkout.captureAttempted = true;
+  await assert.rejects(f.gateway.captureCheckout(f.id, f.order.id), e => e.code === 'CAPTURE_ALREADY_ATTEMPTED');
+  assert.equal(f.calls.capture, 0);
+  assert.equal(f.calls.get, 0);
+});
+
 test('read-only verification failure before capture can recover to buyer approval', async () => {
   const f = await checkoutFixture();
   const original = f.payments.getOrder;

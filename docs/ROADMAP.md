@@ -54,7 +54,7 @@ Not in hackathon scope: full multi-merchant settlement, paid customer onboarding
 | [#3](https://github.com/Whyme-Labs/vowrail/issues/3) buyer console | P0 | Accessibility and browser usability verification |
 | [#4](https://github.com/Whyme-Labs/vowrail/issues/4) real AI | P0 | Actual model-driven seller/buyer experiment |
 | [#5](https://github.com/Whyme-Labs/vowrail/issues/5) PayPal Sandbox | P0 | End-to-end real Sandbox receipt |
-| [#6](https://github.com/Whyme-Labs/vowrail/issues/6) durability | P0 | Durable reconciliation + concurrency |
+| [#6](https://github.com/Whyme-Labs/vowrail/issues/6) durability | P0 | Local restart recovery implemented; hosted storage, outbox and multi-worker qualification remain |
 | [#7](https://github.com/Whyme-Labs/vowrail/issues/7) benchmark | P0 | Reproducible adversarial and economic metrics |
 | [#8](https://github.com/Whyme-Labs/vowrail/issues/8) deployment security | P0 | Access control before hosted service |
 | [#9](https://github.com/Whyme-Labs/vowrail/issues/9) public release | P0 | Owner changes visibility after audit |

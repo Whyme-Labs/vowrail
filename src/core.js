@@ -27,23 +27,108 @@ const assert = (condition, code, message, status = 409) => {
   if (!condition) throw new PolicyError(code, message, status);
 };
 const toError = error => error instanceof PolicyError ? error : new PolicyError('INTEGRATION_ERROR', 'External integration failed', 502);
+const sandboxApprovalLink = value => {
+  if (typeof value !== 'string') return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && ['www.sandbox.paypal.com', 'sandbox.paypal.com'].includes(url.hostname)
+      && !url.username && !url.password && !url.port;
+  } catch { return false; }
+};
 
 /**
  * A deliberately local-only reference monitor. All state mutations before an
- * external await are synchronous in one Node process. There is no durable
- * multi-instance guarantee, buyer authentication or production payment safety.
+ * external await are synchronous in one Node process. An optional local journal
+ * checkpoints reservations before external calls. No hosted payment safety is claimed.
  */
 export class NegotiationGateway {
-  constructor({ merchants, payments, ai = null, now = () => Date.now(), id = randomUUID } = {}) {
+  constructor({ merchants, payments, ai = null, store = null, now = () => Date.now(), id = randomUUID } = {}) {
     this.intents = new Map();
     this.merchants = Array.isArray(merchants) ? merchants : [];
     this.payments = payments;
     this.ai = ai;
     this.now = now;
     this.id = id;
+    this.store = store;
+    this.storageHealthy = true;
+    this.roundOperations = new Map();
+    let recovered = false;
+    for (const saved of store?.load() ?? []) {
+      this._validateStoredIntent(saved);
+      const intent = { ...saved, mandate: Object.freeze({ ...saved.mandate }), roundRequests: new Map(saved.roundRequests) };
+      this.intents.set(intent.intentId, intent);
+      if (intent.state === 'ROUND_IN_PROGRESS') {
+        intent.state = 'OPEN';
+        this._event(intent, 'round.interrupted', { round: intent.round });
+        for (const request of intent.roundRequests.values()) {
+          if (!request.result) request.result = this.getIntent(intent.intentId);
+        }
+        recovered = true;
+      } else if (['CHECKOUT_CREATING', 'CAPTURE_IN_PROGRESS', 'RECONCILIATION_IN_PROGRESS'].includes(intent.state)) {
+        const stage = intent.state;
+        intent.state = intent.checkout.status = 'RECONCILIATION_REQUIRED';
+        this._event(intent, 'checkout.interrupted', { stage });
+        recovered = true;
+      }
+    }
+    if (recovered) this._persist();
+  }
+
+  _validateStoredIntent(intent) {
+    const valid = intent && typeof intent.intentId === 'string' && /^[0-9a-f-]{36}$/i.test(intent.intentId)
+      && !this.intents.has(intent.intentId)
+      && ['OPEN', 'ROUND_IN_PROGRESS', 'CHECKOUT_CREATING', 'AWAITING_BUYER_APPROVAL', 'CAPTURE_IN_PROGRESS',
+        'RECONCILIATION_REQUIRED', 'RECONCILIATION_IN_PROGRESS', 'COMPLETED'].includes(intent.state)
+      && bounded(intent.mandate?.maxTotalMinor, 1, 1000000000) && intent.mandate.currency === 'USD'
+      && validText(intent.mandate.item, 3, 120) && bounded(intent.mandate.quantity, 1, 10000)
+      && typeof intent.mandate.requirements === 'string' && intent.mandate.requirements.length <= 280
+      && bounded(intent.mandate.maxRounds, 0, 2) && bounded(intent.round, 0, intent.mandate.maxRounds)
+      && Number.isSafeInteger(intent.createdAt) && Number.isSafeInteger(intent.expiresAt) && intent.expiresAt > intent.createdAt
+      && Array.isArray(intent.offers) && Array.isArray(intent.events) && Array.isArray(intent.roundRequests)
+      && intent.offers.every(o => o && typeof o.offerId === 'string' && typeof o.merchantId === 'string'
+        && typeof o.merchantName === 'string' && bounded(o.amountMinor, 1, 1000000000) && o.currency === 'USD'
+        && bounded(o.round, 1, intent.round) && validText(o.description, 1, 200) && bounded(o.deliveryDays, 0, 365)
+        && Number.isFinite(Date.parse(o.validUntil)))
+      && intent.events.every((event, index) => event?.sequence === index + 1
+        && validText(event.type, 1, 80) && Number.isFinite(Date.parse(event.at)))
+      && intent.roundRequests.every(entry => Array.isArray(entry) && entry.length === 2
+        && /^[A-Za-z0-9_-]{8,80}$/.test(entry[0]) && bounded(entry[1]?.round, 1, intent.round))
+      && (['OPEN', 'ROUND_IN_PROGRESS'].includes(intent.state) ? intent.checkout === null
+        : intent.checkout && typeof intent.checkout.captureAttempted === 'boolean'
+          && intent.checkout.status === (intent.state === 'CHECKOUT_CREATING' ? 'CREATING' : intent.state)
+          && (intent.state !== 'AWAITING_BUYER_APPROVAL' || !intent.checkout.captureAttempted)
+          && (intent.checkout.approveUrl === null || sandboxApprovalLink(intent.checkout.approveUrl))
+          && intent.checkout.requestId === 'vr-create-' + intent.intentId
+          && intent.checkout.captureRequestId === 'vr-capture-' + intent.intentId
+          && (intent.checkout.orderId === null || (typeof intent.checkout.orderId === 'string'
+            && /^[A-Za-z0-9_-]{4,80}$/.test(intent.checkout.orderId)))
+          && (!['AWAITING_BUYER_APPROVAL', 'CAPTURE_IN_PROGRESS', 'RECONCILIATION_IN_PROGRESS', 'COMPLETED'].includes(intent.state)
+            || intent.checkout.orderId !== null)
+          && (intent.state !== 'COMPLETED' || (typeof intent.checkout.captureId === 'string'
+            && /^[A-Za-z0-9_-]{4,80}$/.test(intent.checkout.captureId)))
+          && bounded(intent.checkout.amountMinor, 1, intent.mandate.maxTotalMinor) && intent.checkout.currency === 'USD'
+          && intent.offers.some(o => o.offerId === intent.checkout.offerId && o.amountMinor === intent.checkout.amountMinor
+            && o.currency === intent.checkout.currency));
+    if (!valid) throw Error('Invalid persisted intent; preserve the journal for investigation');
+  }
+
+  _assertStorage() {
+    assert(this.storageHealthy, 'STORAGE_UNAVAILABLE', 'Gateway storage is unavailable; restart and inspect the local journal', 503);
+  }
+
+  _persist() {
+    this._assertStorage();
+    if (!this.store) return;
+    try {
+      this.store.save([...this.intents.values()].map(intent => ({ ...intent, roundRequests: [...intent.roundRequests] })));
+    } catch {
+      this.storageHealthy = false;
+      this._assertStorage();
+    }
   }
 
   createIntent(input) {
+    this._assertStorage();
     assert(input && typeof input === 'object' && !Array.isArray(input), 'INVALID_MANDATE', 'Mandate must be an object', 400);
     const item = input.item;
     const quantity = input.quantity;
@@ -72,10 +157,12 @@ export class NegotiationGateway {
     };
     this.intents.set(intentId, intent);
     this._event(intent, 'mandate.created', { maxRounds });
+    this._persist();
     return this.getIntent(intentId);
   }
 
   _intent(intentId) {
+    this._assertStorage();
     const intent = this.intents.get(intentId);
     assert(intent, 'INTENT_NOT_FOUND', 'Purchase intent not found', 404);
     return intent;
@@ -114,7 +201,10 @@ export class NegotiationGateway {
     const intent = this._intent(intentId);
     assert(typeof idempotencyKey === 'string' && /^[A-Za-z0-9_-]{8,80}$/.test(idempotencyKey),
       'INVALID_IDEMPOTENCY_KEY', 'Provide an 8-80 character Idempotency-Key', 400);
-    if (intent.roundRequests.has(idempotencyKey)) return intent.roundRequests.get(idempotencyKey);
+    if (intent.roundRequests.has(idempotencyKey)) {
+      return this.roundOperations.get(intentId + ':' + idempotencyKey)
+        ?? Promise.resolve(intent.roundRequests.get(idempotencyKey).result ?? this.getIntent(intentId));
+    }
     assert(intent.state === 'OPEN', 'INVALID_STATE', 'Negotiation is not open');
     assert(this.now() < intent.expiresAt, 'MANDATE_EXPIRED', 'Mandate expired');
     assert(intent.round < intent.mandate.maxRounds, 'ROUND_LIMIT', 'Authorized negotiation rounds exhausted');
@@ -123,12 +213,14 @@ export class NegotiationGateway {
     const round = intent.round;
     intent.state = 'ROUND_IN_PROGRESS';
     this._event(intent, 'round.started', { round });
-    const operation = this._collectRound(intent, round);
-    intent.roundRequests.set(idempotencyKey, operation);
+    intent.roundRequests.set(idempotencyKey, { round, result: null });
+    this._persist();
+    const operation = this._collectRound(intent, round, idempotencyKey);
+    this.roundOperations.set(intentId + ':' + idempotencyKey, operation);
     return operation;
   }
 
-  async _collectRound(intent, round) {
+  async _collectRound(intent, round, idempotencyKey) {
     const request = this.publicMerchantRequest(intent.intentId, round);
     // Every merchant receives the same minimal request; no competing offers or private ceiling.
     const responses = await Promise.allSettled(this.merchants.map(merchant =>
@@ -162,6 +254,8 @@ export class NegotiationGateway {
     });
     intent.state = 'OPEN';
     this._event(intent, 'round.completed', { round, offerCount: intent.offers.filter(o => o.round === round).length });
+    intent.roundRequests.get(idempotencyKey).result = this.getIntent(intent.intentId);
+    this._persist();
     return this.getIntent(intent.intentId);
   }
 
@@ -215,32 +309,36 @@ export class NegotiationGateway {
       status: 'CREATING',
       offerId, amountMinor: offer.amountMinor, currency: offer.currency,
       requestId: 'vr-create-' + intentId, orderId: null, approveUrl: null,
+      captureRequestId: 'vr-capture-' + intentId,
       captureAttempted: false
     };
     this._event(intent, 'checkout.locked', { offerId, amountMinor: offer.amountMinor });
+    this._persist();
     try {
       const order = await this.payments.createOrder({
         intentId, amountMinor: offer.amountMinor, currency: offer.currency,
         returnUrl: redirect.toString(), cancelUrl: cancel.toString(),
         idempotencyKey: intent.checkout.requestId
       });
-      assert(typeof order?.id === 'string' && /^[A-Za-z0-9_-]{4,80}$/.test(order.id) && typeof order.approveUrl === 'string',
+      assert(typeof order?.id === 'string' && /^[A-Za-z0-9_-]{4,80}$/.test(order.id),
         'INVALID_PAYPAL_RESPONSE', 'PayPal did not return an order and approval link', 502);
       // Retain the order reference for reconciliation even if its link is invalid.
       intent.checkout.orderId = order.id;
-      const approval = new URL(order.approveUrl);
-      assert(approval.protocol === 'https:' && ['www.sandbox.paypal.com', 'sandbox.paypal.com'].includes(approval.hostname)
-        && !approval.username && !approval.password && !approval.port,
+      this._persist();
+      assert(typeof order.approveUrl === 'string', 'INVALID_PAYPAL_RESPONSE', 'PayPal approval link is unavailable', 502);
+      assert(sandboxApprovalLink(order.approveUrl),
         'INVALID_PAYPAL_RESPONSE', 'Approval link must belong to PayPal Sandbox', 502);
       intent.checkout.approveUrl = order.approveUrl;
       intent.checkout.status = 'AWAITING_BUYER_APPROVAL';
       intent.state = 'AWAITING_BUYER_APPROVAL';
       this._event(intent, 'checkout.created', { orderId: order.id });
+      this._persist();
       return this.getIntent(intentId);
     } catch (error) {
       intent.checkout.status = 'RECONCILIATION_REQUIRED';
       intent.state = 'RECONCILIATION_REQUIRED';
       this._event(intent, 'checkout.uncertain', { stage: 'create' });
+      this._persist();
       throw toError(error);
     }
   }
@@ -253,9 +351,11 @@ export class NegotiationGateway {
     assert(typeof providedOrderId === 'string' && checkout.orderId === providedOrderId,
       'ORDER_MISMATCH', 'PayPal order ID does not match locked checkout');
     if (intent.state === 'COMPLETED') return this.getIntent(intentId);
+    assert(!checkout.captureAttempted, 'CAPTURE_ALREADY_ATTEMPTED', 'Capture was already reserved; use read-only reconciliation');
     assert(this.now() < intent.expiresAt, 'MANDATE_EXPIRED', 'Mandate expired; only read-only reconciliation is allowed');
     intent.state = 'CAPTURE_IN_PROGRESS';
     checkout.status = 'CAPTURE_IN_PROGRESS';
+    this._persist();
     try {
       const order = await this.payments.getOrder(checkout.orderId);
       this._verifyOrder(intent, order);
@@ -266,19 +366,22 @@ export class NegotiationGateway {
       if (['CREATED', 'PAYER_ACTION_REQUIRED'].includes(order.status)) {
         intent.state = checkout.status = 'AWAITING_BUYER_APPROVAL';
         this._event(intent, 'checkout.approval_pending', { orderId: checkout.orderId });
+        this._persist();
         throw new PolicyError('ORDER_NOT_APPROVED', 'Approve the order in PayPal Sandbox before capture');
       }
       assert(order.status === 'APPROVED', 'ORDER_NOT_APPROVED', 'PayPal order has not been approved');
       // Recheck after the network read: an expired mandate cannot issue a capture.
       assert(this.now() < intent.expiresAt, 'MANDATE_EXPIRED', 'Mandate expired; only read-only reconciliation is allowed');
       checkout.captureAttempted = true;
-      const captured = await this.payments.captureOrder(checkout.orderId, 'vr-capture-' + intentId);
+      this._persist();
+      const captured = await this.payments.captureOrder(checkout.orderId, checkout.captureRequestId);
       return this._completeCheckout(intent, captured, 'capture_response');
     } catch (error) {
       if (intent.state === 'AWAITING_BUYER_APPROVAL') throw toError(error);
       intent.state = 'RECONCILIATION_REQUIRED';
       checkout.status = 'RECONCILIATION_REQUIRED';
       this._event(intent, 'payment.uncertain', { stage: 'verify_or_capture' });
+      this._persist();
       throw toError(error);
     }
   }
@@ -315,6 +418,7 @@ export class NegotiationGateway {
     this._event(intent, 'payment.completed', {
       orderId: checkout.orderId, captureId: checkout.captureId, amountMinor: checkout.amountMinor, source
     });
+    this._persist();
     return this.getIntent(intent.intentId);
   }
 
@@ -329,6 +433,7 @@ export class NegotiationGateway {
       'No known order ID; inspect the Sandbox dashboard before any further payment');
     intent.state = checkout.status = 'RECONCILIATION_IN_PROGRESS';
     this._event(intent, 'checkout.reconciliation_started', { orderId: checkout.orderId });
+    this._persist();
     try {
       const order = await this.payments.getOrder(checkout.orderId);
       this._verifyOrder(intent, order);
@@ -336,16 +441,23 @@ export class NegotiationGateway {
       if (order.status === 'COMPLETED' || captures.length > 0) {
         return this._completeCheckout(intent, order, 'reconciliation');
       }
-      const awaiting = ['CREATED', 'PAYER_ACTION_REQUIRED', 'APPROVED'].includes(order.status)
-        && !checkout.captureAttempted;
+      if (!checkout.captureAttempted && !checkout.approveUrl && Array.isArray(order.links)) {
+        const approval = order.links.find(link => ['approve', 'payer-action'].includes(link?.rel)
+          && sandboxApprovalLink(link.href));
+        if (approval) checkout.approveUrl = approval.href;
+      }
+      const awaiting = !checkout.captureAttempted && (order.status === 'APPROVED'
+        || (['CREATED', 'PAYER_ACTION_REQUIRED'].includes(order.status) && sandboxApprovalLink(checkout.approveUrl)));
       intent.state = checkout.status = awaiting ? 'AWAITING_BUYER_APPROVAL' : 'RECONCILIATION_REQUIRED';
       this._event(intent, 'checkout.reconciled', { result: awaiting ? 'AWAITING_BUYER_APPROVAL' : 'UNRESOLVED' });
+      this._persist();
       return this.getIntent(intentId);
     } catch (error) {
       intent.state = checkout.status = 'RECONCILIATION_REQUIRED';
       this._event(intent, 'checkout.reconciliation_failed', {
         reason: error instanceof PolicyError ? error.code : 'INTEGRATION_ERROR'
       });
+      this._persist();
       throw toError(error);
     }
   }

@@ -63,7 +63,7 @@ Never include `max_total_minor`, private notes, payment credentials, raw convers
 - All relevant pricing components must appear in the authorized amount. Dynamic tax, shipping, fees and variable services are out of scope for the first demo.
 - Merchant authentication and signed binding quotes are requirements for real commerce, not features of the synthetic adapter.
 - For strong isolation, seller-facing agent must not receive private fields and outbound channel format must not be arbitrary user-supplied text.
-- Process-local safety tests do not establish durability after a crash or protection against a malicious operator.
+- Synthetic SIGKILL/restart tests establish local journal recovery at the tested boundaries. They do not establish hosted, hardware-failure or malicious-operator protection.
 - An amount below ceiling is not proof of fair pricing. Competition disclosures, supplier coverage, and marketplace conflict audits belong to a separate assurance layer.
 
 ## Extension policy

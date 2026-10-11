@@ -22,7 +22,7 @@ S5: an untrusted response cannot take execution authority from the policy engine
 - External payment provider times out after a request succeeds.
 - Malicious operator who controls gateway code, model, logs and accounts is **outside** the scope of a process-local reference monitor. Independent authorization, audits and external evidence are needed to reduce operator risk.
 
-Assume a trustworthy Node process and code, sandbox PayPal account, correct host, and no public-network deployment. There is currently no user authentication and state is not persisted.
+Assume a trustworthy Node process and code, sandbox PayPal account, correct host, private local filesystem and no public-network deployment. There is no user authentication. The server's local journal persists synthetic buyer mandates, round replay records and payment references; it contains the private cap and must remain private.
 
 ## Required attack tests
 
@@ -44,6 +44,10 @@ Assume a trustworthy Node process and code, sandbox PayPal account, correct host
 | Order reference points at another intent | Reject before execution or recording completion |
 | Mandate expires during approval/read | No new capture; read-only receipt recovery allowed |
 | Live or untrusted approval link | Do not expose link; retain known order ID for reconciliation |
+| Process killed during capture/reconciliation | Restore the durable attempt lock; recover only through authoritative order GET |
+| Process killed during negotiation | Retain the consumed round and request key; do not rerun that request |
+| Checkpoint failure or conflicting writer | Fail closed before the next external call; HTTP reports storage unavailable |
+| Damaged latest journal record | Refuse startup; do not silently roll back to an older payment state |
 | LLM selects nonexistent offer | Ignore/advisory failure, never payment authority |
 | No credentials | Demo works for negotiation, checkout reports unconfigured |
 
@@ -58,7 +62,7 @@ Remote AI providers receive data sent to their API. The initial AI adapter only 
 - The selected simulated merchant is not a PayPal payee. Real payment is made only to the sandbox merchant configured in the app.
 - A payment capture can be accepted by PayPal but response delivery can fail. Reconciliation must call the authoritative PayPal API, not infer failure from an HTTP timeout.
 - The app now supports read-only reconciliation of a known order ID. It verifies the full locked amount and capture receipt and never retries an ambiguous capture. If the create response lost the order ID, manual dashboard inspection is required. OAuth/Orders HTTP requests are bounded to 10 seconds each.
-- Server restart loses the in-memory order/intent mapping. Therefore restart during a pending checkout is a **known severe demo limitation**. Do not use as a payment system.
+- The local journal restores the order/intent mapping after process death. It cannot recover an order ID that was never returned or checkpointed, nor protect against deletion/rollback of the journal, filesystem loss, a malicious local operator or an unverified hosted deployment. Preserve all records; do not reset the directory to retry an uncertain payment.
 - No authentic merchant quotes, dispute flows, refunds, chargebacks, tax calculation or comprehensive regulatory compliance in this prototype.
 - A hosted version requires authentication, CSRF defense, origin/host validation, rate limits, durable state, structured logs without secrets, and signed merchant/issuer attestations.
 

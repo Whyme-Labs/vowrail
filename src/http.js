@@ -42,8 +42,8 @@ export function createApp({ gateway, baseUrl = 'http://127.0.0.1:8787' } = {}) {
       const current = new URL(request.url, 'http://localhost');
       const path = current.pathname;
       if (request.method === 'GET' && path === '/api/health') {
-        return send(response, 200, {
-          ok: true, demoOnly: true, store: 'process-memory',
+        return send(response, gateway.storageHealthy ? 200 : 503, {
+          ok: gateway.storageHealthy, demoOnly: true, store: gateway.store?.kind ?? 'process-memory',
           aiConfigured: Boolean(gateway.ai?.isConfigured?.()),
           paypalConfigured: Boolean(gateway.payments?.isConfigured?.())
         });

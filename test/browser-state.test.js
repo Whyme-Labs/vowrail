@@ -16,7 +16,7 @@ class Element {
   }
 }
 
-async function consoleFixture() {
+async function consoleFixture({ approveUrl = 'https://www.sandbox.paypal.com/checkoutnow?token=ORDER123' } = {}) {
   const html = await readFile(new URL('../public/index.html', import.meta.url), 'utf8');
   const source = await readFile(new URL('../public/app.js', import.meta.url), 'utf8');
   const elements = new Map([...html.matchAll(/id="([^"]+)"/g)].map(m => [m[1], new Element()]));
@@ -24,7 +24,7 @@ async function consoleFixture() {
   let state = { intentId: id, mandate: { item: 'Synthetic cards', quantity: 100, maxTotalMinor: 22000, maxRounds: 2 },
     expiresAt: new Date(Date.now() + 600000).toISOString(), round: 1, state: 'AWAITING_BUYER_APPROVAL', offers: [], events: [],
     checkout: { status: 'AWAITING_BUYER_APPROVAL', orderId: 'ORDER123', amountMinor: 20000,
-      approveUrl: 'https://www.sandbox.paypal.com/checkoutnow?token=ORDER123' } };
+      approveUrl } };
   let disconnected = false;
   const calls = [];
   vm.runInNewContext(source, {
@@ -51,6 +51,13 @@ test('a refreshed pending checkout exposes explicit capture without requiring a 
   const f = await consoleFixture();
   assert.equal(f.button('Verify approval and capture in Sandbox').disabled, false);
   assert.equal(f.button('Check PayPal status (read only)').disabled, false);
+  assert.equal(f.calls.some(c => c.method === 'POST'), false);
+});
+
+test('a restored known order keeps explicit capture available even if no approval link was retained', async () => {
+  const f = await consoleFixture({ approveUrl: null });
+  assert.equal(f.button('Verify approval and capture in Sandbox')?.disabled, false);
+  assert.equal(f.button('Approve payment on PayPal Sandbox ↗'), undefined);
   assert.equal(f.calls.some(c => c.method === 'POST'), false);
 });
 

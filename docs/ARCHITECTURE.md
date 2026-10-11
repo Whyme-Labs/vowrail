@@ -9,7 +9,7 @@ Buyer browser (untrusted)
 Local HTTP API (no auth, demo only, 127.0.0.1)
   | validated domain operations
   v
-Vowrail policy engine <---- process-local intent store (temporary)
+Vowrail policy engine <---- in-memory Map + local checkpoint journal
   | records mandatory state transitions and events
   |---> public request projection ---> scripted synthetic merchant adapters
   |<--- normalized and validated offers
@@ -31,7 +31,7 @@ T2: Model boundary: only eligible normalized offers + public requirements go to 
 
 T3: Payment boundary: PayPal order is built from a stored validated offer and locked intent. The demo uses one PayPal Sandbox merchant account and payer approval. It does **not** settle to the three simulated merchants.
 
-T4: Persistence boundary: this initial implementation keeps all state in one Node process. JavaScript synchronous transitions are atomic against other handlers in that process, but **NOT durable or distributed**. A proper deployment needs a transactional datastore, leases, consistency rules, and order reconciliation.
+T4: Persistence boundary: the server checkpoints its existing Map representation into a local file journal before external operations and before returning successful transitions. Restart restores the mandate, rounds, replay results, offer lock, order/capture IDs and request IDs. Checkpoint or writer conflicts stop further operations. This is local recovery on a trusted filesystem, not a hosted or distributed datastore; see [LOCAL_JOURNAL.md](LOCAL_JOURNAL.md).
 
 T5: Network boundary: this is a **local developer demo**. There is no login/tenant isolation, distributed anti-replay, production CSRF defense, rate limiting, or hardened secure hosting. Do not expose this server publicly.
 
@@ -51,7 +51,7 @@ A round is reserved **before** calling any merchant. If merchant communication f
 
 Checkout reserves the transaction for one **selected normalized offer**. No new rounds or offer swaps once checkout starts. For uncertain PayPal errors, fail closed into reconciliation; never blindly initiate a second capture.
 
-Read-only reconciliation checks the stored order reference against the locked intent and amount. A matching completed capture can recover the receipt after a response was lost. `captureAttempted` is reserved before the capture call and never cleared: even an `APPROVED` order cannot unlock another capture after an ambiguous attempt. A failed order read before any capture can recover to buyer approval. Early approval checks preserve that approval state; execution requires an unexpired mandate both before and after the order read. These guarantees remain scoped to this Node process.
+Read-only reconciliation checks the stored order reference against the locked intent and amount. A matching completed capture can recover the receipt after a response was lost. `captureAttempted` is checkpointed before the capture call and never cleared: even an `APPROVED` order cannot unlock another capture after an ambiguous attempt or restart. A failed order read before any capture can recover to buyer approval. Early approval checks preserve that approval state; execution requires an unexpired mandate both before and after the order read. The server retains these records locally across process restarts; direct gateway tests without a store still use memory.
 
 ## Why one process first?
 

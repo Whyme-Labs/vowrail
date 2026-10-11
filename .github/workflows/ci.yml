@@ -18,6 +18,7 @@ jobs:
       - name: Syntax validation
         run: |
           node --check src/core.js
+          node --check src/store.js
           node --check src/http.js
           node --check src/server.js
           node --check src/adapters/paypal.js

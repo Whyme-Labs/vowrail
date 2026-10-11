@@ -108,6 +108,8 @@ function render() {
       const anchor = node('a', 'Approve payment on PayPal Sandbox ↗', 'paypal-link');
       anchor.href = box.approveUrl; anchor.rel = 'noreferrer';
       payment.append(anchor);
+    }
+    if (box.orderId && box.status === 'AWAITING_BUYER_APPROVAL') {
       const capture = node('button', 'Verify approval and capture in Sandbox', 'secondary');
       capture.disabled = busy || stateUnavailable || expired;
       capture.addEventListener('click', () => perform(async () => {
@@ -193,7 +195,7 @@ async function main() {
         if (params.get('cancelled') === '1') notice('PayPal approval was cancelled. No capture was requested.', true);
         else if (params.get('token')) notice('Returned from PayPal. Verify the order before completing capture.');
       } catch {
-        notice('Intent unavailable, possibly due to a server restart. Do not retry any pending payment before reconciling.', true);
+        notice('Intent unavailable. Preserve this intent reference and check the local gateway records before retrying any pending payment.', true);
       }
     }
   } catch (error) {

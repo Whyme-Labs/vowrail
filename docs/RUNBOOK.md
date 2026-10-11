@@ -51,7 +51,15 @@ The end-to-end cases use real loopback HTTP, the gateway and the actual Sandbox 
 
 Provider response checks follow the [PayPal Orders v2 checkout examples](https://developer.paypal.com/api/rest/integration/orders-api/api-use-cases/standard). Actual provider behavior still requires the separate Sandbox test above.
 
-**Important:** Synthetic merchants are *not* the receiving PayPal payees. Funds move only in the sandbox to the configured demo merchant. State is lost after a restart. Do not deploy this unauthenticated demo publicly or use real data.
+**Important:** Synthetic merchants are *not* the receiving PayPal payees. Funds move only in the sandbox to the configured demo merchant. Preserve `.vowrail/journal/` or your configured `VOWRAIL_STATE_DIR` across restarts. Interrupted checkout stays locked for read-only reconciliation; an unknown order ID still requires dashboard investigation. Do not deploy this unauthenticated demo publicly or use real data.
+
+## Synthetic restart regression
+
+```sh
+node --test --test-concurrency=1 test/durability.test.js test/server-restart.test.js
+```
+
+These tests kill synthetic workers at negotiation, order-create, known-order, pre-capture read, capture, reconciliation and completed-response boundaries. They restart from the same local journal, assert no duplicate capture, preserve round limits and exercise real loopback HTTP and the actual server entry point. See [LOCAL_JOURNAL.md](LOCAL_JOURNAL.md) for fault handling and remaining limitations.
 
 ## Competition final smoke gate
 
