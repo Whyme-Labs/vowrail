@@ -4,14 +4,16 @@ Base URL: `http://127.0.0.1:8787`. JSON only for POST. **No authentication; do n
 
 | Endpoint | Function |
 |---|---|
-| `GET /api/health` | Server status and whether AI/PayPal are configured, not secrets |
+| `GET /api/health` | Server status, `checkoutMode`, `checkoutConfigured`, and AI/PayPal configured flags; not secrets or successful-provider evidence |
 | `POST /api/intents` | Create mandate from `{item, quantity, requirements, currency:"USD", maxTotalMinor, maxRounds}` |
 | `GET /api/intents/:id` | Public-facing state, offers, decisions and event history; no private ceiling in seller requests |
 | `POST /api/intents/:id/rounds` | Reserve and execute exactly one coordinated round, subject to max rounds |
 | `POST /api/intents/:id/recommend` | Advisory AI recommendation if configured; otherwise deterministic fallback marked as such |
-| `POST /api/intents/:id/checkout` | `{offerId}`; creates PayPal Sandbox order only after checks |
+| `POST /api/intents/:id/checkout` | `{offerId}`; creates an order in the server-selected checkout mode only after checks |
 | `POST /api/intents/:id/capture` | `{orderId}`; verify intent, approval, amount and active mandate, then capture once on explicit buyer action; completed retries return the stored receipt |
 | `POST /api/intents/:id/reconcile` | `{}`; read the stored PayPal order ID and verify any completed capture; never sends another capture or accepts a caller-supplied order ID |
+| `GET /api/intents/:id/simulation-approval` | Simulation only: locked offer/order summary, excluding the private cap |
+| `POST /api/intents/:id/simulation-approval` | Simulation only: `{orderId}`; validate binding and active mandate, then mark local consent; does not capture |
 
 Errors: JSON object `{error:{code, message}}`, with 400 validation errors, 404 missing intents/offers, 409 state and policy conflicts, and 503 unconfigured provider or `STORAGE_UNAVAILABLE`. Exact endpoint response fields follow source implementation. Health returns `store: "local-file-journal"` for the server and HTTP 503 with `ok: false` after a checkpoint failure.
 
@@ -22,6 +24,10 @@ Environment:
 - `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`: PayPal **Sandbox** only.
 - `AI_API_KEY`, `AI_MODEL`, `AI_BASE_URL`: optional compatible chat-completions API.
 - No runtime secrets in client-side JS.
+
+`DEMO_MODE=1` explicitly selects the local simulator (`npm run demo`). It constructs neither PayPal nor model adapter, ignores inherited provider configuration and uses local approval links only. `SIMULATE_LOST_CAPTURE=1` is accepted only in this mode (`npm run demo:recovery`) and injects one persisted capture with a lost response per process. Default startup is unchanged: `paypal_sandbox`, never a live provider or an automatic simulator fallback. Simulation pages/endpoints return 404 in the default mode.
+
+Checkout responses persist `checkout.mode` as `simulation` or `paypal_sandbox`. Legacy records without the field are interpreted as PayPal Sandbox. Loading records from the other mode refuses startup. The shipped browser sends `X-Vowrail-Checkout-Mode` on every POST; a mismatch returns 409 `CHECKOUT_MODE_MISMATCH` before mutation. This header detects stale tabs, is not authentication, and cannot select a server mode. It remains optional for existing clients. `paypalConfigured` is always false in simulation; `checkoutConfigured` refers to the active adapter. Simulated receipts/events remain explicitly labeled.
 
 The server restores checkout references from its local journal. Never submit a transaction twice after an ambiguous failure; use the existing intent's read-only reconciliation. Do not delete or substitute the journal to reset a payment lock.
 

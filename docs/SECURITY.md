@@ -49,7 +49,10 @@ Assume a trustworthy Node process and code, sandbox PayPal account, correct host
 | Checkpoint failure or conflicting writer | Fail closed before the next external call; HTTP reports storage unavailable |
 | Damaged latest journal record | Refuse startup; do not silently roll back to an older payment state |
 | LLM selects nonexistent offer | Ignore/advisory failure, never payment authority |
-| No credentials | Demo works for negotiation, checkout reports unconfigured |
+| No credentials | Explicit simulator completes local rehearsal; default real adapter reports checkout unconfigured |
+| Stale simulation tab posts to default adapter | Expected-mode mismatch rejects before mutation; header cannot select a mode |
+| Simulated receipt loaded by PayPal runtime | Startup rejects incompatible checkout mode |
+| Simulation approval for a different/expired order | Reject; approval cannot capture or alter the locked amount |
 
 ## Privacy caveat
 

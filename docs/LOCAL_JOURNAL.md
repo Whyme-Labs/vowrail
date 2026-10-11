@@ -4,6 +4,8 @@
 
 Each state transition checkpoints the mandate, offers, consumed rounds, round request keys/results, checkout amount, stable create/capture request IDs, known order ID, capture-attempt flag, confirmed capture ID and policy events. The journal stores synthetic buyer data including the private cap. It excludes credentials, access tokens, raw model messages and raw payer/provider payloads. Do not upload it to GitHub, Devpost or public logs.
 
+`npm run demo` instead uses `.vowrail/simulation/gateway/` for intents and `.vowrail/simulation/provider/` for simulated orders. A custom `VOWRAIL_STATE_DIR` is the simulation root with both subdirectories. The same atomic file mechanism writes distinct `intents` and `orders` collections; mixing them refuses load. The simulator persists local approval and receipt before returning them, allowing a lost response to be recovered after restart. It stores only synthetic local order data, not a PayPal response. Checkout mode must match the current adapter on restore; legacy mode-less intent records remain Sandbox records. Do not point a real-adapter process at simulation records.
+
 ## Commit behavior
 
 The store writes a versioned JSON checkpoint into a uniquely named staging file with mode `0600`, flushes it, then creates a hard link at the next numbered revision. Existing revisions cannot be replaced by this operation. It flushes the containing directory before allowing execution to continue. The newly created directory has mode `0700`. This uses Node's [standard filesystem API](https://nodejs.org/docs/latest-v22.x/api/fs.html), with no runtime dependency or database service.

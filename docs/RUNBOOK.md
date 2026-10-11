@@ -9,9 +9,10 @@
 ## No-credential demo
 
 ```sh
-npm test
+npm test -- --test-concurrency=1
 npm run smoke
-npm start
+npm run rehearse
+npm run demo
 ```
 
 Open http://127.0.0.1:8787.
@@ -24,11 +25,17 @@ For recording, use the [honest current demo script and submission checklist](DEM
 4. Attempt another round. The button is disabled. For a protocol-level proof run `npm test`, which sends a third-round request and asserts HTTP 409 `ROUND_LIMIT`.
 5. Ask for advice. Without AI config it says **deterministic fallback**, not AI.
 6. Click **Review offer**. Compare the stored total, delivery, quote expiry and remaining private budget. Quotes above budget state the exact excess and stay disabled. Reviewing or backing out does not create an order.
-7. Without PayPal credentials, review still works and **Create PayPal Sandbox order** explains that setup is required. With credentials, that separate button locks the quote and creates an order; approval and capture remain separate explicit actions. Quote/mandate expiry updates the controls without sending a request.
+7. Press **Create simulated order** to lock the quote. Open the separate **simulated buyer approval** page, check its locked amount and approve. Returning without approval leaves the same order pending; opening the page again resumes it. Approval alone cannot capture.
+8. Return to the app and explicitly press **Verify simulated approval and capture**. Check the completed **Simulated receipt**, mode disclosure and policy event. Reload preserves completion without requesting capture.
+9. **Start a new purchase** returns to a fresh mandate form; previous records remain in the journal. Expiry disables execution without a network request.
+
+For recovery, stop the normal demo, then run `npm run demo:recovery` and create a new mandate. Its first simulated capture persists a receipt and intentionally loses the response. The app shows `RECONCILIATION_REQUIRED` and removes capture. Press **Check simulated receipt (read only)**; completion must appear without another capture. Restarting the same mode with both journals preserved also permits read-only recovery. Do not delete records to retry.
+
+For the unconfigured real-adapter view, stop the demo and use `npm start` with credentials unset. **Create PayPal Sandbox order** is disabled with a setup explanation; negotiation/review still work. It does not silently switch to simulation.
 
 ## Minimum local demo configuration
 
-No credentials are needed for the scripted negotiation, deterministic advice or offer review. Node 22+, one server bound to loopback and a private persistent journal directory are sufficient. Defaults are `HOST=127.0.0.1`, `PORT=8787` and `VOWRAIL_STATE_DIR=.vowrail/journal`. Preserve the journal across restarts; do not run two writers against it or delete payment records to retry.
+No credentials are needed for the complete simulator. Node 22+, one server bound to loopback and private persistent journals are sufficient. Defaults are `HOST=127.0.0.1`, `PORT=8787`. `npm start` uses `.vowrail/journal`; `npm run demo` uses `.vowrail/simulation/{gateway,provider}`. In simulation a custom `VOWRAIL_STATE_DIR` is a root containing those two subdirectories. Choose a separate root for each mode. Preserve the journals across restarts; do not run two writers against them or delete payment records to retry. Simulation ignores inherited provider settings, including `AI_MERCHANTS` and `PUBLIC_BASE_URL`.
 
 For a separately authorized real-provider check, supply existing Sandbox app credentials as `PAYPAL_CLIENT_ID` and `PAYPAL_CLIENT_SECRET`; set `PUBLIC_BASE_URL` to the intended buyer return URL. Optional model advice needs `AI_API_KEY` and `AI_MODEL`; `AI_BASE_URL` defaults to the OpenAI chat-completion endpoint and can point at a compatible provider. Keep `AI_MERCHANTS=0` for scripted merchants. Configured flags only mean nonempty settings, not that credentials or providers have been verified.
 
@@ -76,8 +83,8 @@ These tests kill synthetic workers at negotiation, order-create, known-order, pr
 
 ## Competition final smoke gate
 
-- Clean clone: `npm test && npm run smoke && npm start`
-- App works with no AI/PayPal secrets and correctly discloses limited functionality.
+- Clean source: `npm test -- --test-concurrency=1`, `npm run smoke`, `npm run rehearse`, then `npm run demo`.
+- Entire local simulated checkout works without AI/PayPal secrets, with persistent mode disclosures. `npm start` separately exercises unconfigured real-adapter behavior.
 - With credentials, an actual AI request and a real PayPal Sandbox purchase are independently observed.
 - Video under three minutes on public YouTube.
 - Repo open source/public before submission, secrets/IP checked, license visible.

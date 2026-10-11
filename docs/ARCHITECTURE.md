@@ -19,6 +19,8 @@ Vowrail policy engine <---- in-memory Map + local checkpoint journal
 Checkout adapter ---> PayPal Sandbox OAuth -> Orders v2 -> buyer approval -> capture
 ```
 
+Explicit `npm run demo` substitutes a local `SimulatedPayments` adapter and disables remote AI configuration. It provides a separate local consent page and persisted synthetic receipt so the full journey can be rehearsed without secrets. Default startup still selects only the real Sandbox adapter. Runtime mode is recorded on checkout, approval links are restricted by that mode, cross-mode journals fail startup, and the browser binds mutations to its observed mode. These controls prevent misleading simulator evidence or stale-tab actions; they do not authenticate a buyer. Both gateway and simulator journals are separate and must be preserved for recovery.
+
 The browser **cannot** supply authoritative offer prices or payment amounts. Only server-owned accepted offers are eligible. Buyer selection does not override the mandate. A model's recommendation cannot modify state or grant authorization.
 
 ## Trust boundaries

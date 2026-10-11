@@ -10,6 +10,9 @@
   },
   "scripts": {
     "start": "node src/server.js",
+    "demo": "node scripts/demo.js",
+    "demo:recovery": "node scripts/demo.js --recovery",
+    "rehearse": "node scripts/rehearse.js",
     "test": "node --test",
     "test:coverage": "node --test --experimental-test-coverage",
     "smoke": "node scripts/smoke.js"

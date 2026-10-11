@@ -24,14 +24,19 @@ A round is a *single coordinated opportunity* for participating merchants to sub
 Requires Node.js **22+**. The reference implementation has no runtime npm dependencies.
 
 ```sh
-npm test
-npm start
+npm test -- --test-concurrency=1
+npm run rehearse
+npm run demo
 # Open http://127.0.0.1:8787
 ```
 
-Create an intent, run up to two coordinated rounds with **simulated** sellers, review a qualifying quote and inspect enforcement events. Offer review works without credentials and shows the stored total, delivery, expiry and remaining budget. Creating a PayPal Sandbox order is a separate explicit action requiring configuration; buyer approval and capture remain distinct steps. A model-assisted buyer recommendation is optional and must be configured explicitly; deterministic fallback is clearly identified as non-AI. With `AI_MERCHANTS=1` and model credentials, one synthetic merchant also uses a real model call for each round, with fixed seller-side bid bounds.
+`npm run demo` completes the entire **local simulation** without credentials: mandate, two merchant rounds, labeled deterministic advice, offer review, separate simulated buyer approval, explicit capture and simulated receipt. Persistent labels distinguish it from PayPal. This mode ignores inherited PayPal/model settings and constructs neither remote adapter; no money moves or external provider request is made. `npm run rehearse` checks the normal and lost-response/restart journeys over bounded real loopback HTTP, emits honest JSON evidence and cleans its temporary synthetic records. `npm run demo:recovery` injects one lost capture response per server process for the browser rehearsal; use read-only receipt recovery afterward.
+
+`npm start` selects the actual **PayPal Sandbox** adapter. Without credentials, negotiation and review work, and order creation explains the missing configuration. Review shows the stored total, delivery, expiry and remaining budget. Creating a Sandbox order is a separate explicit action; buyer approval and capture remain distinct steps. A model-assisted buyer recommendation is optional and must be configured explicitly; deterministic fallback is identified as non-AI. With `AI_MERCHANTS=1` and model credentials, one synthetic merchant also uses a real model call for each round, with fixed seller-side bid bounds.
 
 `npm start` preserves synthetic mandates, offers, round replay records and payment references in the ignored `.vowrail/journal/` directory. Keep that directory across restarts; set `VOWRAIL_STATE_DIR` to choose another private local directory. Interrupted checkout resumes through read-only reconciliation, with attempted captures still locked. See [local journal recovery](docs/LOCAL_JOURNAL.md). No credentials or raw payer payloads are stored there.
+
+Simulation uses separate `.vowrail/simulation/gateway/` and `provider/` journals. A simulation receipt cannot be loaded as a PayPal checkout. Preserve both journals to rehearse recovery. **Start a new purchase** creates a new explicit mandate without deleting old records. The simulator demonstrates controls; it does not satisfy the real AI or Sandbox integration gates.
 
 To exercise **real PayPal Sandbox** APIs, copy `.env.example` into your own environment and set the credentials in the shell before starting the server. `node --env-file=.env` is supported on Node 22+. The demo merchant is one configured PayPal Sandbox account; simulated sellers are **not** onboarded PayPal merchants.
 
@@ -45,6 +50,8 @@ Never commit client secrets. There are **no live PayPal endpoints** in the proto
 
 - [Current implementation status and blockers](docs/STATUS.md)
 - [Current honest demo script and submission checklist](docs/DEMO.md)
+- [Reusable demo assets and evidence provenance](docs/demo-assets/README.md)
+- [Factual English project-description draft](docs/SUBMISSION_COPY.md)
 - [Buyer-flow accessibility evidence and remaining checks](docs/ACCESSIBILITY.md)
 - [Product requirements](docs/PRODUCT.md)
 - [Architecture and trust boundaries](docs/ARCHITECTURE.md)

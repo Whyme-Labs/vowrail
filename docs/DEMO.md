@@ -1,22 +1,27 @@
 # Current prototype demo and submission checklist
 
-This is a rehearsal script for the executable local prototype, checked on 11 October 2026. It is not a completed competition entry. Merchants are simulated; the model is unconfigured and uses labeled deterministic advice. The actual PayPal adapter has synthetic integration coverage but no observed real Sandbox create/approve/capture yet.
+This is a rehearsal script for the executable local prototype, checked on 11 October 2026. It is not a completed competition entry. Merchants and checkout are explicitly simulated; advice is labeled deterministic fallback. The actual PayPal adapter has synthetic integration coverage but no observed real Sandbox create/approve/capture yet.
 
 ## Honest 2:30 rehearsal
 
-Start a fresh intent on the loopback app with provider credentials unset. Use only synthetic data. Record the app content, not unrelated browser tabs, account dashboards, environment files or terminal history.
+Run `npm run rehearse`, then `npm run demo` and open http://127.0.0.1:8787. No installation, credentials, external service or model billing is required. Start a fresh intent with synthetic data. Record only app content, excluding unrelated browser tabs, account dashboards, environment files and terminal history. The simulator ignores inherited provider configuration.
 
 | Time | Action and narration |
 |---|---|
-| 0:00–0:20 | Show the app. “An agent can suggest a purchase, but a suggestion cannot expand my permission. Vowrail puts the spending and round limits in a deterministic gateway.” |
-| 0:20–0:45 | Create the default 100-unit print request with a $220 private cap and two rounds. “The seller request contains public requirements. The private cap stays with the gateway.” |
-| 0:45–1:10 | Run round 1. Show Birch at $216, Cobalt at $228 and Atlas at $235. “These are three simulated sellers. Quotes above my cap cannot proceed; the app shows the excess.” |
-| 1:10–1:35 | Run round 2, show the disabled third-round control and event history. “The gateway consumes and enforces the authorized rounds. An HTTP regression test also verifies that a third request is rejected.” |
-| 1:35–1:55 | Ask for advice. “This run uses the explicitly labeled deterministic fallback. A configured model can advise, but cannot select or pay.” |
-| 1:55–2:15 | Review Atlas's $207/two-day quote; compare Cobalt's $201/four-day quote. Show total, delivery, expiry, budget margin and missing refund/tax terms. Back out. “Review is separate from order creation.” |
-| 2:15–2:30 | Show disabled Sandbox order creation and the test result. “No real Sandbox payment or model call is demonstrated here. The adapter and recovery tests use synthetic transport. Existing provider setup and an observed Sandbox receipt are the next gates.” |
+| 0:00–0:15 | Show the persistent simulation banner. “Vowrail keeps purchase permission in a deterministic gateway. This recording uses local simulation: no PayPal or model calls, and no money moves.” |
+| 0:15–0:35 | Create the default 100-unit print request, $220 private cap, two rounds. “Sellers see the public request; the cap stays with the gateway.” |
+| 0:35–0:55 | Run round 1. Show Birch $216, Cobalt $228, Atlas $235. “Three simulated sellers. Above-cap quotes cannot proceed.” |
+| 0:55–1:15 | Run round 2 and show the disabled third-round control and event trail. “An HTTP test also rejects a third request. Retained earlier quotes remain available until expiry.” |
+| 1:15–1:30 | Ask for advice. “This is deterministic fallback. A configured model can advise; it cannot choose or pay.” |
+| 1:30–1:55 | Review Atlas $207/two-day delivery versus Cobalt $201/four-day. Show total, expiry, margin and missing tax/refund terms. Create the simulated order. “I choose the offer; the gateway locks its stored amount.” |
+| 1:55–2:15 | Open separate simulated approval, review $207 and approve. Return, then explicitly request simulated capture. “Consent and capture are separate. Neither navigation nor refresh sends capture.” |
+| 2:15–2:30 | Show **Simulated receipt**, completion event and mode label. “This proves the local control journey. Real model and PayPal Sandbox evidence remain pending. It is not a completed competition entry.” |
 
 Prices above are the default scripted fixture, not market prices. If the configuration, fixture or observed result changes, update the narration. Use the actual test count shown by the recorded command; do not relabel synthetic receipts as PayPal evidence.
+
+Optional recovery segment: use `npm run demo:recovery` with a new mandate. After explicit capture, the simulated response is lost; capture disappears. Use **Check simulated receipt (read only)** to recover completion. Narrate “The receipt already exists. Recovery reads it without another capture.” Cancellation can also be rehearsed by **Return without approving**, then resuming the same order. These replace footage within the time limit; a longer internal rehearsal is not a submitted video.
+
+[Reusable assets](demo-assets/README.md) contain an actual Safari page export, bounded HTTP rehearsal JSON and an original architecture diagram. [Submission copy](SUBMISSION_COPY.md) is a factual English draft. No public video or final submission has been created.
 
 For the eventual competition video, replace the final segment only after independently observing the configured model and real Sandbox order, buyer approval and API-verified capture. Record actual working footage and state the provider/model used. Keep simulated sellers distinct from the single receiving Sandbox merchant. No fabricated completion screen or model response qualifies that gate.
 
@@ -26,7 +31,7 @@ The [official rules](https://paypalaihackathon.devpost.com/rules), checked 11 Oc
 
 | Deliverable | Actual status / next action |
 |---|---|
-| Reproducible local app | Node 22+, no dependencies, synthetic core journey works. Run tests and smoke from an independent clean checkout before recording. |
+| Reproducible local app | Node 22+, no dependencies, complete explicitly simulated approval/capture/receipt and recovery journey. Run tests, smoke and bounded `rehearse` from clean source before recording. |
 | Accessibility and mobile | Responsive Safari and keyboard checks documented in [ACCESSIBILITY.md](ACCESSIBILITY.md). Auditory screen-reader and physical-device checks remain open. |
 | Meaningful AI | Adapter and adversarial tests exist; actual provider/model evidence remains open in #4. |
 | PayPal Sandbox | Actual Sandbox create/approve/capture and sanitized receipt remain open in #5. No live payments. |

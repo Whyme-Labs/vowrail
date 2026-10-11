@@ -20,7 +20,8 @@ class Element {
 }
 
 async function consoleFixture({ approveUrl = 'https://www.sandbox.paypal.com/checkoutnow?token=ORDER123', open = false,
-  paypalConfigured = true, fresh = false } = {}) {
+  paypalConfigured = true, fresh = false, simulation = false, restoredState, returnParams = '' } = {}) {
+  if (simulation) approveUrl = '/simulation/approval?intent=12345678-1234-1234-1234-123456789abc&order=ORDER123';
   const html = await readFile(new URL('../public/index.html', import.meta.url), 'utf8');
   const source = await readFile(new URL('../public/app.js', import.meta.url), 'utf8');
   const document = { activeElement: null };
@@ -33,7 +34,7 @@ async function consoleFixture({ approveUrl = 'https://www.sandbox.paypal.com/che
   const id = '12345678-1234-1234-1234-123456789abc';
   let state = { intentId: id, mandate: { item: 'Synthetic cards', quantity: 100, maxTotalMinor: 22000, maxRounds: 2 },
     expiresAt: new Date(Date.now() + 600000).toISOString(), round: 1, state: 'AWAITING_BUYER_APPROVAL', offers: [], events: [],
-    checkout: { status: 'AWAITING_BUYER_APPROVAL', orderId: 'ORDER123', amountMinor: 20000,
+    checkout: { mode: simulation ? 'simulation' : 'paypal_sandbox', status: 'AWAITING_BUYER_APPROVAL', orderId: 'ORDER123', amountMinor: 20000,
       approveUrl } };
   let now = Date.now();
   let onExpiry;
@@ -46,17 +47,21 @@ async function consoleFixture({ approveUrl = 'https://www.sandbox.paypal.com/che
         deliveryDays: 2, description: 'Synthetic quote.', validUntil: new Date(now + 60000).toISOString() }
     ];
   }
+  if (restoredState) {
+    state.state = state.checkout.status = restoredState;
+    if (restoredState === 'COMPLETED') state.checkout.captureId = 'SIMCAPTURE_123';
+  }
   let disconnected = false;
   let failNextRecommendation = false;
   const calls = [];
   vm.runInNewContext(source, {
     document,
-    window: { location: { search: fresh ? '' : '?intent=' + id } },
+    window: { location: { search: fresh ? '' : '?intent=' + id + returnParams } },
     history: { replaceState() {} }, URLSearchParams, Intl, Date: class extends Date { static now() { return now; } },
     setTimeout: callback => { onExpiry = callback; return 1; }, clearTimeout: () => { onExpiry = null; },
     crypto: { randomUUID: () => 'synthetic-key' },
     fetch: async (path, config) => {
-      calls.push({ path, method: config.method, body: config.body });
+      calls.push({ path, method: config.method, body: config.body, headers: config.headers });
       if (disconnected) throw Error('Synthetic connection unavailable');
       if (path.endsWith('/recommend') && failNextRecommendation) {
         failNextRecommendation = false;
@@ -68,11 +73,12 @@ async function consoleFixture({ approveUrl = 'https://www.sandbox.paypal.com/che
       }
       if (path.endsWith('/checkout')) {
         state.state = 'AWAITING_BUYER_APPROVAL';
-        state.checkout = { status: state.state, orderId: 'ORDER123', amountMinor: 21600, approveUrl };
+        state.checkout = { mode: simulation ? 'simulation' : 'paypal_sandbox', status: state.state, orderId: 'ORDER123', amountMinor: 21600, approveUrl };
       }
       if (path.endsWith('/rounds')) state.round = state.mandate.maxRounds;
       if (path.endsWith('/recommend')) return { ok: true, json: async () => ({ offerId: 'eligible', mode: 'deterministic', reason: 'Eligible quote.' }) };
-      return { ok: true, json: async () => path.endsWith('/health') ? { paypalConfigured, aiConfigured: false }
+      return { ok: true, json: async () => path.endsWith('/health') ? { paypalConfigured: simulation ? false : paypalConfigured, aiConfigured: false,
+        checkoutMode: simulation ? 'simulation' : 'paypal_sandbox', checkoutConfigured: simulation || paypalConfigured }
         : structuredClone(state) };
     }
   });
@@ -89,6 +95,45 @@ test('a refreshed pending checkout exposes explicit capture without requiring a 
   assert.equal(f.button('Verify approval and capture in Sandbox').disabled, false);
   assert.equal(f.button('Check PayPal status (read only)').disabled, false);
   assert.equal(f.calls.some(c => c.method === 'POST'), false);
+});
+
+test('simulation review and checkout stay explicitly labeled and bind requests to their runtime mode', async () => {
+  const f = await consoleFixture({ open: true, simulation: true });
+  assert.equal(f.elements.get('simulation-banner').hidden, false);
+  assert.match(f.elements.get('integration').children[0].textContent, /no PayPal connection/);
+  await f.picks()[0].click();
+  assert.equal(f.elements.get('create-order').textContent, 'Create simulated order');
+  assert.match(f.elements.get('review-message').textContent, /No money moves/);
+  await f.elements.get('create-order').click();
+  assert.equal(f.calls.find(c => c.path.endsWith('/checkout')).headers['X-Vowrail-Checkout-Mode'], 'simulation');
+  assert.ok(f.button('Open simulated buyer approval →'));
+  assert.ok(f.button('Verify simulated approval and capture'));
+  assert.match(f.elements.get('payment').children.map(e => e.textContent).join(' '), /Not a PayPal transaction/);
+  assert.equal(f.calls.some(c => c.path.endsWith('/capture')), false);
+});
+
+test('a refreshed simulated receipt remains labeled and cannot automatically recapture', async () => {
+  const f = await consoleFixture({ simulation: true });
+  const completed = structuredClone(f.state);
+  completed.state = completed.checkout.status = 'COMPLETED';
+  completed.checkout.captureId = 'SIMCAPTURE_123';
+  f.recover(completed);
+  await f.elements.get('refresh-status').click();
+  assert.match(f.elements.get('payment').children.map(e => e.textContent).join(' '), /Simulated receipt: SIMCAPTURE_123/);
+  assert.equal(f.button('Verify simulated approval and capture'), undefined);
+  assert.equal(f.calls.some(c => c.path.endsWith('/capture')), false);
+});
+
+test('stale approval return parameters cannot override a restored completion or recovery notice', async () => {
+  for (const restoredState of ['COMPLETED', 'RECONCILIATION_REQUIRED']) {
+    for (const returnParams of ['&simulatedApproval=1', '&cancelled=1', '&token=synthetic']) {
+      const f = await consoleFixture({ simulation: true, restoredState, returnParams });
+      assert.doesNotMatch(f.elements.get('notice').textContent, /requires an explicit request|approval was cancelled|Verify the order before/);
+      assert.match(f.elements.get('notice').textContent, restoredState === 'COMPLETED' ? /completed simulated receipt/ : /read.only reconciliation/);
+      assert.equal(f.calls.some(c => c.method === 'POST'), false);
+      assert.equal(f.button('Verify simulated approval and capture'), undefined);
+    }
+  }
 });
 
 test('creating a mandate moves keyboard focus into the now-visible negotiation console', async () => {

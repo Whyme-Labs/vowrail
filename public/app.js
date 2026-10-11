@@ -6,6 +6,8 @@ let busy = false;
 let stateUnavailable = false;
 let selectedOfferId = null;
 let expiryTimer;
+const isSimulation = () => health?.checkoutMode === 'simulation';
+const checkoutConfigured = () => Boolean(health?.checkoutConfigured ?? health?.paypalConfigured);
 const params = new URLSearchParams(window.location.search);
 
 function notice(message, isError = false) {
@@ -16,7 +18,8 @@ function notice(message, isError = false) {
 async function request(path, method = 'GET', body = undefined, extra = {}) {
   const response = await fetch(path, {
     method,
-    headers: method === 'POST' ? { 'Content-Type': 'application/json', ...extra } : {},
+    headers: method === 'POST' ? { 'Content-Type': 'application/json', ...extra,
+      ...(health?.checkoutMode ? { 'X-Vowrail-Checkout-Mode': health.checkoutMode } : {}) } : {},
     ...(method === 'POST' ? { body: JSON.stringify(body ?? {}) } : {})
   });
   const data = await response.json();
@@ -80,6 +83,7 @@ function render() {
   $('console').hidden = !intent;
   $('mandate-form').hidden = Boolean(intent);
   $('mandate-summary').hidden = !intent;
+  $('new-purchase').hidden = !intent;
   if (!intent) return;
   const mandate = intent.mandate;
   const expired = Date.parse(intent.expiresAt) <= Date.now();
@@ -133,51 +137,60 @@ function render() {
       node('p', selected.description),
       node('p', 'Delivery: ' + selected.deliveryDays + ' days · Quote from round ' + selected.round),
       node('p', 'Quote expires at ' + new Date(selected.validUntil).toLocaleTimeString()),
-      node('p', 'Simulated offer. Refund and tax rules are not supplied. Sandbox checkout uses one configured demo merchant account.', 'hint'));
+      node('p', 'Simulated offer. Refund and tax rules are not supplied. '
+        + (isSimulation() ? 'This rehearsal does not use PayPal.' : 'Sandbox checkout uses one configured demo merchant account.'), 'hint'));
     const reason = offerBlockReason(selected);
     $('review-message').textContent = reason || (stateUnavailable ? 'Gateway status unavailable. Refresh status before creating an order.'
-      : !health?.paypalConfigured ? 'PayPal Sandbox is not configured. You can review offers; order creation requires local Sandbox setup.'
-        : 'Creating an order locks this quote. Buyer approval and an explicit capture request are separate steps.');
-    $('create-order').disabled = busy || stateUnavailable || Boolean(reason) || !health?.paypalConfigured;
+      : !checkoutConfigured() ? 'PayPal Sandbox is not configured. You can review offers; order creation requires local Sandbox setup.'
+        : isSimulation() ? 'Creating a simulated order locks this quote. Simulated buyer approval and capture are separate steps. No money moves.'
+          : 'Creating an order locks this quote. Buyer approval and an explicit capture request are separate steps.');
+    $('create-order').textContent = isSimulation() ? 'Create simulated order' : 'Create PayPal Sandbox order';
+    $('create-order').disabled = busy || stateUnavailable || Boolean(reason) || !checkoutConfigured();
     $('clear-review').disabled = busy;
   }
   const payment = $('payment');
   payment.replaceChildren();
   if (intent.checkout) {
     const box = intent.checkout;
-    payment.append(node('strong', 'PayPal Sandbox checkout: ' + box.status));
+    const simulated = box.mode === 'simulation';
+    payment.setAttribute('aria-label', simulated ? 'Local simulated checkout' : 'Sandbox checkout');
+    payment.append(node('strong', (simulated ? 'Local simulated checkout: ' : 'PayPal Sandbox checkout: ') + box.status));
+    if (simulated) payment.append(node('p', 'Not a PayPal transaction. No money moved.', 'hint'));
     payment.append(node('div', 'Selected total: ' + format(box.amountMinor)));
     if (box.orderId) payment.append(node('p', 'Order: ' + box.orderId, 'hint'));
-    if (box.captureId) payment.append(node('p', 'Verified capture: ' + box.captureId, 'hint'));
+    if (box.captureId) payment.append(node('p', (simulated ? 'Simulated receipt: ' : 'Verified capture: ') + box.captureId, 'hint'));
     if (box.approveUrl && box.status === 'AWAITING_BUYER_APPROVAL') {
-      const anchor = node('a', 'Approve payment on PayPal Sandbox ↗', 'paypal-link');
+      const anchor = node('a', simulated ? 'Open simulated buyer approval →' : 'Approve payment on PayPal Sandbox ↗', 'paypal-link');
       anchor.href = box.approveUrl; anchor.rel = 'noreferrer';
       payment.append(anchor);
     }
     if (box.orderId && box.status === 'AWAITING_BUYER_APPROVAL') {
-      const capture = node('button', 'Verify approval and capture in Sandbox', 'secondary');
+      const capture = node('button', simulated ? 'Verify simulated approval and capture' : 'Verify approval and capture in Sandbox', 'secondary');
       capture.disabled = busy || stateUnavailable || expired;
       capture.addEventListener('click', () => perform(async () => {
         intent = await request('/api/intents/' + intent.intentId + '/capture', 'POST', { orderId: box.orderId });
-        notice('Verified PayPal Sandbox capture completed.');
+        notice(simulated ? 'Simulated capture completed. No PayPal request or money movement.' : 'Verified PayPal Sandbox capture completed.');
       }, 'payment'));
       payment.append(capture);
     }
     if (box.orderId && ['AWAITING_BUYER_APPROVAL', 'RECONCILIATION_REQUIRED'].includes(box.status)) {
-      const reconcile = node('button', 'Check PayPal status (read only)', 'secondary');
+      const reconcile = node('button', simulated ? 'Check simulated receipt (read only)' : 'Check PayPal status (read only)', 'secondary');
       reconcile.disabled = busy;
       reconcile.addEventListener('click', () => perform(async () => {
         intent = await request('/api/intents/' + intent.intentId + '/reconcile', 'POST');
-        notice(intent.state === 'COMPLETED' ? 'Existing PayPal Sandbox capture verified. No new payment was requested.'
+        notice(simulated ? (intent.state === 'COMPLETED' ? 'Existing simulated receipt recovered. No new capture was requested.'
+          : 'Local simulated order checked. Approval and capture remain separate explicit actions.')
+          : intent.state === 'COMPLETED' ? 'Existing PayPal Sandbox capture verified. No new payment was requested.'
           : intent.state === 'AWAITING_BUYER_APPROVAL' ? 'Order verified. Approve in Sandbox, then explicitly request capture.'
             : 'Outcome still uncertain. Capture remains blocked; inspect the Sandbox dashboard.', intent.state === 'RECONCILIATION_REQUIRED');
       }, 'payment'));
       payment.append(reconcile);
     }
     if (box.status === 'RECONCILIATION_REQUIRED') {
-      payment.append(node('p', 'External payment result is uncertain. Check status without sending another capture. If unresolved, inspect the Sandbox merchant dashboard.', 'tag warning'));
+      payment.append(node('p', simulated ? 'Simulated response is uncertain. Check the local receipt without another capture.'
+        : 'External payment result is uncertain. Check status without sending another capture. If unresolved, inspect the Sandbox merchant dashboard.', 'tag warning'));
     }
-  } else if (!health?.paypalConfigured) {
+  } else if (!checkoutConfigured()) {
     payment.append(node('p', 'Configure PayPal Sandbox credentials in your local environment to enable checkout. No real money is used.', 'hint'));
   }
   const events = $('events');
@@ -185,7 +198,7 @@ function render() {
   for (const event of [...intent.events].reverse()) {
     const entry = node('li');
     const label = node('span');
-    label.append(node('strong', event.type), node('span', ' · ' + [event.round != null ? 'round ' + event.round : null,
+    label.append(node('strong', event.type + (event.mode === 'simulation' ? ' (simulated)' : '')), node('span', ' · ' + [event.round != null ? 'round ' + event.round : null,
       event.reason, event.amountMinor != null ? format(event.amountMinor) : null].filter(Boolean).join(' / ')));
     entry.append(label, node('time', event.at.slice(11, 19) + ' UTC'));
     events.append(entry);
@@ -205,10 +218,11 @@ $('clear-review').addEventListener('click', () => {
 $('create-order').addEventListener('click', () => perform(async () => {
   const selected = intent.offers.find(o => o.offerId === selectedOfferId);
   const reason = selected && offerBlockReason(selected);
-  if (!selected || reason || !health?.paypalConfigured || stateUnavailable) throw new Error(reason || 'Offer is unavailable for checkout.');
+  if (!selected || reason || !checkoutConfigured() || stateUnavailable) throw new Error(reason || 'Offer is unavailable for checkout.');
   intent = await request('/api/intents/' + intent.intentId + '/checkout', 'POST', { offerId: selected.offerId });
   selectedOfferId = null;
-  notice('PayPal Sandbox order created for the reviewed quote. Approve it with a sandbox buyer account, then explicitly request capture.');
+  notice(isSimulation() ? 'Local simulated order created. Open simulated buyer approval, then explicitly request simulated capture. No PayPal calls.'
+    : 'PayPal Sandbox order created for the reviewed quote. Approve it with a sandbox buyer account, then explicitly request capture.');
 }, 'payment'));
 $('mandate-form').addEventListener('submit', event => {
   event.preventDefault();
@@ -248,16 +262,24 @@ async function main() {
   try {
     health = await request('/api/health');
     const status = $('integration');
-    const paypal = node('span', health.paypalConfigured ? '● PayPal Sandbox configured' : '○ PayPal Sandbox not configured',
-      health.paypalConfigured ? 'yes' : 'no');
+    const paypal = node('span', isSimulation() ? '● Local checkout simulation · no PayPal connection'
+      : health.paypalConfigured ? '● PayPal Sandbox configured' : '○ PayPal Sandbox not configured',
+      isSimulation() || health.paypalConfigured ? 'yes' : 'no');
     const ai = node('span', health.aiConfigured ? '● Buyer model configured' : '○ Buyer model not configured; deterministic fallback',
       health.aiConfigured ? 'yes' : 'no');
     status.append(paypal, ai);
+    $('simulation-banner').hidden = !isSimulation();
+    if (isSimulation()) $('environment-label').textContent = 'LOCAL SIMULATION / NO PAYPAL';
     const intentId = params.get('intent');
     if (intentId && /^[0-9a-fA-F-]{36}$/.test(intentId)) {
       try {
         intent = await request('/api/intents/' + intentId);
-        if (params.get('cancelled') === '1') notice('PayPal approval was cancelled. No capture was requested.', true);
+        if (intent.state === 'COMPLETED') notice(isSimulation()
+          ? 'Existing completed simulated receipt loaded. No new capture was requested. No PayPal calls.'
+          : 'Existing completed Sandbox receipt loaded. No new capture was requested.');
+        else if (intent.state === 'RECONCILIATION_REQUIRED') notice('Capture outcome requires read-only reconciliation. Do not capture again.', true);
+        else if (params.get('cancelled') === '1') notice((isSimulation() ? 'Simulated' : 'PayPal') + ' approval was cancelled. No capture was requested.', true);
+        else if (isSimulation() && params.get('simulatedApproval') === '1') notice('Returned from simulated approval. Capture still requires an explicit request. No PayPal calls.');
         else if (params.get('token')) notice('Returned from PayPal. Verify the order before completing capture.');
       } catch {
         notice('Intent unavailable. Preserve this intent reference and check the local gateway records before retrying any pending payment.', true);
@@ -267,5 +289,7 @@ async function main() {
     notice('Unable to connect to local Vowrail service: ' + error.message, true);
   }
   render();
+  if (intent && (params.get('cancelled') === '1' || params.get('token')
+    || (isSimulation() && params.get('simulatedApproval') === '1'))) $('payment').focus();
 }
 main();

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Vowrail: agents propose, the gateway enforces</title>
+  <desc id="desc">Original architecture illustration of a buyer mandate, two simulated merchant rounds, advisory evaluation and deterministic checkout controls. Local simulation uses separate approval and capture. Real model and PayPal Sandbox evidence remain pending.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#28765c"/></marker>
+    <style>text{font-family:Arial,sans-serif;fill:#172c30}.eyebrow{font-size:18px;font-weight:bold;letter-spacing:3px}.title{font-size:64px;font-weight:bold}.label{font-size:30px;font-weight:bold}.body{font-size:22px}.small{font-size:20px;fill:#496267}.box{fill:white;stroke:#d1ded8;stroke-width:2}.line{stroke:#28765c;stroke-width:4;fill:none;marker-end:url(#arrow)}</style>
+  </defs>
+  <rect width="1600" height="900" fill="#f4f8f5"/>
+  <rect width="1600" height="112" fill="#102226"/>
+  <text x="72" y="70" class="label" style="fill:#d1f2e3;letter-spacing:5px">VOWRAIL</text>
+  <text x="1528" y="68" text-anchor="end" class="eyebrow" style="fill:#d1f2e3">LOCAL SIMULATION · NO PAYPAL CALLS</text>
+  <text x="72" y="189" class="eyebrow" style="fill:#28765c">BUYER-CONTROLLED PURCHASE PERMISSION</text>
+  <text x="72" y="271" class="title">Agents propose.</text>
+  <text x="72" y="343" class="title" style="fill:#28765c">The gateway enforces.</text>
+  <rect x="72" y="400" width="430" height="190" rx="20" class="box"/>
+  <text x="104" y="447" class="label">01 / Private mandate</text>
+  <text x="104" y="491" class="body">Buyer sets budget and round cap.</text>
+  <text x="104" y="528" class="small">Private ceiling stays with gateway.</text>
+  <text x="104" y="559" class="small">Synthetic example: $220, two rounds.</text>
+  <rect x="585" y="400" width="430" height="190" rx="20" class="box"/>
+  <text x="617" y="447" class="label">02 / Bounded offers</text>
+  <text x="617" y="491" class="body">Three simulated sellers quote.</text>
+  <text x="617" y="528" class="small">Public requirements only.</text>
+  <text x="617" y="559" class="small">Advice cannot select or execute.</text>
+  <rect x="1098" y="400" width="430" height="190" rx="20" class="box"/>
+  <text x="1130" y="447" class="label">03 / Explicit checkout</text>
+  <text x="1130" y="491" class="body">Review → approval → capture.</text>
+  <text x="1130" y="528" class="small">Stored price, expiry and attempt lock.</text>
+  <text x="1130" y="559" class="small">Uncertain result → receipt read only.</text>
+  <path d="M506 493H573" class="line"/><path d="M1019 493H1086" class="line"/>
+  <rect x="72" y="635" width="1456" height="145" rx="20" fill="#e3f5eb" stroke="#28765c" stroke-width="2"/>
+  <text x="104" y="682" class="label">Rehearsal evidence, with clear limits</text>
+  <text x="104" y="724" class="body">Actual Node tests + bounded local HTTP + responsive Safari journey. No credentials or money movement.</text>
+  <text x="104" y="758" class="small">Real model and PayPal Sandbox create / approve / capture remain unverified.</text>
+  <text x="72" y="848" class="small">Original explanatory diagram · Experimental local prototype · Not a provider receipt or recognized protocol standard</text>
+</svg>

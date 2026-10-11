@@ -46,6 +46,7 @@ export class NegotiationGateway {
     this.intents = new Map();
     this.merchants = Array.isArray(merchants) ? merchants : [];
     this.payments = payments;
+    this.paymentMode = payments?.mode === 'simulation' ? 'simulation' : 'paypal_sandbox';
     this.ai = ai;
     this.now = now;
     this.id = id;
@@ -97,7 +98,8 @@ export class NegotiationGateway {
         : intent.checkout && typeof intent.checkout.captureAttempted === 'boolean'
           && intent.checkout.status === (intent.state === 'CHECKOUT_CREATING' ? 'CREATING' : intent.state)
           && (intent.state !== 'AWAITING_BUYER_APPROVAL' || !intent.checkout.captureAttempted)
-          && (intent.checkout.approveUrl === null || sandboxApprovalLink(intent.checkout.approveUrl))
+          && (intent.checkout.mode ?? 'paypal_sandbox') === this.paymentMode
+          && (intent.checkout.approveUrl === null || this._approvalLink(intent, intent.checkout.approveUrl))
           && intent.checkout.requestId === 'vr-create-' + intent.intentId
           && intent.checkout.captureRequestId === 'vr-capture-' + intent.intentId
           && (intent.checkout.orderId === null || (typeof intent.checkout.orderId === 'string'
@@ -114,6 +116,13 @@ export class NegotiationGateway {
 
   _assertStorage() {
     assert(this.storageHealthy, 'STORAGE_UNAVAILABLE', 'Gateway storage is unavailable; restart and inspect the local journal', 503);
+  }
+
+  _approvalLink(intent, value) {
+    if (this.paymentMode === 'simulation') {
+      return value === '/simulation/approval?intent=' + intent.intentId + '&order=' + intent.checkout.orderId;
+    }
+    return sandboxApprovalLink(value);
   }
 
   _persist() {
@@ -184,7 +193,7 @@ export class NegotiationGateway {
       round: intent.round,
       offers: intent.offers.map(({ offerId, merchantId, merchantName, round, amountMinor, currency, description, deliveryDays, validUntil }) =>
         ({ offerId, merchantId, merchantName, round, amountMinor, currency, description, deliveryDays, validUntil })),
-      checkout: intent.checkout ? { ...intent.checkout } : null,
+      checkout: intent.checkout ? { mode: 'paypal_sandbox', ...intent.checkout } : null,
       events: [...intent.events]
     };
   }
@@ -306,6 +315,7 @@ export class NegotiationGateway {
     // Bind the offer/amount before the first awaited external operation.
     intent.state = 'CHECKOUT_CREATING';
     intent.checkout = {
+      mode: this.paymentMode,
       status: 'CREATING',
       offerId, amountMinor: offer.amountMinor, currency: offer.currency,
       requestId: 'vr-create-' + intentId, orderId: null, approveUrl: null,
@@ -326,8 +336,8 @@ export class NegotiationGateway {
       intent.checkout.orderId = order.id;
       this._persist();
       assert(typeof order.approveUrl === 'string', 'INVALID_PAYPAL_RESPONSE', 'PayPal approval link is unavailable', 502);
-      assert(sandboxApprovalLink(order.approveUrl),
-        'INVALID_PAYPAL_RESPONSE', 'Approval link must belong to PayPal Sandbox', 502);
+      assert(this._approvalLink(intent, order.approveUrl),
+        'INVALID_PAYPAL_RESPONSE', 'Approval link must match the configured checkout mode', 502);
       intent.checkout.approveUrl = order.approveUrl;
       intent.checkout.status = 'AWAITING_BUYER_APPROVAL';
       intent.state = 'AWAITING_BUYER_APPROVAL';
@@ -367,7 +377,8 @@ export class NegotiationGateway {
         intent.state = checkout.status = 'AWAITING_BUYER_APPROVAL';
         this._event(intent, 'checkout.approval_pending', { orderId: checkout.orderId });
         this._persist();
-        throw new PolicyError('ORDER_NOT_APPROVED', 'Approve the order in PayPal Sandbox before capture');
+        throw new PolicyError('ORDER_NOT_APPROVED', this.paymentMode === 'simulation'
+          ? 'Approve the order in the local simulation before capture' : 'Approve the order in PayPal Sandbox before capture');
       }
       assert(order.status === 'APPROVED', 'ORDER_NOT_APPROVED', 'PayPal order has not been approved');
       // Recheck after the network read: an expired mandate cannot issue a capture.
@@ -416,7 +427,7 @@ export class NegotiationGateway {
     intent.state = checkout.status = 'COMPLETED';
     checkout.captureId = captures[0].id;
     this._event(intent, 'payment.completed', {
-      orderId: checkout.orderId, captureId: checkout.captureId, amountMinor: checkout.amountMinor, source
+      orderId: checkout.orderId, captureId: checkout.captureId, amountMinor: checkout.amountMinor, source, mode: this.paymentMode
     });
     this._persist();
     return this.getIntent(intent.intentId);
@@ -443,11 +454,11 @@ export class NegotiationGateway {
       }
       if (!checkout.captureAttempted && !checkout.approveUrl && Array.isArray(order.links)) {
         const approval = order.links.find(link => ['approve', 'payer-action'].includes(link?.rel)
-          && sandboxApprovalLink(link.href));
+          && this._approvalLink(intent, link.href));
         if (approval) checkout.approveUrl = approval.href;
       }
       const awaiting = !checkout.captureAttempted && (order.status === 'APPROVED'
-        || (['CREATED', 'PAYER_ACTION_REQUIRED'].includes(order.status) && sandboxApprovalLink(checkout.approveUrl)));
+        || (['CREATED', 'PAYER_ACTION_REQUIRED'].includes(order.status) && this._approvalLink(intent, checkout.approveUrl)));
       intent.state = checkout.status = awaiting ? 'AWAITING_BUYER_APPROVAL' : 'RECONCILIATION_REQUIRED';
       this._event(intent, 'checkout.reconciled', { result: awaiting ? 'AWAITING_BUYER_APPROVAL' : 'UNRESOLVED' });
       this._persist();

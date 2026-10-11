@@ -12,7 +12,7 @@
 <body>
   <header class="topbar">
     <div class="brand"><span class="mark" aria-hidden="true">V</span><span>VOWRAIL</span></div>
-    <div class="top-right"><span class="dot"></span> LOCAL SANDBOX PROTOTYPE</div>
+    <div class="top-right"><span class="dot"></span><span id="environment-label">LOCAL SANDBOX PROTOTYPE</span></div>
   </header>
   <main class="container">
     <section class="hero">
@@ -22,10 +22,11 @@
       <div class="hero-facts">
         <span>01 / Private buyer mandate</span>
         <span>02 / Bounded negotiation</span>
-        <span>03 / Sandbox checkout controls</span>
+        <span>03 / Explicit checkout controls</span>
       </div>
     </section>
 
+    <p id="simulation-banner" class="simulation-banner" hidden>Local payment simulation — no PayPal or model calls. No money moves. This is rehearsal evidence, not a verified provider integration.</p>
     <div id="notice" class="notice" role="status" aria-live="polite" tabindex="-1"></div>
     <div id="integration" class="integration"></div>
 
@@ -50,6 +51,7 @@
           <button class="primary" type="submit">Create purchasing mandate <span aria-hidden="true">→</span></button>
         </form>
         <div id="mandate-summary" hidden></div>
+        <a id="new-purchase" href="/" class="text-button" hidden>Start a new purchase · existing records are retained</a>
       </section>
 
       <section class="panel" aria-labelledby="activity-heading">

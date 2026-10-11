@@ -72,6 +72,8 @@ A buyer may create **a new mandate**, explicitly approved with a new round cap, 
 
 ## Compatibility
 
+The reference checkout now records a server-owned `mode`: `paypal_sandbox` (default, including legacy records) or explicitly enabled `simulation`. The latter is a local consent/receipt fixture with no credentials, PayPal requests or money movement. It uses the same mandate, locked-amount, expiry and capture-attempt policies, and cannot qualify real-provider evidence. The server refuses cross-mode journal restore. The browser's optional expected-mode header rejects stale-tab mutations; clients cannot use it to switch modes. See [API.md](API.md).
+
 The profile should be carried within an existing commerce or agent workflow where practical. Payment mandates may be expressed using AP2 or scoped authorization designs. This document intentionally does not claim AP2, UCP or A2A have adopted Vowrail's round semantics.
 
 ## Offer preservation across rounds
