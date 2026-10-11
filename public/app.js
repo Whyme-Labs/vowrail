@@ -124,10 +124,11 @@ $('mandate-form').addEventListener('submit', event => {
   event.preventDefault();
   perform(async () => {
     const rawBudget = $('budget').value.trim();
-    if (!/^(0|[1-9][0-9]{0,6})\.[0-9]{2}$/.test(Number(rawBudget).toFixed(2))) {
-      throw new Error('Budget must be a valid USD amount.');
+    if (!/^(0|[1-9][0-9]{0,6})(?:\.[0-9]{1,2})?$/.test(rawBudget)) {
+      throw new Error('Budget must be valid USD with at most two decimal places.');
     }
-    const maxTotalMinor = Math.round(Number(rawBudget) * 100);
+    const [dollars, cents = ''] = rawBudget.split('.');
+    const maxTotalMinor = Number(dollars) * 100 + Number(cents.padEnd(2, '0'));
     intent = await request('/api/intents', 'POST', {
       item: $('item').value, quantity: Number($('quantity').value), requirements: $('requirements').value,
       currency: 'USD', maxTotalMinor, maxRounds: Number($('rounds').value)
