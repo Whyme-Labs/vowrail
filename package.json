@@ -1,0 +1,17 @@
+{
+  "name": "vowrail",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "Buyer-controlled negotiation gateway for agentic commerce, PayPal AI Hackathon prototype",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test",
+    "test:coverage": "node --test --experimental-test-coverage",
+    "smoke": "node scripts/smoke.js"
+  }
+}
