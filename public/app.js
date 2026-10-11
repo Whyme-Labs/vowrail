@@ -3,6 +3,7 @@ const format = cents => new Intl.NumberFormat('en-US', { style: 'currency', curr
 let intent = null;
 let health = null;
 let busy = false;
+let stateUnavailable = false;
 const params = new URLSearchParams(window.location.search);
 
 function notice(message, isError = false) {
@@ -30,8 +31,16 @@ async function perform(callback) {
   render();
   try {
     await callback();
+    stateUnavailable = false;
   } catch (error) {
-    notice((error.code ? error.code + ': ' : '') + error.message, true);
+    if (intent) {
+      try {
+        intent = await request('/api/intents/' + intent.intentId);
+        stateUnavailable = false;
+      } catch { stateUnavailable = true; }
+    }
+    notice((error.code ? error.code + ': ' : '') + error.message
+      + (stateUnavailable ? ' Current gateway state unavailable. Refresh status before further execution.' : ''), true);
   } finally {
     busy = false;
     render();
@@ -50,15 +59,19 @@ function render() {
   $('mandate-summary').hidden = !intent;
   if (!intent) return;
   const mandate = intent.mandate;
+  const expired = Date.parse(intent.expiresAt) <= Date.now();
   const summary = $('mandate-summary');
   summary.replaceChildren(node('p', mandate.item + ', quantity ' + mandate.quantity),
     node('p', 'Private maximum: ' + format(mandate.maxTotalMinor)),
-    node('p', 'Intent: ' + intent.intentId));
+    node('p', 'Intent: ' + intent.intentId),
+    node('p', expired ? 'Mandate expired. Payment status can still be checked; new execution is blocked.'
+      : 'Mandate expires at ' + new Date(intent.expiresAt).toLocaleTimeString(), expired ? 'tag warning' : 'hint'));
   $('round-display').textContent = intent.round + ' / ' + mandate.maxRounds;
-  $('state-display').textContent = intent.state.replaceAll('_', ' ');
-  $('run-round').disabled = busy || intent.state !== 'OPEN' || intent.round >= mandate.maxRounds;
+  $('state-display').textContent = stateUnavailable ? 'STATUS UNAVAILABLE' : intent.state.replaceAll('_', ' ');
+  $('refresh-status').disabled = busy;
+  $('run-round').disabled = busy || stateUnavailable || expired || intent.state !== 'OPEN' || intent.round >= mandate.maxRounds;
   $('run-round').textContent = intent.round >= mandate.maxRounds ? 'Round cap reached. No further bargaining.' : 'Run next bidding round →';
-  $('recommend').disabled = busy || intent.state !== 'OPEN' || intent.round === 0;
+  $('recommend').disabled = busy || stateUnavailable || expired || intent.state !== 'OPEN' || intent.round === 0;
   const offers = $('offers');
   offers.replaceChildren();
   const latest = [...intent.offers].sort((a, b) => b.round - a.round || a.amountMinor - b.amountMinor);
@@ -74,7 +87,7 @@ function render() {
       node('div', eligible ? 'Within mandate' : 'Above budget or expired', 'tag' + (eligible ? '' : ' warning')));
     const select = node('button', 'Checkout via PayPal Sandbox', 'pick');
     select.type = 'button';
-    select.disabled = !eligible || intent.state !== 'OPEN' || busy || !health?.paypalConfigured;
+    select.disabled = !eligible || stateUnavailable || expired || intent.state !== 'OPEN' || busy || !health?.paypalConfigured;
     select.addEventListener('click', () => perform(async () => {
       intent = await request('/api/intents/' + intent.intentId + '/checkout', 'POST', { offerId: offer.offerId });
       notice('PayPal Sandbox order created. Approve it with a sandbox buyer account.');
@@ -89,22 +102,33 @@ function render() {
     const box = intent.checkout;
     payment.append(node('strong', 'PayPal Sandbox checkout: ' + box.status));
     payment.append(node('div', 'Selected total: ' + format(box.amountMinor)));
+    if (box.orderId) payment.append(node('p', 'Order: ' + box.orderId, 'hint'));
+    if (box.captureId) payment.append(node('p', 'Verified capture: ' + box.captureId, 'hint'));
     if (box.approveUrl && box.status === 'AWAITING_BUYER_APPROVAL') {
       const anchor = node('a', 'Approve payment on PayPal Sandbox ↗', 'paypal-link');
       anchor.href = box.approveUrl; anchor.rel = 'noreferrer';
       payment.append(anchor);
-      if (params.get('intent') === intent.intentId && params.get('cancelled') !== '1') {
-        const capture = node('button', 'Verify approval and capture in Sandbox', 'secondary');
-        capture.disabled = busy;
-        capture.addEventListener('click', () => perform(async () => {
-          intent = await request('/api/intents/' + intent.intentId + '/capture', 'POST', { orderId: box.orderId });
-          notice('Verified PayPal Sandbox capture completed.');
-        }));
-        payment.append(capture);
-      }
+      const capture = node('button', 'Verify approval and capture in Sandbox', 'secondary');
+      capture.disabled = busy || stateUnavailable || expired;
+      capture.addEventListener('click', () => perform(async () => {
+        intent = await request('/api/intents/' + intent.intentId + '/capture', 'POST', { orderId: box.orderId });
+        notice('Verified PayPal Sandbox capture completed.');
+      }));
+      payment.append(capture);
+    }
+    if (box.orderId && ['AWAITING_BUYER_APPROVAL', 'RECONCILIATION_REQUIRED'].includes(box.status)) {
+      const reconcile = node('button', 'Check PayPal status (read only)', 'secondary');
+      reconcile.disabled = busy;
+      reconcile.addEventListener('click', () => perform(async () => {
+        intent = await request('/api/intents/' + intent.intentId + '/reconcile', 'POST');
+        notice(intent.state === 'COMPLETED' ? 'Existing PayPal Sandbox capture verified. No new payment was requested.'
+          : intent.state === 'AWAITING_BUYER_APPROVAL' ? 'Order verified. Approve in Sandbox, then explicitly request capture.'
+            : 'Outcome still uncertain. Capture remains blocked; inspect the Sandbox dashboard.', intent.state === 'RECONCILIATION_REQUIRED');
+      }));
+      payment.append(reconcile);
     }
     if (box.status === 'RECONCILIATION_REQUIRED') {
-      payment.append(node('p', 'External payment result is uncertain. Do not retry checkout or capture. Reconcile in the Sandbox merchant dashboard.', 'tag warning'));
+      payment.append(node('p', 'External payment result is uncertain. Check status without sending another capture. If unresolved, inspect the Sandbox merchant dashboard.', 'tag warning'));
     }
   } else if (!health?.paypalConfigured) {
     payment.append(node('p', 'Configure PayPal Sandbox credentials in your local environment to enable checkout. No real money is used.', 'hint'));
@@ -142,6 +166,10 @@ $('run-round').addEventListener('click', () => perform(async () => {
     { 'Idempotency-Key': crypto.randomUUID() });
   $('advice').replaceChildren();
   notice('Coordinated round ' + intent.round + ' completed. Each simulated merchant received only public requirements.');
+}));
+$('refresh-status').addEventListener('click', () => perform(async () => {
+  intent = await request('/api/intents/' + intent.intentId);
+  notice('Current gateway state loaded. No payment was requested.');
 }));
 $('recommend').addEventListener('click', () => perform(async () => {
   const advice = await request('/api/intents/' + intent.intentId + '/recommend', 'POST');

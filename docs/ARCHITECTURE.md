@@ -43,11 +43,15 @@ OPEN (round 0)
   -> CHECKOUT_CREATING -> AWAITING_BUYER_APPROVAL -> CAPTURE_IN_PROGRESS
   -> COMPLETED
                                   \-> RECONCILIATION_REQUIRED
+                                      -> RECONCILIATION_IN_PROGRESS [order GET only]
+                                      -> COMPLETED [one matching completed capture]
 ```
 
 A round is reserved **before** calling any merchant. If merchant communication fails, the already-started round still consumes the authorized slot; client retries cannot obtain extra turns. A second concurrent attempt during round execution is rejected.
 
 Checkout reserves the transaction for one **selected normalized offer**. No new rounds or offer swaps once checkout starts. For uncertain PayPal errors, fail closed into reconciliation; never blindly initiate a second capture.
+
+Read-only reconciliation checks the stored order reference against the locked intent and amount. A matching completed capture can recover the receipt after a response was lost. `captureAttempted` is reserved before the capture call and never cleared: even an `APPROVED` order cannot unlock another capture after an ambiguous attempt. A failed order read before any capture can recover to buyer approval. Early approval checks preserve that approval state; execution requires an unexpired mandate both before and after the order read. These guarantees remain scoped to this Node process.
 
 ## Why one process first?
 

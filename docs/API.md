@@ -10,7 +10,8 @@ Base URL: `http://127.0.0.1:8787`. JSON only for POST. **No authentication; do n
 | `POST /api/intents/:id/rounds` | Reserve and execute exactly one coordinated round, subject to max rounds |
 | `POST /api/intents/:id/recommend` | Advisory AI recommendation if configured; otherwise deterministic fallback marked as such |
 | `POST /api/intents/:id/checkout` | `{offerId}`; creates PayPal Sandbox order only after checks |
-| `POST /api/intents/:id/capture` | Verify order approval and amount, then capture once after PayPal redirect |
+| `POST /api/intents/:id/capture` | `{orderId}`; verify intent, approval, amount and active mandate, then capture once on explicit buyer action; completed retries return the stored receipt |
+| `POST /api/intents/:id/reconcile` | `{}`; read the stored PayPal order ID and verify any completed capture; never sends another capture or accepts a caller-supplied order ID |
 
 Errors: JSON object `{error:{code, message}}`, with 400 validation errors, 404 missing intents/offers, 409 state and policy conflicts, and 503 unconfigured provider. Exact endpoint response fields follow source implementation.
 
@@ -22,6 +23,18 @@ Environment:
 - No runtime secrets in client-side JS.
 
 Developer note: all stored order references are process-local in M1. Restarting during checkout is not safe. Never submit a transaction twice after an ambiguous failure without reconciliation.
+
+## Checkout recovery
+
+An order still in `CREATED` or `PAYER_ACTION_REQUIRED` remains `AWAITING_BUYER_APPROVAL` after an early capture request returns HTTP 409 `ORDER_NOT_APPROVED`. Approval, cancellation redirects and browser refresh do not themselves capture a payment.
+
+Reconciliation reserves `RECONCILIATION_IN_PROGRESS` before reading the order. It verifies order ID, `CAPTURE` intent, one purchase unit, the intent's `reference_id`, and the exact locked USD amount. Completion requires one capture with a nonempty valid ID, status `COMPLETED`, matching currency/amount, and order status `COMPLETED`. Only the sanitized order/capture references and decision events are retained; raw payer/provider payloads are not returned.
+
+If a capture was ever attempted, an approved order with no verified completed receipt stays `RECONCILIATION_REQUIRED`. No retry button or reconciliation read unlocks a second capture. If only the pre-capture read failed, a subsequent verified approval read can return to `AWAITING_BUYER_APPROVAL` for a first explicit capture. Expired mandates cannot issue a capture, but read-only receipt recovery remains available.
+
+Unknown order ID after a lost create response yields `ORDER_REFERENCE_UNAVAILABLE`; inspect the Sandbox dashboard manually. OAuth and Orders HTTP requests each have a 10-second timeout. This does not implement a durable journal or recovery after server restart.
+
+The browser refreshes gateway state after failed actions. If that read also fails, it displays `STATUS UNAVAILABLE` and disables execution until a successful refresh; read-only recovery remains available. Capture responses undergo the same order intent/reference/amount checks as order reads before a receipt is recorded.
 
 
 ## Optional synthetic AI merchant

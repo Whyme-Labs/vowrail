@@ -63,7 +63,7 @@ export function createApp({ gateway, baseUrl = 'http://127.0.0.1:8787' } = {}) {
         checkOrigin(request, baseUrl);
         return send(response, 201, gateway.createIntent(await readJSON(request)));
       }
-      const match = path.match(/^\/api\/intents\/([0-9a-fA-F-]{36})(?:\/(rounds|recommend|checkout|capture))?$/);
+      const match = path.match(/^\/api\/intents\/([0-9a-fA-F-]{36})(?:\/(rounds|recommend|checkout|capture|reconcile))?$/);
       if (match) {
         const intentId = match[1], action = match[2];
         if (request.method === 'GET' && !action) return send(response, 200, gateway.getIntent(intentId));
@@ -84,6 +84,10 @@ export function createApp({ gateway, baseUrl = 'http://127.0.0.1:8787' } = {}) {
         if (action === 'capture') {
           const body = await readJSON(request);
           return send(response, 200, await gateway.captureCheckout(intentId, body?.orderId));
+        }
+        if (action === 'reconcile') {
+          await readJSON(request);
+          return send(response, 200, await gateway.reconcileCheckout(intentId));
         }
       }
       return send(response, 404, { error: { code: 'NOT_FOUND', message: 'Route not found' } });

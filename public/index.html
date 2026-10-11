@@ -22,7 +22,7 @@
       <div class="hero-facts">
         <span>01 / Private buyer mandate</span>
         <span>02 / Bounded negotiation</span>
-        <span>03 / Verified Sandbox checkout</span>
+        <span>03 / Sandbox checkout controls</span>
       </div>
     </section>
 
@@ -63,10 +63,11 @@
           </div>
           <button id="run-round" class="secondary">Run next bidding round <span aria-hidden="true">→</span></button>
           <button id="recommend" class="text-button">Ask buyer agent to evaluate eligible offers</button>
+          <button id="refresh-status" class="text-button">Refresh gateway status</button>
           <div id="advice" aria-live="polite"></div>
           <h3>Merchant offers</h3>
           <div id="offers"></div>
-          <div id="payment"></div>
+          <div id="payment" aria-live="polite"></div>
         </div>
       </section>
     </div>

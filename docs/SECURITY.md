@@ -39,6 +39,11 @@ Assume a trustworthy Node process and code, sandbox PayPal account, correct host
 | PayPal API unavailable | Never report payment complete |
 | PayPal approval with changed amount/currency | Reject before capture and require reconciliation |
 | Capture error or uncertain timeout | Mark reconciliation required, no blind retry |
+| Lost capture response followed by order GET | Record one matching completed receipt, no second capture |
+| Reconciliation returns APPROVED after a capture attempt | Remain locked for manual investigation |
+| Order reference points at another intent | Reject before execution or recording completion |
+| Mandate expires during approval/read | No new capture; read-only receipt recovery allowed |
+| Live or untrusted approval link | Do not expose link; retain known order ID for reconciliation |
 | LLM selects nonexistent offer | Ignore/advisory failure, never payment authority |
 | No credentials | Demo works for negotiation, checkout reports unconfigured |
 
@@ -52,6 +57,7 @@ Remote AI providers receive data sent to their API. The initial AI adapter only 
 
 - The selected simulated merchant is not a PayPal payee. Real payment is made only to the sandbox merchant configured in the app.
 - A payment capture can be accepted by PayPal but response delivery can fail. Reconciliation must call the authoritative PayPal API, not infer failure from an HTTP timeout.
+- The app now supports read-only reconciliation of a known order ID. It verifies the full locked amount and capture receipt and never retries an ambiguous capture. If the create response lost the order ID, manual dashboard inspection is required. OAuth/Orders HTTP requests are bounded to 10 seconds each.
 - Server restart loses the in-memory order/intent mapping. Therefore restart during a pending checkout is a **known severe demo limitation**. Do not use as a payment system.
 - No authentic merchant quotes, dispute flows, refunds, chargebacks, tax calculation or comprehensive regulatory compliance in this prototype.
 - A hosted version requires authentication, CSRF defense, origin/host validation, rate limits, durable state, structured logs without secrets, and signed merchant/issuer attestations.

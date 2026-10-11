@@ -37,7 +37,19 @@ Set `AI_API_KEY`, `AI_MODEL`, and optionally `AI_BASE_URL`, using a provider com
 6. Browser is linked to PayPal Sandbox approval. Approve as the sandbox buyer. Do **not** use live credentials.
 7. Upon return, press 'Verify approval and capture'. Backend fetches the order from Sandbox to verify amount and status before capturing. Capture is explicitly not automatic.
 8. Confirm the completed order in the Sandbox dashboard and sanitized event log. Preserve a redacted transaction reference privately for verification.
-9. If a timeout or mismatch occurs, checkout moves to `RECONCILIATION_REQUIRED`. Do not blindly repeat a capture; reconcile in the Sandbox dashboard.
+9. If a timeout or mismatch occurs, use **Check PayPal status (read only)**. The server reads the stored order ID and verifies an existing completed receipt without issuing another capture. A still-ambiguous result stays locked; inspect the Sandbox dashboard. If no order ID was returned, the app cannot recover automatically.
+
+An early check before payer approval returns `ORDER_NOT_APPROVED` and keeps the original approval link available. A cancelled redirect never sends capture; the buyer can resume approval for the same locked order. **Refresh gateway status** reloads current state without executing payment. The capture button is available on a refreshed pending checkout and always requires an explicit click. After mandate expiry, use read-only reconciliation; a new capture is prohibited. Repeated completed capture requests return the already-recorded receipt without another provider call.
+
+## Synthetic checkout regression
+
+```sh
+node --test --test-concurrency=1 test/reconciliation.test.js test/checkout-e2e.test.js
+```
+
+The end-to-end cases use real loopback HTTP, the gateway and the actual Sandbox adapter with an injected synthetic PayPal transport. They exercise locked-price selection, early approval, cancellation return, explicit capture, refresh/replay, a lost response and GET-only reconciliation. They make **no real PayPal or model calls** and do not qualify the real Sandbox acceptance gate.
+
+Provider response checks follow the [PayPal Orders v2 checkout examples](https://developer.paypal.com/api/rest/integration/orders-api/api-use-cases/standard). Actual provider behavior still requires the separate Sandbox test above.
 
 **Important:** Synthetic merchants are *not* the receiving PayPal payees. Funds move only in the sandbox to the configured demo merchant. State is lost after a restart. Do not deploy this unauthenticated demo publicly or use real data.
 

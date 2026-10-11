@@ -9,13 +9,16 @@
 - Browser console with synthetic merchant bidding and event history. Earlier valid bids remain selectable until expiry.
 - A configurable buyer-side AI recommendation adapter and optional LLM-based **synthetic** merchant with seller-side price bounds. These require developer-supplied model credentials. They have **not** been exercised against a live model provider yet.
 - PayPal **Sandbox-only** OAuth and Orders v2 create, approval verification and capture adapter. The integration has not been run against real Sandbox credentials; automated tests use mocks.
+- Read-only checkout reconciliation for known order IDs; immutable capture-attempt lock, receipt/reference/amount checks, mandate expiry enforcement and buyer recovery controls. No durable recovery after restart is claimed.
 - Unit tests for mandate/round/payment controls, concurrency, seller outputs, AI adapter and local HTTP API, plus GitHub Actions workflow.
 
 ## Validation evidence
 
 - Isolated V8 execution of the actual committed core, seller and PayPal adapter sources: 29 test cases passed with substitutes for Node URL/Buffer.
 - Additional in-memory HTTP handler simulation passed: create intent, run two rounds, reject third, preserve earlier bid, give deterministic recommendation, reject PayPal checkout without credentials, reject cross-origin mutation.
-- These are useful interim checks **but are not equivalent to npm test running in actual Node**.
+- The original isolated checks above were interim evidence. Actual Node **v22.23.0** on the Mac now passes the clean baseline's **32 tests** plus `npm run smoke` at commit `acd775de1123b347cb557915fda6ccd19ef4f0f1`. HTTP tests use ephemeral loopback servers; no real external calls were made.
+- Checkout recovery adds 17 tests, including real HTTP through the Sandbox adapter with synthetic provider transport, hostile capture responses and browser state recovery. The resulting **49-test** suite passes sequentially, along with syntax validation and the reproducible smoke check. This proves synthetic recovery behavior, not a real PayPal transaction or live AI call.
+- Manual Safari smoke on the Mac verified mandate creation, rounds 1/2, disabled third round, retained earlier bids, deterministic advice, read-only refresh and reload of the same capped intent. PayPal/model credentials were disabled. Accessibility tree and screenshot were observed; mobile and screen-reader audits remain open in #3.
 - GitHub Actions runs, including [38118628003](https://github.com/Whyme-Labs/vowrail/actions/runs/38118628003), failed before running any job steps. GitHub reported no assigned runner / no steps. Exact account or runner configuration cause has not been established. **CI gate remains open** in issue #1.
 - No real AI inference and no real PayPal Sandbox checkout have been verified. Do not count G3 or G4 as complete.
 

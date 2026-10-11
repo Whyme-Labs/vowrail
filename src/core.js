@@ -214,7 +214,8 @@ export class NegotiationGateway {
     intent.checkout = {
       status: 'CREATING',
       offerId, amountMinor: offer.amountMinor, currency: offer.currency,
-      requestId: 'vr-create-' + intentId, orderId: null, approveUrl: null
+      requestId: 'vr-create-' + intentId, orderId: null, approveUrl: null,
+      captureAttempted: false
     };
     this._event(intent, 'checkout.locked', { offerId, amountMinor: offer.amountMinor });
     try {
@@ -223,9 +224,14 @@ export class NegotiationGateway {
         returnUrl: redirect.toString(), cancelUrl: cancel.toString(),
         idempotencyKey: intent.checkout.requestId
       });
-      assert(typeof order?.id === 'string' && order.id.length > 0 && typeof order.approveUrl === 'string',
+      assert(typeof order?.id === 'string' && /^[A-Za-z0-9_-]{4,80}$/.test(order.id) && typeof order.approveUrl === 'string',
         'INVALID_PAYPAL_RESPONSE', 'PayPal did not return an order and approval link', 502);
+      // Retain the order reference for reconciliation even if its link is invalid.
       intent.checkout.orderId = order.id;
+      const approval = new URL(order.approveUrl);
+      assert(approval.protocol === 'https:' && ['www.sandbox.paypal.com', 'sandbox.paypal.com'].includes(approval.hostname)
+        && !approval.username && !approval.password && !approval.port,
+        'INVALID_PAYPAL_RESPONSE', 'Approval link must belong to PayPal Sandbox', 502);
       intent.checkout.approveUrl = order.approveUrl;
       intent.checkout.status = 'AWAITING_BUYER_APPROVAL';
       intent.state = 'AWAITING_BUYER_APPROVAL';
@@ -241,37 +247,105 @@ export class NegotiationGateway {
 
   async captureCheckout(intentId, providedOrderId) {
     const intent = this._intent(intentId);
-    assert(intent.state === 'AWAITING_BUYER_APPROVAL', 'INVALID_STATE', 'Order cannot be captured in current state');
     const checkout = intent.checkout;
+    assert(intent.state === 'AWAITING_BUYER_APPROVAL' || intent.state === 'COMPLETED',
+      'INVALID_STATE', 'Order cannot be captured in current state');
     assert(typeof providedOrderId === 'string' && checkout.orderId === providedOrderId,
       'ORDER_MISMATCH', 'PayPal order ID does not match locked checkout');
+    if (intent.state === 'COMPLETED') return this.getIntent(intentId);
+    assert(this.now() < intent.expiresAt, 'MANDATE_EXPIRED', 'Mandate expired; only read-only reconciliation is allowed');
     intent.state = 'CAPTURE_IN_PROGRESS';
     checkout.status = 'CAPTURE_IN_PROGRESS';
     try {
       const order = await this.payments.getOrder(checkout.orderId);
-      assert(order?.id === checkout.orderId && order.status === 'APPROVED',
-        'ORDER_NOT_APPROVED', 'PayPal order has not been approved');
-      assert(Array.isArray(order.purchase_units) && order.purchase_units.length === 1,
-        'ORDER_MISMATCH', 'Unexpected PayPal purchase units');
-      const amount = order.purchase_units[0]?.amount;
-      assert(amount?.currency_code === checkout.currency && decimalToMinor(amount.value) === checkout.amountMinor,
-        'AMOUNT_MISMATCH', 'PayPal-approved amount differs from mandate');
+      this._verifyOrder(intent, order);
+      const captures = this._captures(order);
+      if (order.status === 'COMPLETED' || captures.length > 0) {
+        return this._completeCheckout(intent, order, 'order_read');
+      }
+      if (['CREATED', 'PAYER_ACTION_REQUIRED'].includes(order.status)) {
+        intent.state = checkout.status = 'AWAITING_BUYER_APPROVAL';
+        this._event(intent, 'checkout.approval_pending', { orderId: checkout.orderId });
+        throw new PolicyError('ORDER_NOT_APPROVED', 'Approve the order in PayPal Sandbox before capture');
+      }
+      assert(order.status === 'APPROVED', 'ORDER_NOT_APPROVED', 'PayPal order has not been approved');
+      // Recheck after the network read: an expired mandate cannot issue a capture.
+      assert(this.now() < intent.expiresAt, 'MANDATE_EXPIRED', 'Mandate expired; only read-only reconciliation is allowed');
+      checkout.captureAttempted = true;
       const captured = await this.payments.captureOrder(checkout.orderId, 'vr-capture-' + intentId);
-      const captures = captured?.purchase_units?.flatMap(u => u?.payments?.captures || []) || [];
-      assert(captured?.id === checkout.orderId && captures.length === 1
-        && captures[0].status === 'COMPLETED'
-        && captures[0].amount?.currency_code === checkout.currency
-        && decimalToMinor(captures[0].amount.value) === checkout.amountMinor,
-        'CAPTURE_MISMATCH', 'PayPal capture was not verified');
-      intent.state = 'COMPLETED';
-      checkout.status = 'COMPLETED';
-      checkout.captureId = captures[0].id;
-      this._event(intent, 'payment.completed', { orderId: checkout.orderId, captureId: checkout.captureId, amountMinor: checkout.amountMinor });
-      return this.getIntent(intentId);
+      return this._completeCheckout(intent, captured, 'capture_response');
     } catch (error) {
+      if (intent.state === 'AWAITING_BUYER_APPROVAL') throw toError(error);
       intent.state = 'RECONCILIATION_REQUIRED';
       checkout.status = 'RECONCILIATION_REQUIRED';
       this._event(intent, 'payment.uncertain', { stage: 'verify_or_capture' });
+      throw toError(error);
+    }
+  }
+
+  _verifyOrder(intent, order) {
+    const checkout = intent.checkout;
+    assert(order?.id === checkout.orderId && order.intent === 'CAPTURE'
+      && Array.isArray(order.purchase_units) && order.purchase_units.length === 1
+      && order.purchase_units[0]?.reference_id === intent.intentId,
+      'ORDER_MISMATCH', 'PayPal order does not match the locked purchase intent');
+    const amount = order.purchase_units[0].amount;
+    assert(amount?.currency_code === checkout.currency && decimalToMinor(amount.value) === checkout.amountMinor,
+      'AMOUNT_MISMATCH', 'PayPal order amount differs from the locked checkout');
+  }
+
+  _captures(order) {
+    const captures = order?.purchase_units?.[0]?.payments?.captures;
+    assert(captures === undefined || Array.isArray(captures), 'CAPTURE_MISMATCH', 'Invalid PayPal capture data');
+    return captures ?? [];
+  }
+
+  _completeCheckout(intent, order, source) {
+    const checkout = intent.checkout;
+    this._verifyOrder(intent, order);
+    const captures = this._captures(order);
+    assert(order.status === 'COMPLETED'
+      && captures.length === 1 && typeof captures[0]?.id === 'string' && /^[A-Za-z0-9_-]{4,80}$/.test(captures[0].id)
+      && captures[0].status === 'COMPLETED'
+      && captures[0].amount?.currency_code === checkout.currency
+      && decimalToMinor(captures[0].amount.value) === checkout.amountMinor,
+      'CAPTURE_MISMATCH', 'PayPal capture was not verified');
+    intent.state = checkout.status = 'COMPLETED';
+    checkout.captureId = captures[0].id;
+    this._event(intent, 'payment.completed', {
+      orderId: checkout.orderId, captureId: checkout.captureId, amountMinor: checkout.amountMinor, source
+    });
+    return this.getIntent(intent.intentId);
+  }
+
+  /** Read authoritative order data only. Never create or retry a capture here. */
+  async reconcileCheckout(intentId) {
+    const intent = this._intent(intentId);
+    if (intent.state === 'COMPLETED') return this.getIntent(intentId);
+    assert(['AWAITING_BUYER_APPROVAL', 'RECONCILIATION_REQUIRED'].includes(intent.state),
+      'INVALID_STATE', 'Checkout cannot be reconciled in current state');
+    const checkout = intent.checkout;
+    assert(checkout?.orderId, 'ORDER_REFERENCE_UNAVAILABLE',
+      'No known order ID; inspect the Sandbox dashboard before any further payment');
+    intent.state = checkout.status = 'RECONCILIATION_IN_PROGRESS';
+    this._event(intent, 'checkout.reconciliation_started', { orderId: checkout.orderId });
+    try {
+      const order = await this.payments.getOrder(checkout.orderId);
+      this._verifyOrder(intent, order);
+      const captures = this._captures(order);
+      if (order.status === 'COMPLETED' || captures.length > 0) {
+        return this._completeCheckout(intent, order, 'reconciliation');
+      }
+      const awaiting = ['CREATED', 'PAYER_ACTION_REQUIRED', 'APPROVED'].includes(order.status)
+        && !checkout.captureAttempted;
+      intent.state = checkout.status = awaiting ? 'AWAITING_BUYER_APPROVAL' : 'RECONCILIATION_REQUIRED';
+      this._event(intent, 'checkout.reconciled', { result: awaiting ? 'AWAITING_BUYER_APPROVAL' : 'UNRESOLVED' });
+      return this.getIntent(intentId);
+    } catch (error) {
+      intent.state = checkout.status = 'RECONCILIATION_REQUIRED';
+      this._event(intent, 'checkout.reconciliation_failed', {
+        reason: error instanceof PolicyError ? error.code : 'INTEGRATION_ERROR'
+      });
       throw toError(error);
     }
   }

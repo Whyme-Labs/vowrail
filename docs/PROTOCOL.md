@@ -54,6 +54,7 @@ Never include `max_total_minor`, private notes, payment credentials, raw convers
 3. `recommend`: optionally ask AI to rank eligible offers. Reject IDs not in validated candidates.
 4. `createCheckout`: verify offer belongs to intent, matches currency, amount within cap, and state permits checkout; lock exact details before external call.
 5. `capture`: independently verify PayPal order amount/currency and buyer approval; capture at most once or fail closed pending reconciliation.
+6. `reconcile`: read the already-known order ID; validate the bound intent, locked amount and completed receipt. Never create an order or send another capture. Ambiguous capture attempts remain locked if the read cannot prove completion; pre-capture read failures may recover to awaiting approval.
 
 ## Security-critical rules
 
