@@ -72,3 +72,7 @@ A buyer may create **a new mandate**, explicitly approved with a new round cap, 
 ## Compatibility
 
 The profile should be carried within an existing commerce or agent workflow where practical. Payment mandates may be expressed using AP2 or scoped authorization designs. This document intentionally does not claim AP2, UCP or A2A have adopted Vowrail's round semantics.
+
+## Offer preservation across rounds
+
+The prototype keeps earlier valid offers eligible until their stated expiry; starting a new round does **not** delete a previous better quote. This avoids strategic loss of buyer options when a seller raises its second-round price. Real integrations must establish whether a merchant's signed revised offer explicitly supersedes or withdraws an earlier commitment. The synthetic sellers do not implement withdrawals.

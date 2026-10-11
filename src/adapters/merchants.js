@@ -12,9 +12,9 @@ export const simulatedMerchants = scripted.map(seller => Object.freeze({
     // This adapter only consumes public requirements, not the mandate's secret ceiling.
     return {
       currency: 'USD',
-      amountMinor: request.round === 1 ? seller.first : seller.second,
+      amountMinor: Math.ceil((request.round === 1 ? seller.first : seller.second) * request.quantity / 100),
       deliveryDays: seller.days,
-      description: '100-unit custom matte print run, all demo charges included. Synthetic estimate, not binding.'
+      description: request.quantity + '-unit custom matte print run, all demo charges included. Synthetic estimate, not binding.'
     };
   }
 }));

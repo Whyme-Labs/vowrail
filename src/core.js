@@ -167,7 +167,7 @@ export class NegotiationGateway {
 
   eligibleOffers(intentId) {
     const intent = this._intent(intentId);
-    return intent.offers.filter(o => o.round === intent.round && o.currency === intent.mandate.currency
+    return intent.offers.filter(o => o.currency === intent.mandate.currency
       && o.amountMinor <= intent.mandate.maxTotalMinor && Date.parse(o.validUntil) > this.now());
   }
 

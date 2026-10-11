@@ -61,7 +61,7 @@ function render() {
   $('recommend').disabled = busy || intent.state !== 'OPEN' || intent.round === 0;
   const offers = $('offers');
   offers.replaceChildren();
-  const latest = intent.offers.filter(o => o.round === intent.round);
+  const latest = [...intent.offers].sort((a, b) => b.round - a.round || a.amountMinor - b.amountMinor);
   if (!latest.length) offers.append(node('p', intent.round === 0 ? 'Start round 1 to receive quotes.' : 'No valid merchant quotes.', 'hint'));
   for (const offer of latest) {
     const eligible = offer.amountMinor <= mandate.maxTotalMinor && Date.parse(offer.validUntil) > Date.now();

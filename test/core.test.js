@@ -252,3 +252,18 @@ test('fixed-point USD amount conversion rejects fractional cents and malformed p
   }
   assert.throws(() => moneyToDecimal(1.1), PolicyError);
 });
+
+test('earlier valid quote remains eligible even when revised quote costs more', async () => {
+  const dynamic = { id: 'seller', name: 'Seller',
+    quote: async request => ({ amountMinor: request.round === 1 ? 19000 : 21000,
+      currency: 'USD', description: 'Synthetic offer', deliveryDays: 2 }) };
+  const { payments } = fakePayments();
+  const gateway = build({ merchants: [dynamic], payments });
+  const id = create(gateway);
+  await round(gateway, id, 'keep-first-offer');
+  const firstId = gateway.getIntent(id).offers[0].offerId;
+  await round(gateway, id, 'higher-second-offer');
+  assert.equal(gateway.eligibleOffers(id).length, 2);
+  const checkout = await gateway.createCheckout(id, firstId, 'http://127.0.0.1:8787');
+  assert.equal(checkout.checkout.amountMinor, 19000);
+});

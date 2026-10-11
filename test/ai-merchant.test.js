@@ -56,3 +56,15 @@ test('remote AI adapter actually invokes compatible chat completion with JSON in
   assert.equal(payload.model, 'mock-model');
   assert.equal(JSON.stringify(payload).includes('maxTotalMinor'), false);
 });
+
+test('AI merchant floor and ceiling scale with order quantity', async () => {
+  let terms;
+  const ai = { isConfigured: () => true, quoteAsMerchant: async ({ sellerTerms }) => {
+    terms = sellerTerms;
+    return { amountMinor: 209000, currency: 'USD', description: 'Synthetic 1000-unit offer', deliveryDays: 3 };
+  } };
+  const q = await createAIMerchant(ai).quote({ ...request, quantity: 1000 });
+  assert.equal(terms.floorMinor, 185000);
+  assert.equal(terms.ceilingMinor, 245000);
+  assert.equal(q.amountMinor, 209000);
+});

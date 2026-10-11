@@ -13,13 +13,15 @@ export function createAIMerchant(ai, {
   return {
     id, name, mode: 'ai',
     async quote(publicRequest) {
+      const effectiveFloor = Math.ceil(floorMinor * publicRequest.quantity / 100);
+      const effectiveCeiling = Math.ceil(ceilingMinor * publicRequest.quantity / 100);
       const sellerTerms = {
-        floorMinor, ceilingMinor, deliveryDays,
-        baselineMinor: publicRequest.round === 1 ? 21600 : 20300
+        floorMinor: effectiveFloor, ceilingMinor: effectiveCeiling, deliveryDays,
+        baselineMinor: Math.ceil((publicRequest.round === 1 ? 21600 : 20300) * publicRequest.quantity / 100)
       };
       const proposal = await ai.quoteAsMerchant({ publicRequest: { ...publicRequest }, sellerTerms });
       if (!proposal || !Number.isSafeInteger(proposal.amountMinor)
-        || proposal.amountMinor < floorMinor || proposal.amountMinor > ceilingMinor
+        || proposal.amountMinor < effectiveFloor || proposal.amountMinor > effectiveCeiling
         || proposal.currency !== 'USD'
         || !Number.isSafeInteger(proposal.deliveryDays)
         || proposal.deliveryDays < 0 || proposal.deliveryDays > 30
