@@ -22,3 +22,8 @@ Environment:
 - No runtime secrets in client-side JS.
 
 Developer note: all stored order references are process-local in M1. Restarting during checkout is not safe. Never submit a transaction twice after an ambiguous failure without reconciliation.
+
+
+## Optional synthetic AI merchant
+
+Set `AI_MERCHANTS=1` **with** `AI_API_KEY` and `AI_MODEL` to replace one scripted merchant with a model-driven simulated merchant. Each run makes up to one additional model API call per negotiation round. The AI merchant receives only the public request and its own synthetic price floor/ceiling. Gateway checks the output independently; failed or invalid bids are rejected. The AI merchant is not a real business, cannot receive actual PayPal payouts, and does not establish fairness or reliable negotiation performance.

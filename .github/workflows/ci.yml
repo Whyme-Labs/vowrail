@@ -22,6 +22,7 @@ jobs:
           node --check src/server.js
           node --check src/adapters/paypal.js
           node --check src/adapters/ai.js
+          node --check src/adapters/ai-merchant.js
           node --check public/app.js
       - name: Unit and HTTP tests
         run: npm test

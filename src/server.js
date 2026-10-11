@@ -1,5 +1,6 @@
 import { NegotiationGateway } from './core.js';
 import { simulatedMerchants } from './adapters/merchants.js';
+import { createAIMerchant } from './adapters/ai-merchant.js';
 import { PayPalSandbox } from './adapters/paypal.js';
 import { AdvisoryModel } from './adapters/ai.js';
 import { createApp } from './http.js';
@@ -20,11 +21,16 @@ const ai = new AdvisoryModel({
   model: process.env.AI_MODEL || '',
   baseUrl: process.env.AI_BASE_URL || 'https://api.openai.com/v1'
 });
-const gateway = new NegotiationGateway({ merchants: simulatedMerchants, payments, ai });
+const aiMerchantEnabled = process.env.AI_MERCHANTS === '1' && ai.isConfigured();
+const merchants = aiMerchantEnabled
+  ? [simulatedMerchants[0], createAIMerchant(ai), simulatedMerchants[2]]
+  : simulatedMerchants;
+const gateway = new NegotiationGateway({ merchants, payments, ai });
 const server = createApp({ gateway, baseUrl });
 server.listen(port, host, () => {
   console.log('Vowrail local demo at http://' + host + ':' + port);
   console.log('AI advisory: ' + (ai.isConfigured() ? 'configured' : 'deterministic fallback'));
+  console.log('AI merchant: ' + (aiMerchantEnabled ? 'configured, SYNTHETIC' : 'scripted synthetic sellers'));
   console.log('PayPal: ' + (payments.isConfigured() ? 'SANDBOX configured' : 'not configured'));
   console.log('No user authentication or durable state. Never expose this demo to the internet.');
 });

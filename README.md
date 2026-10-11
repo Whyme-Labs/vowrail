@@ -29,7 +29,7 @@ npm start
 # Open http://127.0.0.1:8787
 ```
 
-Create an intent, run up to two coordinated rounds with **simulated** sellers, select a qualifying quote, and inspect enforcement events. A model-assisted buyer recommendation is optional and must be configured explicitly; deterministic fallback is clearly identified as non-AI.
+Create an intent, run up to two coordinated rounds with **simulated** sellers, select a qualifying quote, and inspect enforcement events. A model-assisted buyer recommendation is optional and must be configured explicitly; deterministic fallback is clearly identified as non-AI. With `AI_MERCHANTS=1` and model credentials, one synthetic merchant also uses a real model call for each round, with fixed seller-side bid bounds.
 
 To exercise **real PayPal Sandbox** APIs, copy `.env.example` into your own environment and set the credentials in the shell before starting the server. `node --env-file=.env` is supported on Node 22+. The demo merchant is one configured PayPal Sandbox account; simulated sellers are **not** onboarded PayPal merchants.
 
