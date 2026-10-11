@@ -27,6 +27,8 @@ Open http://127.0.0.1:8787.
 
 Set `AI_API_KEY`, `AI_MODEL`, and optionally `AI_BASE_URL`, using a provider compatible with chat completions. Restart. Ask for an offer recommendation. Inspect `ai_advisory` vs fallback in the HTTP response. The source `src/adapters/ai.js` makes an actual remote API call only when configured. There is no model key included in the repo. By default the merchant agents remain synthetic scripted price functions. Set `AI_MERCHANTS=1` to use one optional synthetic LLM merchant, with merchant-side price bounds still enforced by code. This is not a real merchant.
 
+Model requests have a 10-second deadline covering both headers and response body. A timeout rejects the synthetic merchant's bid, preserves the consumed negotiation round and lets the other merchants' offers finish. Buyer recommendation failures return the explicitly labeled deterministic fallback. No model request is automatically retried.
+
 ## Real PayPal Sandbox test
 
 1. Create an app and Sandbox accounts at https://developer.paypal.com/.

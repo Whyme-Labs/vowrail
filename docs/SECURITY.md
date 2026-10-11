@@ -57,6 +57,8 @@ Structured merchant requests reduce direct disclosure, but cannot eliminate infe
 
 Remote AI providers receive data sent to their API. The initial AI adapter only needs the public requirements and normalized eligible offers.
 
+Model requests use a 10-second abort deadline through response-body consumption. Timeout follows the existing rejected-bid or deterministic-advice fallback paths; it never adds a round, retries a model call or grants execution authority.
+
 ## Payment caveats
 
 - The selected simulated merchant is not a PayPal payee. Real payment is made only to the sandbox merchant configured in the app.

@@ -3,11 +3,13 @@
  * ALL model responses are untrusted suggestions. Deterministic policy remains authoritative.
  */
 export class AdvisoryModel {
-  constructor({ apiKey = '', model = '', baseUrl = 'https://api.openai.com/v1', fetchImpl = globalThis.fetch } = {}) {
+  constructor({ apiKey = '', model = '', baseUrl = 'https://api.openai.com/v1', fetchImpl = globalThis.fetch, timeoutMs = 10000 } = {}) {
+    if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 30000) throw new Error('Invalid AI timeout');
     this.apiKey = apiKey;
     this.model = model;
     this.baseUrl = baseUrl.replace(/\/$/, '');
     this.fetchImpl = fetchImpl;
+    this.timeoutMs = timeoutMs;
   }
   isConfigured() { return Boolean(this.apiKey && this.model); }
 
@@ -19,6 +21,7 @@ export class AdvisoryModel {
     }
     const response = await this.fetchImpl(endpoint.toString(), {
       method: 'POST',
+      signal: AbortSignal.timeout(this.timeoutMs),
       headers: { Authorization: 'Bearer ' + this.apiKey, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: this.model,
