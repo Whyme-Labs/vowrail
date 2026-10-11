@@ -1,0 +1,29 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax validation
+        run: |
+          node --check src/core.js
+          node --check src/http.js
+          node --check src/server.js
+          node --check src/adapters/paypal.js
+          node --check src/adapters/ai.js
+          node --check public/app.js
+      - name: Unit and HTTP tests
+        run: npm test
+      - name: Reproducible smoke demo
+        run: npm run smoke
