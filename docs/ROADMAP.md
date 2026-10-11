@@ -44,3 +44,25 @@ Not in hackathon scope: full multi-merchant settlement, paid customer onboarding
 - Docs updated where behavior/interface changes.
 - Limitations stated; no unsupported security guarantees.
 - A commit/PR referenced. Mark blocked instead of implying completion.
+
+## Linked issues (15)
+
+| Issue | Priority | Owner of next acceptance gate |
+|---|---|---|
+| [#1](https://github.com/Whyme-Labs/vowrail/issues/1) foundation CI | P0 | Verify runner and actual Node test output |
+| [#2](https://github.com/Whyme-Labs/vowrail/issues/2) negotiation policy | P0 | Harden and prove mandate invariants |
+| [#3](https://github.com/Whyme-Labs/vowrail/issues/3) buyer console | P0 | Accessibility and browser usability verification |
+| [#4](https://github.com/Whyme-Labs/vowrail/issues/4) real AI | P0 | Actual model-driven seller/buyer experiment |
+| [#5](https://github.com/Whyme-Labs/vowrail/issues/5) PayPal Sandbox | P0 | End-to-end real Sandbox receipt |
+| [#6](https://github.com/Whyme-Labs/vowrail/issues/6) durability | P0 | Durable reconciliation + concurrency |
+| [#7](https://github.com/Whyme-Labs/vowrail/issues/7) benchmark | P0 | Reproducible adversarial and economic metrics |
+| [#8](https://github.com/Whyme-Labs/vowrail/issues/8) deployment security | P0 | Access control before hosted service |
+| [#9](https://github.com/Whyme-Labs/vowrail/issues/9) public release | P0 | Owner changes visibility after audit |
+| [#10](https://github.com/Whyme-Labs/vowrail/issues/10) submission | P0 | Demo video and Devpost |
+| [#11](https://github.com/Whyme-Labs/vowrail/issues/11) authenticated offers | P1 | Signed/normalized real merchant quotes |
+| [#12](https://github.com/Whyme-Labs/vowrail/issues/12) schemas | P1 | Protocol conformance tests and SDK |
+| [#13](https://github.com/Whyme-Labs/vowrail/issues/13) round economics | P1 | Empirical 0/1/2-round evaluation |
+| [#14](https://github.com/Whyme-Labs/vowrail/issues/14) Channel3 | P2 | Optional product discovery |
+| [#15](https://github.com/Whyme-Labs/vowrail/issues/15) buyer-interest policy | P1 | Auditability and conflict disclosures |
+
+Keep P0 payment and AI gates ahead of protocol abstraction. See [STATUS.md](STATUS.md) for observed progress rather than counting open issue descriptions as finished work.
