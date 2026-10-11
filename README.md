@@ -44,6 +44,8 @@ Never commit client secrets. There are **no live PayPal endpoints** in the proto
 ## Documentation
 
 - [Current implementation status and blockers](docs/STATUS.md)
+- [Current honest demo script and submission checklist](docs/DEMO.md)
+- [Buyer-flow accessibility evidence and remaining checks](docs/ACCESSIBILITY.md)
 - [Product requirements](docs/PRODUCT.md)
 - [Architecture and trust boundaries](docs/ARCHITECTURE.md)
 - [Proposed negotiation protocol](docs/PROTOCOL.md)

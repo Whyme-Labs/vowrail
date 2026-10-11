@@ -16,6 +16,8 @@ npm start
 
 Open http://127.0.0.1:8787.
 
+For recording, use the [honest current demo script and submission checklist](DEMO.md). For responsive/keyboard reproduction and remaining assistive-technology checks, see [ACCESSIBILITY.md](ACCESSIBILITY.md).
+
 1. Create synthetic print job, budget $220, two rounds.
 2. Run round 1. Merchant quotes are synthetic; any quote outside cap cannot be paid.
 3. Run round 2. Display new prices and original event history.

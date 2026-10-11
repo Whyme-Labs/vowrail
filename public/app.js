@@ -27,14 +27,16 @@ async function request(path, method = 'GET', body = undefined, extra = {}) {
   }
   return data;
 }
-async function perform(callback) {
+async function perform(callback, focusAfter) {
   if (busy) return;
   busy = true;
   render();
+  let focusTarget = focusAfter;
   try {
     await callback();
     stateUnavailable = false;
   } catch (error) {
+    focusTarget = 'notice';
     if (intent) {
       try {
         intent = await request('/api/intents/' + intent.intentId);
@@ -46,6 +48,7 @@ async function perform(callback) {
   } finally {
     busy = false;
     render();
+    if (focusTarget) $(focusTarget).focus();
   }
 }
 function node(tag, text, klass) {
@@ -69,6 +72,9 @@ function scheduleExpiry() {
   if (next) expiryTimer = setTimeout(render, next - Date.now() + 1);
 }
 function render() {
+  const focused = document.activeElement;
+  const replacedFocus = $('offers').contains(focused) ? 'offers-heading'
+    : $('payment').contains(focused) ? 'payment' : null;
   scheduleExpiry();
   $('empty-state').hidden = Boolean(intent);
   $('console').hidden = !intent;
@@ -154,7 +160,7 @@ function render() {
       capture.addEventListener('click', () => perform(async () => {
         intent = await request('/api/intents/' + intent.intentId + '/capture', 'POST', { orderId: box.orderId });
         notice('Verified PayPal Sandbox capture completed.');
-      }));
+      }, 'payment'));
       payment.append(capture);
     }
     if (box.orderId && ['AWAITING_BUYER_APPROVAL', 'RECONCILIATION_REQUIRED'].includes(box.status)) {
@@ -165,7 +171,7 @@ function render() {
         notice(intent.state === 'COMPLETED' ? 'Existing PayPal Sandbox capture verified. No new payment was requested.'
           : intent.state === 'AWAITING_BUYER_APPROVAL' ? 'Order verified. Approve in Sandbox, then explicitly request capture.'
             : 'Outcome still uncertain. Capture remains blocked; inspect the Sandbox dashboard.', intent.state === 'RECONCILIATION_REQUIRED');
-      }));
+      }, 'payment'));
       payment.append(reconcile);
     }
     if (box.status === 'RECONCILIATION_REQUIRED') {
@@ -184,6 +190,11 @@ function render() {
     entry.append(label, node('time', event.at.slice(11, 19) + ' UTC'));
     events.append(entry);
   }
+  if (replacedFocus) $(replacedFocus).focus();
+  else if (focused?.disabled) {
+    if (focused === $('create-order')) $('review-heading').focus();
+    else if (focused === $('run-round') || focused === $('recommend') || focused === $('refresh-status')) $('activity-heading').focus();
+  }
 }
 $('clear-review').addEventListener('click', () => {
   if (busy) return;
@@ -198,10 +209,10 @@ $('create-order').addEventListener('click', () => perform(async () => {
   intent = await request('/api/intents/' + intent.intentId + '/checkout', 'POST', { offerId: selected.offerId });
   selectedOfferId = null;
   notice('PayPal Sandbox order created for the reviewed quote. Approve it with a sandbox buyer account, then explicitly request capture.');
-}));
+}, 'payment'));
 $('mandate-form').addEventListener('submit', event => {
   event.preventDefault();
-  perform(async () => {
+  return perform(async () => {
     const rawBudget = $('budget').value.trim();
     if (!/^(0|[1-9][0-9]{0,6})(?:\.[0-9]{1,2})?$/.test(rawBudget)) {
       throw new Error('Budget must be valid USD with at most two decimal places.');
@@ -214,24 +225,25 @@ $('mandate-form').addEventListener('submit', event => {
     });
     history.replaceState(null, '', '/?intent=' + encodeURIComponent(intent.intentId));
     notice('Mandate created. The private budget will not be sent to simulated merchants.');
-  });
+  }, 'activity-heading');
 });
 $('run-round').addEventListener('click', () => perform(async () => {
   intent = await request('/api/intents/' + intent.intentId + '/rounds', 'POST', {},
     { 'Idempotency-Key': crypto.randomUUID() });
   $('advice').replaceChildren();
   notice('Coordinated round ' + intent.round + ' completed. Each simulated merchant received only public requirements.');
-}));
+}, 'offers-heading'));
 $('refresh-status').addEventListener('click', () => perform(async () => {
   intent = await request('/api/intents/' + intent.intentId);
   notice('Current gateway state loaded. No payment was requested.');
-}));
+}, 'activity-heading'));
 $('recommend').addEventListener('click', () => perform(async () => {
   const advice = await request('/api/intents/' + intent.intentId + '/recommend', 'POST');
   const offer = intent.offers.find(o => o.offerId === advice.offerId);
   $('advice').replaceChildren(node('strong', advice.mode === 'ai_advisory' ? 'Model advice' : 'Deterministic fallback'),
     node('p', (offer ? offer.merchantName + ': ' : '') + advice.reason));
-}));
+  notice('Offer evaluation loaded. Advice does not authorize checkout.');
+}, 'advice'));
 async function main() {
   try {
     health = await request('/api/health');

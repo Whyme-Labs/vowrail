@@ -21,15 +21,9 @@
 
 Official rules score technological implementation, design, potential impact, innovation and presentation equally at 20% each. A functional UI and real payment matter as much as novel policy ideas.
 
-## Proposed 2:55 video script
+## Demo preparation
 
-- 0:00–0:25: show the risk, agent may overspend or reveal a private cap.
-- 0:25–1:00: buyer sets mandate, synthetic sellers bid in round 1.
-- 1:00–1:40: optional AI advice, second round and blocked unauthorized third round; event trail.
-- 1:40–2:20: PayPal Sandbox order approval and completed capture.
-- 2:20–2:55: adversarial tests, transparent caveats, interoperability vision.
-
-Show real, repeatable behavior. Do not imply a synthetic seller is a real PayPal recipient. Do not claim live merchant negotiation, universal lowest prices or a certified standard.
+Use the [current 2:30 rehearsal script and submission checklist](DEMO.md). It shows the observed local flow, labeled deterministic advice and disabled Sandbox checkout. Actual model and Sandbox completion footage must be added only after those integrations are observed. Neither has been verified yet. Do not imply a synthetic seller is a real PayPal recipient or claim live merchant negotiation, universal lowest prices or a certified standard.
 
 ## Submission gates
 

@@ -26,7 +26,7 @@
       </div>
     </section>
 
-    <div id="notice" class="notice" role="status" aria-live="polite"></div>
+    <div id="notice" class="notice" role="status" aria-live="polite" tabindex="-1"></div>
     <div id="integration" class="integration"></div>
 
     <div class="columns">
@@ -53,7 +53,7 @@
       </section>
 
       <section class="panel" aria-labelledby="activity-heading">
-        <div class="panel-header"><span class="step">02</span><h2 id="activity-heading">Negotiation console</h2></div>
+        <div class="panel-header"><span class="step">02</span><h2 id="activity-heading" tabindex="-1">Negotiation console</h2></div>
         <p class="hint">Three independent <strong>simulated</strong> merchants. Their offers are not real or legally binding.</p>
         <div id="empty-state" class="empty-state"><div class="empty-ring">V</div><p>Create a mandate to begin a verifiable negotiation.</p></div>
         <div id="console" hidden>
@@ -64,7 +64,7 @@
           <button id="run-round" class="secondary">Run next bidding round <span aria-hidden="true">→</span></button>
           <button id="recommend" class="text-button">Ask buyer agent to evaluate eligible offers</button>
           <button id="refresh-status" class="text-button">Refresh gateway status</button>
-          <div id="advice" aria-live="polite"></div>
+          <div id="advice" role="region" aria-label="Buyer advice" aria-live="polite" tabindex="-1"></div>
           <h3 id="offers-heading" tabindex="-1">Merchant offers</h3>
           <div id="offers"></div>
           <section id="offer-review" class="review" aria-labelledby="review-heading" hidden>
@@ -74,7 +74,7 @@
             <button id="create-order" class="primary" type="button">Create PayPal Sandbox order</button>
             <button id="clear-review" class="text-button" type="button">Back to comparing offers</button>
           </section>
-          <div id="payment" aria-live="polite"></div>
+          <div id="payment" role="region" aria-label="Sandbox checkout" aria-live="polite" tabindex="-1"></div>
         </div>
       </section>
     </div>
