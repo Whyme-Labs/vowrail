@@ -21,7 +21,16 @@ Open http://127.0.0.1:8787.
 3. Run round 2. Display new prices and original event history.
 4. Attempt another round. The button is disabled. For a protocol-level proof run `npm test`, which sends a third-round request and asserts HTTP 409 `ROUND_LIMIT`.
 5. Ask for advice. Without AI config it says **deterministic fallback**, not AI.
-6. Checkout is disabled without configured PayPal Sandbox credentials.
+6. Click **Review offer**. Compare the stored total, delivery, quote expiry and remaining private budget. Quotes above budget state the exact excess and stay disabled. Reviewing or backing out does not create an order.
+7. Without PayPal credentials, review still works and **Create PayPal Sandbox order** explains that setup is required. With credentials, that separate button locks the quote and creates an order; approval and capture remain separate explicit actions. Quote/mandate expiry updates the controls without sending a request.
+
+## Minimum local demo configuration
+
+No credentials are needed for the scripted negotiation, deterministic advice or offer review. Node 22+, one server bound to loopback and a private persistent journal directory are sufficient. Defaults are `HOST=127.0.0.1`, `PORT=8787` and `VOWRAIL_STATE_DIR=.vowrail/journal`. Preserve the journal across restarts; do not run two writers against it or delete payment records to retry.
+
+For a separately authorized real-provider check, supply existing Sandbox app credentials as `PAYPAL_CLIENT_ID` and `PAYPAL_CLIENT_SECRET`; set `PUBLIC_BASE_URL` to the intended buyer return URL. Optional model advice needs `AI_API_KEY` and `AI_MODEL`; `AI_BASE_URL` defaults to the OpenAI chat-completion endpoint and can point at a compatible provider. Keep `AI_MERCHANTS=0` for scripted merchants. Configured flags only mean nonempty settings, not that credentials or providers have been verified.
+
+The supported configuration inputs are inherited environment variables or a developer-owned `.env` loaded explicitly with `node --env-file=.env src/server.js`. `.env.local` is not automatically loaded. If using `.env`, keep it ignored and owner-readable only (`chmod 600 .env`); enter secrets privately, never through chat, screenshots or issues. The app does not read a credential vault. No persistent access grant, cloud service, database or public hosting is necessary for this single-instance local demo.
 
 ## Real AI advisory demonstration
 
@@ -31,11 +40,11 @@ Model requests have a 10-second deadline covering both headers and response body
 
 ## Real PayPal Sandbox test
 
-1. Create an app and Sandbox accounts at https://developer.paypal.com/.
+1. Use an existing Sandbox app, business merchant and personal buyer from the [PayPal Developer Dashboard](https://developer.paypal.com/sandbox-testing/accounts). New credentials/accounts require separate owner action.
 2. Set `PAYPAL_CLIENT_ID` and `PAYPAL_CLIENT_SECRET` from the **Sandbox** app. Do not commit or paste credentials in issues.
 3. Set a usable `PUBLIC_BASE_URL` that PayPal can redirect to. For local-only tests, determine whether loopback callbacks work for your sandbox configuration; use an HTTPS development tunnel when needed and secure it appropriately. The server itself intentionally binds only to loopback.
 4. Launch with `node --env-file=.env src/server.js`.
-5. Create a purchase intent. Run one or two rounds, select an eligible quote and press checkout.
+5. Create a purchase intent. Run one or two rounds, review an eligible quote and explicitly press **Create PayPal Sandbox order**.
 6. Browser is linked to PayPal Sandbox approval. Approve as the sandbox buyer. Do **not** use live credentials.
 7. Upon return, press 'Verify approval and capture'. Backend fetches the order from Sandbox to verify amount and status before capturing. Capture is explicitly not automatic.
 8. Confirm the completed order in the Sandbox dashboard and sanitized event log. Preserve a redacted transaction reference privately for verification.

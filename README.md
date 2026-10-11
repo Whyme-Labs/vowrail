@@ -29,7 +29,7 @@ npm start
 # Open http://127.0.0.1:8787
 ```
 
-Create an intent, run up to two coordinated rounds with **simulated** sellers, select a qualifying quote, and inspect enforcement events. A model-assisted buyer recommendation is optional and must be configured explicitly; deterministic fallback is clearly identified as non-AI. With `AI_MERCHANTS=1` and model credentials, one synthetic merchant also uses a real model call for each round, with fixed seller-side bid bounds.
+Create an intent, run up to two coordinated rounds with **simulated** sellers, review a qualifying quote and inspect enforcement events. Offer review works without credentials and shows the stored total, delivery, expiry and remaining budget. Creating a PayPal Sandbox order is a separate explicit action requiring configuration; buyer approval and capture remain distinct steps. A model-assisted buyer recommendation is optional and must be configured explicitly; deterministic fallback is clearly identified as non-AI. With `AI_MERCHANTS=1` and model credentials, one synthetic merchant also uses a real model call for each round, with fixed seller-side bid bounds.
 
 `npm start` preserves synthetic mandates, offers, round replay records and payment references in the ignored `.vowrail/journal/` directory. Keep that directory across restarts; set `VOWRAIL_STATE_DIR` to choose another private local directory. Interrupted checkout resumes through read-only reconciliation, with attempted captures still locked. See [local journal recovery](docs/LOCAL_JOURNAL.md). No credentials or raw payer payloads are stored there.
 

@@ -4,6 +4,8 @@ let intent = null;
 let health = null;
 let busy = false;
 let stateUnavailable = false;
+let selectedOfferId = null;
+let expiryTimer;
 const params = new URLSearchParams(window.location.search);
 
 function notice(message, isError = false) {
@@ -52,7 +54,22 @@ function node(tag, text, klass) {
   if (klass) element.className = klass;
   return element;
 }
+function offerBlockReason(offer) {
+  if (Date.parse(intent.expiresAt) <= Date.now()) return 'Mandate expired. New execution is blocked.';
+  if (offer.amountMinor > intent.mandate.maxTotalMinor) return 'Above budget by ' + format(offer.amountMinor - intent.mandate.maxTotalMinor);
+  if (Date.parse(offer.validUntil) <= Date.now()) return 'Quote expired. Choose a current quote or start a new authorized round.';
+  if (intent.state !== 'OPEN') return 'Checkout already started. The gateway has locked the selected offer.';
+  return null;
+}
+function scheduleExpiry() {
+  clearTimeout(expiryTimer);
+  if (!intent) return;
+  const next = [intent.expiresAt, ...intent.offers.map(o => o.validUntil)]
+    .map(Date.parse).filter(time => time > Date.now()).sort((a, b) => a - b)[0];
+  if (next) expiryTimer = setTimeout(render, next - Date.now() + 1);
+}
 function render() {
+  scheduleExpiry();
   $('empty-state').hidden = Boolean(intent);
   $('console').hidden = !intent;
   $('mandate-form').hidden = Boolean(intent);
@@ -77,24 +94,46 @@ function render() {
   const latest = [...intent.offers].sort((a, b) => b.round - a.round || a.amountMinor - b.amountMinor);
   if (!latest.length) offers.append(node('p', intent.round === 0 ? 'Start round 1 to receive quotes.' : 'No valid merchant quotes.', 'hint'));
   for (const offer of latest) {
-    const eligible = offer.amountMinor <= mandate.maxTotalMinor && Date.parse(offer.validUntil) > Date.now();
+    const blocked = offerBlockReason(offer);
+    const eligible = !blocked;
     const card = node('div', undefined, 'offer' + (eligible ? '' : ' ineligible'));
     const info = node('div');
     info.append(node('div', offer.merchantName, 'name'),
       node('small', offer.description), node('small', 'Delivery: ' + offer.deliveryDays + ' days; round ' + offer.round));
     const pricing = node('div');
     pricing.append(node('div', format(offer.amountMinor), 'price'),
-      node('div', eligible ? 'Within mandate' : 'Above budget or expired', 'tag' + (eligible ? '' : ' warning')));
-    const select = node('button', 'Checkout via PayPal Sandbox', 'pick');
+      node('div', blocked || 'Within mandate', 'tag' + (eligible ? '' : ' warning')));
+    const select = node('button', offer.offerId === selectedOfferId ? 'Reviewing this offer' : 'Review offer', 'pick');
+    select.setAttribute('aria-label', 'Review offer from ' + offer.merchantName + ', round ' + offer.round + ', ' + format(offer.amountMinor));
     select.type = 'button';
-    select.disabled = !eligible || stateUnavailable || expired || intent.state !== 'OPEN' || busy || !health?.paypalConfigured;
-    select.addEventListener('click', () => perform(async () => {
-      intent = await request('/api/intents/' + intent.intentId + '/checkout', 'POST', { offerId: offer.offerId });
-      notice('PayPal Sandbox order created. Approve it with a sandbox buyer account.');
-    }));
+    select.disabled = !eligible || stateUnavailable || busy;
+    select.addEventListener('click', () => {
+      selectedOfferId = offer.offerId;
+      render();
+      $('review-heading').focus();
+    });
     pricing.append(select);
     card.append(info, pricing);
     offers.append(card);
+  }
+  const selected = intent.offers.find(o => o.offerId === selectedOfferId);
+  $('offer-review').hidden = !selected || Boolean(intent.checkout);
+  if (selected && !intent.checkout) {
+    $('review-details').replaceChildren(
+      node('strong', selected.merchantName),
+      node('p', mandate.item + ' · Quantity ' + mandate.quantity),
+      node('p', 'Selected total: ' + format(selected.amountMinor) + ' USD · Remaining within private budget: '
+        + format(mandate.maxTotalMinor - selected.amountMinor)),
+      node('p', selected.description),
+      node('p', 'Delivery: ' + selected.deliveryDays + ' days · Quote from round ' + selected.round),
+      node('p', 'Quote expires at ' + new Date(selected.validUntil).toLocaleTimeString()),
+      node('p', 'Simulated offer. Refund and tax rules are not supplied. Sandbox checkout uses one configured demo merchant account.', 'hint'));
+    const reason = offerBlockReason(selected);
+    $('review-message').textContent = reason || (stateUnavailable ? 'Gateway status unavailable. Refresh status before creating an order.'
+      : !health?.paypalConfigured ? 'PayPal Sandbox is not configured. You can review offers; order creation requires local Sandbox setup.'
+        : 'Creating an order locks this quote. Buyer approval and an explicit capture request are separate steps.');
+    $('create-order').disabled = busy || stateUnavailable || Boolean(reason) || !health?.paypalConfigured;
+    $('clear-review').disabled = busy;
   }
   const payment = $('payment');
   payment.replaceChildren();
@@ -146,6 +185,20 @@ function render() {
     events.append(entry);
   }
 }
+$('clear-review').addEventListener('click', () => {
+  if (busy) return;
+  selectedOfferId = null;
+  render();
+  $('offers-heading').focus();
+});
+$('create-order').addEventListener('click', () => perform(async () => {
+  const selected = intent.offers.find(o => o.offerId === selectedOfferId);
+  const reason = selected && offerBlockReason(selected);
+  if (!selected || reason || !health?.paypalConfigured || stateUnavailable) throw new Error(reason || 'Offer is unavailable for checkout.');
+  intent = await request('/api/intents/' + intent.intentId + '/checkout', 'POST', { offerId: selected.offerId });
+  selectedOfferId = null;
+  notice('PayPal Sandbox order created for the reviewed quote. Approve it with a sandbox buyer account, then explicitly request capture.');
+}));
 $('mandate-form').addEventListener('submit', event => {
   event.preventDefault();
   perform(async () => {

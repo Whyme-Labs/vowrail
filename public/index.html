@@ -65,8 +65,15 @@
           <button id="recommend" class="text-button">Ask buyer agent to evaluate eligible offers</button>
           <button id="refresh-status" class="text-button">Refresh gateway status</button>
           <div id="advice" aria-live="polite"></div>
-          <h3>Merchant offers</h3>
+          <h3 id="offers-heading" tabindex="-1">Merchant offers</h3>
           <div id="offers"></div>
+          <section id="offer-review" class="review" aria-labelledby="review-heading" hidden>
+            <h3 id="review-heading" tabindex="-1">Review your selected offer</h3>
+            <div id="review-details"></div>
+            <p id="review-message" role="status" class="hint"></p>
+            <button id="create-order" class="primary" type="button">Create PayPal Sandbox order</button>
+            <button id="clear-review" class="text-button" type="button">Back to comparing offers</button>
+          </section>
           <div id="payment" aria-live="polite"></div>
         </div>
       </section>

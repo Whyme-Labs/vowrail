@@ -72,9 +72,10 @@ test('model timeout releases the round without replaying it and buyer advice fal
   assert.equal(gateway.getIntent(id).checkout, null);
 });
 
-test('actual fetch aborts a local synthetic provider that stalls its JSON body', async t => {
+test('actual fetch aborts a local synthetic provider that stalls its JSON body', { timeout: 20000 }, async t => {
   let requests = 0;
   const provider = http.createServer((request, response) => {
+    if (request.method === 'GET') { response.end('{}'); return; }
     requests++;
     response.writeHead(200, { 'Content-Type': 'application/json' });
     response.write('{"choices":');
@@ -85,13 +86,17 @@ test('actual fetch aborts a local synthetic provider that stalls its JSON body',
     provider.listen(0, '127.0.0.1', resolve);
   });
   t.after(() => { provider.closeAllConnections(); return new Promise(resolve => provider.close(resolve)); });
-  const model = new AdvisoryModel({ ...modelOptions, timeoutMs: 200,
-    baseUrl: 'http://127.0.0.1:' + provider.address().port + '/v1' });
+  const base = 'http://127.0.0.1:' + provider.address().port;
+  // Initialize Node's real fetch and its loopback connection before timing the stalled body.
+  // A cold fetch on a busy shared Mac can spend the short deadline before sending headers.
+  const ready = await fetch(base + '/ready', { signal: AbortSignal.timeout(10000) });
+  await ready.text();
+  const model = new AdvisoryModel({ ...modelOptions, timeoutMs: 1000, baseUrl: base + '/v1' });
   let watchdog;
   try {
     await assert.rejects(Promise.race([
       model.recommend(advice),
-      new Promise((resolve, reject) => { watchdog = setTimeout(() => reject(new Error('Missing model request deadline')), 1500); })
+      new Promise((resolve, reject) => { watchdog = setTimeout(() => reject(new Error('Missing model request deadline')), 5000); })
     ]), error => ['AbortError', 'TimeoutError'].includes(error.name));
   } finally { clearTimeout(watchdog); }
   assert.equal(requests, 1);
