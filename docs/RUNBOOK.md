@@ -31,6 +31,8 @@ For recording, use the [honest current demo script and submission checklist](DEM
 
 For recovery, stop the normal demo, then run `npm run demo:recovery` and create a new mandate. Its first simulated capture persists a receipt and intentionally loses the response. The app shows `RECONCILIATION_REQUIRED` and removes capture. Press **Check simulated receipt (read only)**; completion must appear without another capture. Restarting the same mode with both journals preserved also permits read-only recovery. Do not delete records to retry.
 
+If the simulated approval response is lost, consent may already be saved. The page marks its status unknown, disables another approval and offers a neutral **Return to purchase**. Reloading the approval page reads the saved status; it cannot approve or capture automatically. A failed response is never reported as successful cancellation.
+
 For the unconfigured real-adapter view, stop the demo and use `npm start` with credentials unset. **Create PayPal Sandbox order** is disabled with a setup explanation; negotiation/review still work. It does not silently switch to simulation.
 
 ## Minimum local demo configuration

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 
-async function fixture({ mismatch = false } = {}) {
+async function fixture({ mismatch = false, loseApprovalResponse = false, providerOrder = { status: 'PAYER_ACTION_REQUIRED' } } = {}) {
   const html = await readFile(new URL('../public/approval.html', import.meta.url), 'utf8');
   const source = await readFile(new URL('../public/approval.js', import.meta.url), 'utf8');
   const document = { activeElement: null };
@@ -20,13 +20,17 @@ async function fixture({ mismatch = false } = {}) {
     setTimeout: callback => { onExpiry = callback; return 1; }, clearTimeout() {},
     fetch: async (path, options) => {
       calls.push({ path, ...options });
+      if (options.method === 'POST') {
+        providerOrder.status = 'APPROVED';
+        if (loseApprovalResponse) throw Error('Synthetic approval response lost');
+      }
       return { ok: true, json: async () => ({ mode: 'simulation', intentId: id, orderId: mismatch ? 'OTHER' : orderId,
-        orderStatus: options.method === 'POST' ? 'APPROVED' : 'PAYER_ACTION_REQUIRED',
+        orderStatus: providerOrder.status,
         item: '<script>untrusted</script>', quantity: 100, merchantName: 'Synthetic studio', amountMinor: 20100,
         expiresAt: new Date(now + 60000).toISOString() }) };
     } });
   await new Promise(resolve => setImmediate(resolve));
-  return { nodes, document, calls, destinations, orderId, expire: () => { now += 60001; onExpiry(); } };
+  return { nodes, document, calls, destinations, orderId, providerOrder, expire: () => { now += 60001; onExpiry(); } };
 }
 
 test('simulated approval page loads as text, cancels without mutation and approves only explicitly', async () => {
@@ -62,4 +66,24 @@ test('approval expiry disables consent and returns keyboard focus without a requ
   assert.equal(f.document.activeElement, f.nodes.get('approval-notice'));
   await f.nodes.get('approval-form').listeners.submit({ preventDefault() {} });
   assert.equal(f.calls.length, 1);
+});
+
+test('lost approval response offers a neutral return and reload restores persisted consent without mutation', async () => {
+  const f = await fixture({ loseApprovalResponse: true });
+  await f.nodes.get('approval-form').listeners.submit({ preventDefault() {} });
+  assert.equal(f.providerOrder.status, 'APPROVED');
+  assert.equal(f.nodes.get('approve-simulation').disabled, true);
+  assert.equal(f.nodes.get('cancel-simulation').textContent, 'Return to purchase');
+  assert.match(f.nodes.get('approval-notice').textContent, /consent may already be recorded/);
+  assert.match(f.nodes.get('approval-details').children.at(-1).textContent, /UNKNOWN/);
+  assert.equal(f.document.activeElement, f.nodes.get('approval-notice'));
+  f.nodes.get('cancel-simulation').listeners.click();
+  assert.doesNotMatch(f.destinations[0], /cancelled|simulatedApproval/);
+  await f.nodes.get('approval-form').listeners.submit({ preventDefault() {} });
+  assert.equal(f.calls.filter(c => c.method === 'POST').length, 1);
+  const reload = await fixture({ providerOrder: f.providerOrder });
+  assert.equal(reload.nodes.get('approve-simulation').disabled, true);
+  assert.equal(reload.nodes.get('cancel-simulation').textContent, 'Return to purchase');
+  assert.match(reload.nodes.get('approval-details').children.at(-1).textContent, /APPROVED/);
+  assert.equal(reload.calls.every(c => c.method === 'GET'), true);
 });
