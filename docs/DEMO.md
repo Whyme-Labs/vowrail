@@ -1,6 +1,6 @@
 # Current prototype demo and submission checklist
 
-Updated 13 October 2026 (MYT). The script below rehearses local simulation; its advice is labeled deterministic fallback. Separately, one actual USD 207.00 Sandbox purchase and restart receipt recovery are verified in [PAYPAL_EVIDENCE.md](PAYPAL_EVIDENCE.md). Real model inference and the final competition video remain incomplete.
+Updated 13 October 2026 (MYT). The script below rehearses local simulation; its advice is labeled deterministic fallback. Separately, one actual USD 207.00 Sandbox purchase and restart receipt recovery are verified in [PAYPAL_EVIDENCE.md](PAYPAL_EVIDENCE.md). Three actual free-model advisory cases are observed separately; the final competition video remains incomplete.
 
 ## Honest 2:30 rehearsal
 
@@ -17,7 +17,7 @@ For a source-to-browser walkthrough using a separate port/state root, see [JUDGE
 | 1:15–1:30 | Ask for advice. “This is deterministic fallback. A configured model can advise; it cannot choose or pay.” |
 | 1:30–1:55 | Review Atlas $207/two-day delivery versus Cobalt $201/four-day. Show total, expiry, margin and missing tax/refund terms. Create the simulated order. “I choose the offer; the gateway locks its stored amount.” |
 | 1:55–2:15 | Open separate simulated approval, review $207 and approve. Return, then explicitly request simulated capture. “Consent and capture are separate. Neither navigation nor refresh sends capture.” |
-| 2:15–2:30 | Show **Simulated receipt**, completion event and mode label. “This rehearses the local controls. A separate Sandbox purchase is verified; this screen remains simulation. Real model qualification and the competition entry remain pending.” |
+| 2:15–2:30 | Show **Simulated receipt**, completion event and mode label. “This rehearses the local controls. Actual Sandbox and model observations are recorded separately; this screen remains simulation. The competition video and entry remain pending.” |
 
 Prices above are the default scripted fixture, not market prices. If the configuration, fixture or observed result changes, update the narration. Use the actual test count shown by the recorded command; do not relabel synthetic receipts as PayPal evidence.
 
@@ -33,7 +33,7 @@ Keep the recording within 2:45. Show the functioning app and exact provider/mode
 |---|---|
 | 0:00–0:20 | Explain the buyer's authorization boundary and create a synthetic print mandate. |
 | 0:20–0:55 | Show both rounds, normalized quotes, cap denial and the third-round denial from the recorded HTTP test. Sellers are simulated. |
-| 0:55–1:25 | Show one actually observed `ai_advisory` result and exact model/provider. Compare its delivery reasoning to the same eligible minimum-price baseline; do not claim a better outcome unless observed. This segment is blocked until authorized model qualification. |
+| 0:55–1:25 | Show one actually observed `ai_advisory` result and exact model/provider. Compare its delivery reasoning to the same eligible minimum-price baseline; do not claim a better outcome unless observed. Actual Nvidia observations are now available; disclose the rationale/ambiguity errors alongside them. |
 | 1:25–1:55 | Review stored price, delivery and expiry. Explain offer selection and separate order/approval/capture permission. Do not create a new order during filming. |
 | 1:55–2:25 | Show the existing Sandbox completed receipt: USD 207.00, order and capture references. Explain the independent API check and restart restoration after expiry. State that Atlas is synthetic and the configured Sandbox merchant receives payment. |
 | 2:25–2:45 | Show local test/rehearsal evidence and disclose single-process local scope, remaining provider negative cases and access instructions. |
@@ -48,7 +48,7 @@ The [official rules](https://paypalaihackathon.devpost.com/rules), rechecked 13 
 |---|---|
 | Reproducible local app | Node 22+, no dependencies, complete explicitly simulated approval/capture/receipt and recovery journey. Run tests, smoke and bounded `rehearse` from clean source before recording. |
 | Accessibility and mobile | Responsive Safari and keyboard checks documented in [ACCESSIBILITY.md](ACCESSIBILITY.md). Auditory screen-reader and physical-device checks remain open. |
-| Meaningful AI | Adapter and adversarial tests exist; actual provider/model evidence remains open in #4. |
+| Meaningful AI | Adapter and adversarial tests exist; three actual Nvidia cases are observed; quality/evaluation work remains in #4. |
 | PayPal Sandbox | Actual create/approve/capture, independent API/dashboard checks and restart receipt are verified. [Sanitized proof](PAYPAL_EVIDENCE.md). Actual canceled/declined paths remain open in #5. No live payments. |
 | CI | Local tests pass; GitHub jobs currently cannot start because of account billing/spending limits (#1). |
 | Source release | MIT license exists. Repo remains private; owner-approved secret/IP review and exact visibility approval are required (#9). |
@@ -57,7 +57,7 @@ The [official rules](https://paypalaihackathon.devpost.com/rules), rechecked 13 
 
 ## Prerequisites for the next integration gate
 
-**Model:** choose an existing compatible provider and exact model, privately supply `AI_API_KEY` and `AI_MODEL`, and authorize one synthetic advice call with a cost limit or free quota. `AI_BASE_URL` is optional; its default is `https://api.openai.com/v1`. Keep `AI_MERCHANTS=0`. [MODEL_QUALIFICATION.md](MODEL_QUALIFICATION.md) specifies the prepared request, baseline, output-limit prerequisite and evidence checks. Free-only OpenRouter use is now authorized through the existing key; the paid proposal is superseded. Both selected free variants returned HTTP 429, so factual AI footage remains blocked by availability. No paid call is authorized. Existing PayPal configuration and completed journals should be preserved; no further payment is needed for this preparation.
+**Model:** choose an existing compatible provider and exact model, privately supply `AI_API_KEY` and `AI_MODEL`, and authorize one synthetic advice call with a cost limit or free quota. `AI_BASE_URL` is optional; its default is `https://api.openai.com/v1`. Keep `AI_MERCHANTS=0`. [MODEL_QUALIFICATION.md](MODEL_QUALIFICATION.md) specifies the prepared request, baseline, output-limit prerequisite and evidence checks. Free-only OpenRouter use is now authorized through the existing key; the paid proposal is superseded. The Nvidia route now produces three actual advisory results; retain earlier rate failures and quality errors in factual footage. No paid call is authorized. Existing PayPal configuration and completed journals should be preserved; no further payment is needed for this preparation.
 
 The supported private handoff is an owner-entered, ignored, owner-readable `.env` (`chmod 600 .env`) loaded with `node --env-file=.env src/server.js`, or inherited environment variables. `.env.local` is not automatically loaded. Do not paste secrets into chat, issues or recordings. No dedicated secret-entry tool for this local runtime was exposed in the available tooling; the cloud environment setup form is for a different execution environment. After owner setup, verify names/presence only, then follow the [runbook](RUNBOOK.md). Never create or rotate credentials as part of this rehearsal. Configured flags are not evidence of a successful provider request.
 

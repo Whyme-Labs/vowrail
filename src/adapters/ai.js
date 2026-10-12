@@ -42,6 +42,7 @@ export class AdvisoryModel {
       temperature: 0,
       ...(this.freeOnly ? {
         max_tokens: 256,
+        reasoning: { enabled: false },
         provider: { max_price: { prompt: 0, completion: 0, request: 0 }, allow_fallbacks: false, require_parameters: true }
       } : { max_completion_tokens: 256 })
     });
@@ -86,7 +87,7 @@ export class AdvisoryModel {
 export function configuredAdvisoryModel(env = process.env) {
   return env.OPENROUTER_API_KEY ? new AdvisoryModel({
     apiKey: env.OPENROUTER_API_KEY,
-    model: env.OPENROUTER_MODEL || 'google/gemma-4-31b-it:free',
+    model: env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
     baseUrl: 'https://openrouter.ai/api/v1', freeOnly: true
   }) : new AdvisoryModel({ apiKey: env.AI_API_KEY || '', model: env.AI_MODEL || '',
     baseUrl: env.AI_BASE_URL || 'https://api.openai.com/v1' });

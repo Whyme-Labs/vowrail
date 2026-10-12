@@ -1,6 +1,6 @@
 # Factual project-description draft
 
-Updated from verified observations on 13 October 2026 (MYT). Editable English copy for the existing draft; no entry or eligibility declaration has been submitted. Real model qualification remains pending.
+Updated from verified observations on 13 October 2026 (MYT). Editable English copy for the existing draft; no entry or eligibility declaration has been submitted. Functional free-model advice is now observed; its quality and sample limits remain explicit.
 
 ## Project name
 
@@ -20,7 +20,7 @@ The buyer defines an item, quantity, private USD ceiling and maximum rounds. Thr
 
 The buyer reviews the stored amount, delivery and expiry before creating an order. Approval and capture remain separate. If a capture response is lost, an immutable attempt lock prevents another capture; read-only receipt reconciliation recovers a verified matching result.
 
-The credential-free demo completes this journey using clearly labeled local approval and receipt simulation, with no PayPal/model requests or money movement. Separately, the Sandbox-only PayPal Orders v2 adapter completed one owner-authorized USD 207.00 synthetic print purchase. Independent API checks verified one matching completed capture; the Sandbox buyer dashboard confirmed completion, and restart restored the locked receipt after mandate expiry. The configured Sandbox merchant receives the payment; the three synthetic sellers are not PayPal payees. Two owner-authorized OpenRouter free-model requests were attempted; both returned HTTP 429 and retained labeled deterministic fallback. No successful model inference is claimed.
+The credential-free demo completes this journey using clearly labeled local approval and receipt simulation, with no PayPal/model requests or money movement. Separately, the Sandbox-only PayPal Orders v2 adapter completed one owner-authorized USD 207.00 synthetic print purchase. Independent API checks verified one matching completed capture; the Sandbox buyer dashboard confirmed completion, and restart restored the locked receipt after mandate expiry. The configured Sandbox merchant receives the payment; the three synthetic sellers are not PayPal payees. Actual OpenRouter Nvidia free-model advice now parsed successfully for delivery, ambiguous requirements and hostile merchant text. The gateway validated offered IDs and retained all execution authority. Eight cumulative requests include earlier rate failures and truncated outputs; six completed Nvidia responses reported USD 0. Rationale/units and ambiguity errors were observed, so buyer review remains necessary.
 
 ## How it is built
 
@@ -34,4 +34,4 @@ This is a single-process, unauthenticated local prototype. The three sellers are
 
 ## Remaining work before final entry
 
-Qualify one authorized model call with exact provider/model and measured evidence, finish the remaining provider negative-path checks if authorized, and record a factual functioning video. The owner must approve judge access, review rights and secrets, approve the exact repository visibility change, publish the required video, confirm eligibility and perform final agreement/submission. The existing Devpost draft stays a draft. [READINESS.md](READINESS.md) lists the concrete remaining inputs.
+Record factual model footage with the exact model and observed limits, finish the remaining provider negative-path checks if authorized, and record a factual functioning video. The owner must approve judge access, review rights and secrets, approve the exact repository visibility change, publish the required video, confirm eligibility and perform final agreement/submission. The existing Devpost draft stays a draft. [READINESS.md](READINESS.md) lists the concrete remaining inputs.

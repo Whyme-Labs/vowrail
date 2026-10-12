@@ -15,6 +15,7 @@ test('OpenRouter route pins a free variant, zero prices, no fallback and bounded
     const body = JSON.parse(options.body);
     assert.equal(body.model, free.model);
     assert.equal(body.max_tokens, 256);
+    assert.deepEqual(body.reasoning, { enabled: false });
     assert.equal(body.max_completion_tokens, undefined);
     assert.deepEqual(body.provider, { max_price: { prompt: 0, completion: 0, request: 0 }, allow_fallbacks: false, require_parameters: true });
     assert.equal(body.models, undefined);
@@ -52,7 +53,7 @@ test('rate limit and nonzero cost do not trigger a retry or unbounded paid fallb
 test('existing OpenRouter key selects the official free route ahead of legacy paid settings', () => {
   const ai = configuredAdvisoryModel({ OPENROUTER_API_KEY: 'synthetic-key', AI_API_KEY: 'other-fixture', AI_MODEL: 'paid/model', AI_BASE_URL: 'https://elsewhere.test' });
   assert.equal(ai.freeOnly, true);
-  assert.equal(ai.model, free.model);
+  assert.equal(ai.model, 'nvidia/nemotron-3.5-lightning:free');
   assert.equal(ai.baseUrl, free.baseUrl);
   assert.throws(() => configuredAdvisoryModel({ OPENROUTER_API_KEY: 'synthetic-key', OPENROUTER_MODEL: 'paid/model' }), /Free-only/);
   assert.equal(configuredAdvisoryModel({}).isConfigured(), false);

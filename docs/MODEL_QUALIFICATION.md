@@ -1,36 +1,45 @@
-# Free-only model qualification
+# Observed free-only model qualification
 
-The owner supplied an existing `OPENROUTER_API_KEY` privately and explicitly authorized free-model use on 13 October 2026 MYT. This supersedes the previous direct-OpenAI paid-call proposal. No paid inference, new credential or private environment-file change is authorized or performed.
+The owner's existing OpenRouter key is loaded normally from private `.env`; free-model use is explicitly authorized and the paid OpenAI proposal is superseded. The current default is `nvidia/nemotron-3.5-lightning:free`, with zero prompt/completion/request price caps, no paid/provider/model fallback, 256 output tokens, 8 KiB inputs, ten-second deadlines and optional reasoning disabled. No credential or private file was created/rewritten.
 
-## Shipped route and constraints
+## Actual results, with all attempts retained
 
-The application loads its existing environment normally. When `OPENROUTER_API_KEY` is present, it takes precedence over legacy `AI_*` settings and selects the official OpenRouter API with explicit `google/gemma-4-31b-it:free`. `OPENROUTER_MODEL` can select another explicit `:free` variant; paid IDs and automatic routers are rejected before transport. The [official model catalog](https://openrouter.ai/api/v1/models) listed both that ID and `google/gemma-4-26b-a4b-it:free` with zero prompt/completion pricing when checked.
+[Sanitized cumulative report](demo-assets/openrouter-free-qualification.json) records **eight inference requests**:
 
-Requests set `provider.max_price` to zero for prompt, completion and per-request charges, `allow_fallbacks:false`, and `require_parameters:true`, with no model fallback array. OpenRouter documents [price filtering](https://openrouter.ai/docs/guides/routing/provider-selection); unavailable zero-price routing must fail instead of routing to a paid option. The adapter uses OpenRouter's `max_tokens:256`, an 8 KiB UTF-8 request limit and ten-second deadline. Nonzero/invalid reported cost is rejected; missing usage is unavailable, not assumed zero.
-
-Only public synthetic requirements and normalized eligible offers are sent. The private cap, raw conversation, payer data, credentials and Authorization header are absent from evidence. `npm run demo` still constructs no model adapter and ignores configured OpenRouter settings. Keep `AI_MERCHANTS=0` for the smallest advice test; no payment adapter is constructed by the qualification script.
-
-## Actual observations and blocker
-
-[Sanitized report](demo-assets/openrouter-free-qualification.json) records **two inference requests**, one independently selected case for each verified free model:
-
-| Explicit model | Actual result | Time |
+| Phase | Requests | Observation |
 |---|---|---|
-| `google/gemma-4-31b-it:free` | HTTP 429; deterministic fallback | 970 ms |
-| `google/gemma-4-26b-a4b-it:free` | HTTP 429; deterministic fallback | 863 ms |
+| Earlier explicit Gemma4 free variants | 2 | Each first case returned HTTP 429; no usage returned, no retry. |
+| Nvidia with optional reasoning unspecified | 3 | HTTP 200, `finish_reason:length`, 256 completion tokens each; no usable advice JSON, deterministic fallback retained. |
+| Nvidia with reasoning disabled | 3 | HTTP 200 and valid `ai_advisory` for delivery preference, ambiguity and hostile merchant input. |
 
-Each run stopped at its first account/rate error, without retry or provider/model fallback. No successful actual model output was obtained, so the real AI gate remains unqualified. Provider token/cost usage was not returned. The read-only quota check between runs reported used 0, limit 1000, remaining 1000; daily exhaustion is not established. The precise upstream/platform per-minute or capacity cause is unknown. [Official rate-limit documentation](https://openrouter.ai/docs/api_reference/limits) distinguishes platform and provider limits; no credits were purchased to alter them.
+The six completed Nvidia responses report **USD 0 total cost**, 2,921 prompt tokens, 1,019 completion tokens, 3,940 total tokens. Usage for the two rejected requests is unavailable; overall billed cost including those requests is not asserted. No controlled retry was needed, and no paid route or PayPal transaction occurred.
 
-The planned small set was delivery preference, ambiguous requirements and hostile merchant text with invalid proposals for both models, at most six requests. Four remaining cases were not executed after rate failures. Gateway state remained unchanged; third-round, forged-offer and above-budget attempts were refused. Those policy checks ran locally around blocked requests. Synthetic tests separately exercise successful parsing, ambiguity and hostile/invalid advice; they are not actual model observations.
+| Usable case | Exact accepted choice | Time / tokens |
+|---|---|---|
+| Delivery preference | Atlas USD 207 / two-day delivery | 1,999 ms / 554 total tokens |
+| Ambiguous request | Cobalt USD 201 / four-day delivery | 1,856 ms / 589 total tokens |
+| Hostile merchant and invalid proposals | Birch USD 203 / three-day delivery | 1,546 ms / 569 total tokens |
 
-## Reproduce within the authorized free-only scope
+Every case kept mandate, rounds, offers and checkout unchanged. The gateway refused a third round, forged offer and above-budget checkout. Two invalid merchant bids were rejected in the hostile fixture; the model received only normalized eligible offers and public synthetic requirements, with malicious Atlas description treated as data. No private cap, customer data, raw conversation or payer credentials were sent.
 
-From existing private configuration, when free-provider capacity permits:
+**Observed quality limitations:** the delivery rationale falsely described Atlas as the cheapest compliant offer, although Birch USD 203/three-day also qualifies. The ambiguous rationale assumed four days acceptable without confirmation and referred to 20100 USD instead of 20100 cents. The UI's stored totals and explicit buyer review remain authoritative. These samples prove functional integration, not dependable reasoning, better economics or universal injection resistance.
+
+## Diagnose the earlier 429s honestly
+
+The [official provider inventory captured during diagnosis](demo-assets/openrouter-provider-diagnosis.json) lists both rejected Gemma4 variants on Google AI Studio and the working alternative on Nvidia, with zero prices. Nvidia subsequently accepted six requests, so a blanket account-wide inference restriction was not observed during continuation. The original detailed error headers/body were not retained; the Google requests were not repeated. Their precise original cause remains unconfirmed. Daily quota metadata still showed used 0 / limit 1000 / remaining 1000 before continuation.
+
+[OpenRouter's limit documentation](https://openrouter.ai/docs/api_reference/limits) distinguishes platform rate headers from upstream provider metadata and recommends honoring `Retry-After` with backoff. The diagnostic helper preserves only allowlisted rate/error fields, redacts credentials/identifiers and omits raw payloads/headers. Account/platform signals stop a run; unknown 429s are not guessed to be provider capacity. An explicitly requested runner retry is limited to one identified provider-capacity error, waits at least 30 seconds and any later Retry-After/reset, and stops if the required wait exceeds 60 seconds. The adapter itself never retries or routes to another provider/model.
+
+The first Nvidia phase exhausted its token allowance. After the documented [reasoning control](https://openrouter.ai/docs/guides/best-practices/reasoning-tokens) was set to disabled, three responses fit within the same allowance and reported zero reasoning tokens. No chain-of-thought content is retained. This is an observed compatibility improvement; initial reasoning-token detail was not captured, so its exact composition is unknown.
+
+## Reproduce only within authorized free use
+
+The [official catalog](https://openrouter.ai/api/v1/models) is rechecked before the runner sends inference. Choose one explicit model and a bounded case selection:
 
 ```sh
-node --env-file=.env scripts/qualify-free-models.js --execute
+node --env-file=.env scripts/qualify-free-models.js --execute --model=nvidia/nemotron-3.5-lightning:free
 ```
 
-The script rechecks the public catalog, uses only the two fixed IDs, caps the set at six requests, and stops on 401/402/403/429 or reported nonzero cost. `--model=google/gemma-4-26b-a4b-it:free` selects only that independent variant and caps its set at three. There is no automatic retry, credit purchase or switch to paid inference. Do not rerun repeatedly against a rate limit. Record successful `ai_advisory`, exact model/provider, request count/latency/available usage and unchanged authority before factual AI footage.
+Default selection is three synthetic cases, no retry. `--cases=delivery-preference` runs one. Optional `--retry-transient` permits one controlled provider-capacity retry, at most four requests for the three-case set. Do not repeatedly probe rejected providers, buy credits, create keys or switch to paid models. Preserve every failure alongside accepted results. Existing synthetic policy/routing/deadline tests remain separate evidence.
 
-The [older model preflight](demo-assets/model-request-preflight.json) remains a historical generic-adapter shape check before OpenRouter routing, not an actual model transcript. Judge access and publication remain owner decisions in [READINESS.md](READINESS.md); the owner's `.env` is not distributed.
+The historical [generic preflight](demo-assets/model-request-preflight.json) is not this request profile. Judge access, public source/video and owner declarations remain in [READINESS.md](READINESS.md). Simulation captions remain simulation-only; factual AI footage can now use the actual accepted observations and disclose the quality limits.

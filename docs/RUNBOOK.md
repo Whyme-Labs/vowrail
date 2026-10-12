@@ -45,7 +45,7 @@ The supported configuration inputs are inherited environment variables or a deve
 
 ## Real AI advisory demonstration
 
-Before an actual call, use the [one-call qualification plan](MODEL_QUALIFICATION.md) to confirm provider/model compatibility, private configuration and explicit cost permission. Free-only OpenRouter use is authorized through the existing key; actual attempts currently return HTTP 429. No paid model call is authorized.
+Before an actual call, use the [one-call qualification plan](MODEL_QUALIFICATION.md) to confirm provider/model compatibility, private configuration and explicit cost permission. Free-only OpenRouter use is authorized through the existing key; the current Nvidia route has three accepted actual advisory cases. No paid model call is authorized.
 
 Set `AI_API_KEY`, `AI_MODEL`, and optionally `AI_BASE_URL`, using a provider compatible with chat completions. Restart. Ask for an offer recommendation. Inspect `ai_advisory` vs fallback in the HTTP response. The source `src/adapters/ai.js` makes an actual remote API call only when configured. There is no model key included in the repo. By default the merchant agents remain synthetic scripted price functions. Set `AI_MERCHANTS=1` to use one optional synthetic LLM merchant, with merchant-side price bounds still enforced by code. This is not a real merchant.
 
