@@ -15,7 +15,7 @@ Base URL: `http://127.0.0.1:8787`. JSON only for POST. **No authentication; do n
 | `GET /api/intents/:id/simulation-approval` | Simulation only: locked offer/order summary, excluding the private cap |
 | `POST /api/intents/:id/simulation-approval` | Simulation only: `{orderId}`; validate binding and active mandate, then mark local consent; does not capture |
 
-Errors: JSON object `{error:{code, message}}`, with 400 validation errors, 404 missing intents/offers, 409 state and policy conflicts, and 503 unconfigured provider or `STORAGE_UNAVAILABLE`. Exact endpoint response fields follow source implementation. Health returns `store: "local-file-journal"` for the server and HTTP 503 with `ok: false` after a checkpoint failure.
+Errors: JSON object `{error:{code, message}}`, with 400 validation errors, 404 missing intents/offers, 409 state and policy conflicts, and 503 unconfigured provider or `STORAGE_UNAVAILABLE`. Exact endpoint response fields follow source implementation. Health returns `store: "local-file-journal"` for the server and HTTP 503 with `ok: false` and `checkoutConfigured: false` after a gateway or simulated-provider checkpoint failure. All gateway state reads and actions then reject with 503; configuration-presence flags are not proof of availability.
 
 Environment:
 - `HOST=127.0.0.1`; `PORT=8787`

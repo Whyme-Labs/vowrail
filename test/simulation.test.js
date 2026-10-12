@@ -154,3 +154,38 @@ test('a conflicting simulated provider checkpoint fails closed during approval o
     assert.equal((await authoritative.getOrder(order.id)).status, action === 'capture' ? 'APPROVED' : 'PAYER_ACTION_REQUIRED');
   }
 });
+
+test('provider checkpoint failure makes HTTP health and all gateway actions unavailable', async t => {
+  for (const action of ['approval', 'capture']) {
+    await t.test(action, async t => {
+      const directory = mkdtempSync(join(tmpdir(), 'vowrail-provider-health-'));
+      t.after(() => rmSync(directory, { recursive: true, force: true }));
+      const f = await fixture(t, { directory });
+      const offerId = (await f.post(f.path + '/recommend')).data.offerId;
+      const box = (await f.post(f.path + '/checkout', { offerId })).data.checkout;
+      if (action === 'capture') await f.post(f.path + '/simulation-approval', { orderId: box.orderId });
+      const otherWriter = new FileJournal(join(directory, 'provider'), { collection: 'orders' });
+      otherWriter.save(otherWriter.load());
+      const failed = await f.post(f.path + (action === 'approval' ? '/simulation-approval' : '/capture'), { orderId: box.orderId });
+      assert.equal(failed.status, 503);
+      assert.equal(f.provider.storageHealthy, false);
+      assert.equal(f.gateway.storageHealthy, false);
+      const health = await fetch(f.base + '/api/health');
+      assert.equal(health.status, 503);
+      const status = await health.json();
+      assert.equal(status.ok, false);
+      assert.equal(status.checkoutConfigured, false);
+      assert.equal((await fetch(f.base + f.path)).status, 503);
+      assert.equal((await f.post('/api/intents', { item: 'Another synthetic request', quantity: 1, maxTotalMinor: 50000 })).status, 503);
+      for (const operation of ['rounds', 'recommend', 'checkout', 'capture', 'reconcile', 'simulation-approval']) {
+        assert.equal((await f.post(f.path + '/' + operation, { offerId, orderId: box.orderId },
+          { 'Idempotency-Key': 'after-storage-failure' })).status, 503, operation);
+      }
+      assert.equal(f.gateway.intents.size, 1);
+      assert.equal(f.gateway.intents.get(f.id).round, 1);
+      assert.equal(f.provider.captureCalls, action === 'capture' ? 1 : 0);
+      const restored = new SimulatedPayments({ store: new FileJournal(join(directory, 'provider'), { collection: 'orders' }) });
+      assert.equal((await restored.getOrder(box.orderId)).status, action === 'capture' ? 'APPROVED' : 'PAYER_ACTION_REQUIRED');
+    });
+  }
+});

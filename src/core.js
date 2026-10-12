@@ -51,7 +51,7 @@ export class NegotiationGateway {
     this.now = now;
     this.id = id;
     this.store = store;
-    this.storageHealthy = true;
+    this._storageHealthy = true;
     this.roundOperations = new Map();
     let recovered = false;
     for (const saved of store?.load() ?? []) {
@@ -114,6 +114,10 @@ export class NegotiationGateway {
     if (!valid) throw Error('Invalid persisted intent; preserve the journal for investigation');
   }
 
+  get storageHealthy() {
+    return this._storageHealthy && this.payments?.storageHealthy !== false;
+  }
+
   _assertStorage() {
     assert(this.storageHealthy, 'STORAGE_UNAVAILABLE', 'Gateway storage is unavailable; restart and inspect the local journal', 503);
   }
@@ -131,7 +135,7 @@ export class NegotiationGateway {
     try {
       this.store.save([...this.intents.values()].map(intent => ({ ...intent, roundRequests: [...intent.roundRequests] })));
     } catch {
-      this.storageHealthy = false;
+      this._storageHealthy = false;
       this._assertStorage();
     }
   }

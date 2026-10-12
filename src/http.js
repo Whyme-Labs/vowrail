@@ -54,7 +54,7 @@ export function createApp({ gateway, baseUrl = 'http://127.0.0.1:8787' } = {}) {
           aiConfigured: Boolean(gateway.ai?.isConfigured?.()),
           paypalConfigured: gateway.paymentMode === 'paypal_sandbox' && Boolean(gateway.payments?.isConfigured?.()),
           checkoutMode: gateway.paymentMode,
-          checkoutConfigured: Boolean(gateway.payments?.isConfigured?.())
+          checkoutConfigured: gateway.storageHealthy && Boolean(gateway.payments?.isConfigured?.())
         });
       }
       if (request.method === 'GET' && files.has(path)) {
