@@ -55,11 +55,16 @@ Model requests have a 10-second deadline covering both headers and response body
 2. Set `PAYPAL_CLIENT_ID` and `PAYPAL_CLIENT_SECRET` from the **Sandbox** app. Do not commit or paste credentials in issues.
 3. Set a usable `PUBLIC_BASE_URL` that PayPal can redirect to. For local-only tests, determine whether loopback callbacks work for your sandbox configuration; use an HTTPS development tunnel when needed and secure it appropriately. The server itself intentionally binds only to loopback.
 4. Launch with `node --env-file=.env src/server.js`.
-5. Create a purchase intent. Run one or two rounds, review an eligible quote and explicitly press **Create PayPal Sandbox order**.
-6. Browser is linked to PayPal Sandbox approval. Approve as the sandbox buyer. Do **not** use live credentials.
-7. Upon return, press 'Verify approval and capture'. Backend fetches the order from Sandbox to verify amount and status before capturing. Capture is explicitly not automatic.
-8. Confirm the completed order in the Sandbox dashboard and sanitized event log. Preserve a redacted transaction reference privately for verification.
-9. If a timeout or mismatch occurs, use **Check PayPal status (read only)**. The server reads the stored order ID and verifies an existing completed receipt without issuing another capture. A still-ambiguous result stays locked; inspect the Sandbox dashboard. If no order ID was returned, the app cannot recover automatically.
+5. Sign in as the separate Personal Sandbox buyer and check its funding methods before creating a mandate. Enter passwords privately. A virtual balance alone may not satisfy checkout. Our default MY buyer had virtual funds but PayPal requested a linked card. If a test card is needed, use the [official PayPal fictional-card generator](https://developer.paypal.com/credit-card-number-generator). Obtain owner approval before saving a new test payment method; verify it appears in the buyer's Sandbox wallet. Never use real card details.
+6. Create a purchase intent. Run one or two rounds, review an eligible quote and explicitly press **Create PayPal Sandbox order**. Scripted quotes expire after 10 minutes; the mandate expires after 30 minutes. Finish sign-in and funding setup before starting these timers.
+7. Browser is linked to PayPal Sandbox approval. Check the order, currency and locked total, then approve as the Sandbox buyer. Do **not** use live credentials.
+8. Upon return, press **Verify approval and capture in Sandbox**. The gateway fetches the order from Sandbox to verify its identity, amount and approval before one capture. Approval alone does not capture.
+9. Confirm the completed order in the Sandbox dashboard and sanitized event log. Preserve a redacted transaction reference privately for verification.
+10. If a timeout or mismatch occurs, use **Check PayPal status (read only)**. The server reads the stored order ID and verifies an existing completed receipt without issuing another capture. A still-ambiguous result stays locked; inspect the Sandbox dashboard. If no order ID was returned, the app cannot recover automatically.
+
+PayPal's add-card form expects `MM/YY`. Check the displayed future expiry before Save; an input mask can truncate `MM/YYYY` to an expired year. If saving returns to sign-in, treat the saved-method state as unverified. Restore the buyer session privately and inspect its wallet before another Save attempt.
+
+If setup outlasts a mandate, retain its order and journal. Capture remains prohibited after expiry. Complete the funding check, obtain authorization for a fresh mandate/order, and leave the expired order uncaptured. Do not extend expiry or rebind an old provider order to another intent.
 
 An early check before payer approval returns `ORDER_NOT_APPROVED` and keeps the original approval link available. A cancelled redirect never sends capture; the buyer can resume approval for the same locked order. **Refresh gateway status** reloads current state without executing payment. The capture button is available on a refreshed pending checkout and always requires an explicit click. After mandate expiry, use read-only reconciliation; a new capture is prohibited. Repeated completed capture requests return the already-recorded receipt without another provider call.
 
