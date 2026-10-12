@@ -4,6 +4,8 @@
 
 **Current milestone:** one actual USD 207.00 PayPal Sandbox purchase is completed and independently verified, with the receipt restored after restart. The next integration gate is one authorized real model call; [prepared inputs and checks](MODEL_QUALIFICATION.md) are ready. No final entry or repository visibility change has occurred.
 
+The latest verified source head `5f32f76` passed 106 actual Node tests, smoke and both HTTP rehearsals from a clean export; its separate `local/node22` status is successful. Hosted Actions failed before steps for account billing/spending restrictions and does not prevent routine local verification. [Judge instructions](JUDGE_GUIDE.md), current simulation rehearsal and app-only caption preparation are ready. Actual model spending approval remains pending; no provider call or credential configuration is part of this preparation.
+
 ## Committed
 
 - Product requirements, security/threat model, draft negotiation profile, interface/HTTP API, competition requirements, runbook, experimental evaluation plan, architecture decisions and MIT license.

@@ -1,0 +1,76 @@
+{
+  "generatedAt": "2026-10-12T17:27:36.143Z",
+  "result": "PASS",
+  "provider": "LOCAL_SIMULATION_NOT_PAYPAL",
+  "model": "deterministic_fallback",
+  "network": "loopback_only",
+  "scenarios": [
+    {
+      "scenario": "explicit-approval-and-capture",
+      "result": "PASS",
+      "roundLimit": "ROUND_LIMIT",
+      "overBudget": "INVALID_OFFER",
+      "earlyCapture": "ORDER_NOT_APPROVED",
+      "adviceMode": "deterministic",
+      "baselineAmountMinor": 20100,
+      "baselineDeliveryDays": 4,
+      "selectedMerchant": "Atlas Print (simulated)",
+      "selectedDeliveryDays": 2,
+      "buyerSelectedIndependentlyOfAdvice": true,
+      "lockedAmountMinor": 20700,
+      "clientAmountOverrideIgnored": true,
+      "sellerRequestFields": [
+        "intentId",
+        "item",
+        "quantity",
+        "requirements",
+        "round"
+      ],
+      "approvalAloneCaptured": false,
+      "captureCallsDuringRecovery": null,
+      "servedAppAssets": [
+        "/",
+        "/app.js",
+        "/styles.css",
+        "/simulation/approval",
+        "/approval.js"
+      ],
+      "receiptMode": "simulation",
+      "completedEvents": 1
+    },
+    {
+      "scenario": "lost-response-and-restart",
+      "result": "PASS",
+      "roundLimit": "ROUND_LIMIT",
+      "overBudget": "INVALID_OFFER",
+      "earlyCapture": "ORDER_NOT_APPROVED",
+      "adviceMode": "deterministic",
+      "baselineAmountMinor": 20100,
+      "baselineDeliveryDays": 4,
+      "selectedMerchant": "Atlas Print (simulated)",
+      "selectedDeliveryDays": 2,
+      "buyerSelectedIndependentlyOfAdvice": true,
+      "lockedAmountMinor": 20700,
+      "clientAmountOverrideIgnored": true,
+      "sellerRequestFields": [
+        "intentId",
+        "item",
+        "quantity",
+        "requirements",
+        "round"
+      ],
+      "approvalAloneCaptured": false,
+      "captureCallsDuringRecovery": 0,
+      "servedAppAssets": [
+        "/",
+        "/app.js",
+        "/styles.css",
+        "/simulation/approval",
+        "/approval.js"
+      ],
+      "receiptMode": "simulation",
+      "completedEvents": 1
+    }
+  ],
+  "limitation": "Two scripted rehearsal paths, not a benchmark, real model call or PayPal Sandbox receipt."
+}

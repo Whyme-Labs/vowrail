@@ -51,6 +51,7 @@ One owner-authorized **USD 207.00 Sandbox purchase** completed on 12 October, wi
 ## Documentation
 
 - [Current implementation status and blockers](docs/STATUS.md)
+- [Judge walkthrough and evidence guide](docs/JUDGE_GUIDE.md)
 - [Submission readiness and exact remaining inputs](docs/READINESS.md)
 - [Current honest demo script and submission checklist](docs/DEMO.md)
 - [Reusable demo assets and evidence provenance](docs/demo-assets/README.md)

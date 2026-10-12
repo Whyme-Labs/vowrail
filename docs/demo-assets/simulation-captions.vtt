@@ -1,0 +1,35 @@
+WEBVTT
+
+NOTE Simulation rehearsal captions only. No functioning video has been recorded or uploaded from this track. Do not use it to label simulated footage as actual PayPal or AI evidence.
+
+00:00.000 --> 00:15.000
+Vowrail keeps purchase permission in a deterministic gateway.
+This is local simulation: no PayPal or model calls, and no money moves.
+
+00:15.000 --> 00:35.000
+The buyer requests 100 prints, with a private $220 ceiling and two rounds.
+Sellers receive public requirements; the ceiling stays with the gateway.
+
+00:35.000 --> 00:55.000
+Three simulated sellers return quotes.
+Offers above the ceiling cannot proceed to checkout.
+
+00:55.000 --> 01:15.000
+Round two completes the authorized allowance.
+The gateway rejects a third round and retains earlier valid quotes.
+
+01:15.000 --> 01:30.000
+This advice is deterministic fallback, not a model result.
+The cheapest eligible quote is $201 with four-day delivery.
+
+01:30.000 --> 01:55.000
+The buyer instead selects Atlas's $207 quote with two-day delivery.
+Review shows the stored total and expiry; the gateway locks that amount.
+
+01:55.000 --> 02:15.000
+Separate simulated approval records consent.
+Capture needs another explicit action after returning to Vowrail.
+
+02:15.000 --> 02:30.000
+This is a simulated receipt. A separate actual Sandbox purchase is verified.
+Real model qualification and the final competition video remain pending.

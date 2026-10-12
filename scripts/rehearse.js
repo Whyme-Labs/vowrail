@@ -31,6 +31,17 @@ async function scenario(loseCaptureResponseOnce) {
   };
   try {
     await start();
+    const assets = [];
+    for (const asset of ['/', '/app.js', '/styles.css', '/simulation/approval', '/approval.js']) {
+      const response = await fetch(base + asset, { signal: AbortSignal.timeout(3000) });
+      assert.equal(response.status, 200);
+      assert.equal(response.headers.get('x-frame-options'), 'DENY');
+      assert.ok(response.headers.get('content-security-policy').includes("connect-src 'self'"));
+      const content = await response.text();
+      if (asset === '/') assert.ok(content.includes('no PayPal or model calls'));
+      if (asset === '/simulation/approval') assert.ok(content.includes('not a PayPal page or transaction'));
+      assets.push(asset);
+    }
     const health = (await request('/api/health')).data;
     assert.equal(health.checkoutMode, 'simulation'); assert.equal(health.paypalConfigured, false); assert.equal(health.aiConfigured, false);
     const id = (await request('/api/intents', 'POST', { item: 'Synthetic rehearsal print run', quantity: 100,
@@ -46,14 +57,22 @@ async function scenario(loseCaptureResponseOnce) {
     assert.equal(rejected.data.error.code, 'INVALID_OFFER');
     const advice = (await request(path + '/recommend', 'POST')).data;
     assert.equal(advice.mode, 'deterministic');
-    const box = (await request(path + '/checkout', 'POST', { offerId: advice.offerId, amountMinor: 1 })).data.checkout;
-    assert.equal(box.mode, 'simulation'); assert.equal(box.amountMinor, 20100);
+    const baseline = second.offers.find(o => o.offerId === advice.offerId);
+    assert.equal(baseline.amountMinor, 20100); assert.equal(baseline.deliveryDays, 4);
+    // The buyer's explicit selection can value delivery over the minimum-price advice.
+    const selected = second.offers.find(o => o.merchantId === 'atlas-print' && o.round === 2);
+    assert.equal(selected.amountMinor, 20700); assert.equal(selected.deliveryDays, 2);
+    assert.notEqual(selected.offerId, advice.offerId);
+    assert.equal(gateway.getIntent(id).checkout, null, 'advice cannot create an order');
+    const box = (await request(path + '/checkout', 'POST', { offerId: selected.offerId, amountMinor: 1 })).data.checkout;
+    assert.equal(box.mode, 'simulation'); assert.equal(box.amountMinor, 20700);
     const early = await request(path + '/capture', 'POST', { orderId: box.orderId });
     assert.equal(early.data.error.code, 'ORDER_NOT_APPROVED'); assert.equal(payments.captureCalls, 0);
     const approval = (await request(path + '/simulation-approval')).data;
     assert.equal(JSON.stringify(approval).includes('maxTotalMinor'), false);
     await request(path + '/simulation-approval', 'POST', { orderId: box.orderId });
     assert.equal(gateway.getIntent(id).state, 'AWAITING_BUYER_APPROVAL');
+    assert.equal(payments.captureCalls, 0, 'approval alone cannot capture');
     const capture = await request(path + '/capture', 'POST', { orderId: box.orderId });
     assert.equal(payments.captureCalls, 1);
     if (loseCaptureResponseOnce) {
@@ -64,13 +83,20 @@ async function scenario(loseCaptureResponseOnce) {
       assert.equal(payments.captureCalls, 0, 'restart recovery cannot recapture');
     } else assert.equal(capture.data.state, 'COMPLETED');
     const completed = (await request(path)).data;
+    const captureCallsBeforeReplay = payments.captureCalls;
     await request(path + '/capture', 'POST', { orderId: box.orderId });
+    assert.equal(payments.captureCalls, captureCallsBeforeReplay, 'completed replay cannot recapture');
     assert.equal(completed.events.filter(e => e.type === 'payment.completed').length, 1);
     assert.equal(completed.checkout.mode, 'simulation');
     assert.match(completed.checkout.captureId, /^SIMCAPTURE_/);
     return { scenario: loseCaptureResponseOnce ? 'lost-response-and-restart' : 'explicit-approval-and-capture', result: 'PASS',
       roundLimit: third.data.error.code, overBudget: rejected.data.error.code, earlyCapture: early.data.error.code,
-      lockedAmountMinor: box.amountMinor, receiptMode: completed.checkout.mode, completedEvents: 1 };
+      adviceMode: advice.mode, baselineAmountMinor: baseline.amountMinor, baselineDeliveryDays: baseline.deliveryDays,
+      selectedMerchant: selected.merchantName, selectedDeliveryDays: selected.deliveryDays,
+      buyerSelectedIndependentlyOfAdvice: true, lockedAmountMinor: box.amountMinor,
+      clientAmountOverrideIgnored: true, sellerRequestFields: Object.keys(gateway.publicMerchantRequest(id, 1)).sort(),
+      approvalAloneCaptured: false, captureCallsDuringRecovery: loseCaptureResponseOnce ? payments.captureCalls : null,
+      servedAppAssets: assets, receiptMode: completed.checkout.mode, completedEvents: 1 };
   } finally {
     if (server?.listening) await stop();
     rmSync(directory, { recursive: true, force: true });

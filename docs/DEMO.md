@@ -6,6 +6,8 @@ Updated 13 October 2026 (MYT). The script below rehearses local simulation; its 
 
 Run `npm run rehearse`, then `npm run demo` and open http://127.0.0.1:8787. No installation, credentials, external service or model billing is required. Start a fresh intent with synthetic data. Record only app content, excluding unrelated browser tabs, account dashboards, environment files and terminal history. The simulator ignores inherited provider configuration.
 
+For a source-to-browser walkthrough using a separate port/state root, see [JUDGE_GUIDE.md](JUDGE_GUIDE.md). [Simulation-only captions](demo-assets/simulation-captions.vtt) match the shot plan below. The current HTTP rehearsal explicitly chooses Atlas USD 207/two-day delivery after minimum-price advice picks Cobalt USD 201/four-day; [judge rehearsal output](demo-assets/judge-rehearsal.json) records that choice without a provider call.
+
 | Time | Action and narration |
 |---|---|
 | 0:00–0:15 | Show the persistent simulation banner. “Vowrail keeps purchase permission in a deterministic gateway. This recording uses local simulation: no PayPal or model calls, and no money moves.” |
