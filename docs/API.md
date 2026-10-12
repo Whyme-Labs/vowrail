@@ -8,7 +8,7 @@ Base URL: `http://127.0.0.1:8787`. JSON only for POST. **No authentication; do n
 | `POST /api/intents` | Create mandate from `{item, quantity, requirements, currency:"USD", maxTotalMinor, maxRounds}` |
 | `GET /api/intents/:id` | Public-facing state, offers, decisions and event history; no private ceiling in seller requests |
 | `POST /api/intents/:id/rounds` | Reserve and execute exactly one coordinated round, subject to max rounds |
-| `POST /api/intents/:id/recommend` | Advisory AI recommendation if configured; otherwise deterministic fallback marked as such |
+| `POST /api/intents/:id/recommend` | Advisory AI recommendation if configured; otherwise deterministic fallback marked as such. `reason` is unverified model text, not a checked price or delivery claim. |
 | `POST /api/intents/:id/checkout` | `{offerId}`; creates an order in the server-selected checkout mode only after checks |
 | `POST /api/intents/:id/capture` | `{orderId}`; verify intent, approval, amount and active mandate, then capture once on explicit buyer action; completed retries return the stored receipt |
 | `POST /api/intents/:id/reconcile` | `{}`; read the stored PayPal order ID and verify any completed capture; never sends another capture or accepts a caller-supplied order ID |

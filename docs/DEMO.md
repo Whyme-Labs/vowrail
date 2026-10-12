@@ -27,6 +27,8 @@ Optional recovery segment: use `npm run demo:recovery` with a new mandate. After
 
 ## Final-video shot plan, after model qualification
 
+The concrete [private final sequence](FINAL_DEMO.md), [read-only recorded-evidence viewer](demo-assets/recorded-evidence.html) and [matched final-sequence captions](demo-assets/final-sequence-captions.vtt) now specify exact Nvidia outcomes, model errors and the existing one-payment evidence. These are prepared materials, not finished footage. No further inference or capture is needed.
+
 Keep the recording within 2:45. Show the functioning app and exact provider/model; retain synthetic-seller disclosures throughout. Use the existing completed Sandbox receipt and timestamped checks rather than executing another payment for footage. The receipt image documents an earlier authorized run, so narrate that provenance explicitly. Browser tabs, account pages, environment files and unrelated projects stay outside the recording.
 
 | Time | Required footage / claim |

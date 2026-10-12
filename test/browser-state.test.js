@@ -20,7 +20,7 @@ class Element {
 }
 
 async function consoleFixture({ approveUrl = 'https://www.sandbox.paypal.com/checkoutnow?token=ORDER123', open = false,
-  paypalConfigured = true, fresh = false, simulation = false, restoredState, returnParams = '' } = {}) {
+  paypalConfigured = true, fresh = false, simulation = false, restoredState, returnParams = '', recommendation, quotedOffers } = {}) {
   if (simulation) approveUrl = '/simulation/approval?intent=12345678-1234-1234-1234-123456789abc&order=ORDER123';
   const html = await readFile(new URL('../public/index.html', import.meta.url), 'utf8');
   const source = await readFile(new URL('../public/app.js', import.meta.url), 'utf8');
@@ -46,6 +46,7 @@ async function consoleFixture({ approveUrl = 'https://www.sandbox.paypal.com/che
       { offerId: 'over-budget', merchantName: 'Atlas (simulated)', amountMinor: 23500, currency: 'USD', round: 1,
         deliveryDays: 2, description: 'Synthetic quote.', validUntil: new Date(now + 60000).toISOString() }
     ];
+    if (quotedOffers) state.offers = quotedOffers.map(offer => ({ ...offer, round: 2, validUntil: new Date(now + 60000).toISOString() }));
   }
   if (restoredState) {
     state.state = state.checkout.status = restoredState;
@@ -76,7 +77,7 @@ async function consoleFixture({ approveUrl = 'https://www.sandbox.paypal.com/che
         state.checkout = { mode: simulation ? 'simulation' : 'paypal_sandbox', status: state.state, orderId: 'ORDER123', amountMinor: 21600, approveUrl };
       }
       if (path.endsWith('/rounds')) state.round = state.mandate.maxRounds;
-      if (path.endsWith('/recommend')) return { ok: true, json: async () => ({ offerId: 'eligible', mode: 'deterministic', reason: 'Eligible quote.' }) };
+      if (path.endsWith('/recommend')) return { ok: true, json: async () => recommendation ?? ({ offerId: 'eligible', mode: 'deterministic', reason: 'Eligible quote.' }) };
       return { ok: true, json: async () => path.endsWith('/health') ? { paypalConfigured: simulation ? false : paypalConfigured, aiConfigured: false,
         checkoutMode: simulation ? 'simulation' : 'paypal_sandbox', checkoutConfigured: simulation || paypalConfigured }
         : structuredClone(state) };
@@ -159,6 +160,25 @@ test('recommendation results become the keyboard reading position without initia
   assert.match(f.elements.get('advice').children[0].textContent, /Deterministic fallback/);
   assert.equal(f.calls.some(c => c.path.endsWith('/checkout')), false);
 });
+
+for (const scenario of ['delivery-preference', 'ambiguous-request']) {
+  test('recorded ' + scenario + ' advice separates stored quote from unverified rationale without choosing or paying', async () => {
+    const evidence = JSON.parse(await readFile(new URL('../docs/demo-assets/openrouter-free-qualification.json', import.meta.url), 'utf8'));
+    const observed = evidence.cases.find(c => c.scenario === scenario && c.advice.mode === 'ai_advisory');
+    const f = await consoleFixture({ open: true, recommendation: observed.advice, quotedOffers: observed.requestInput.offers });
+    await f.elements.get('recommend').click();
+    const paragraphs = f.elements.get('advice').children.map(e => e.textContent);
+    assert.match(paragraphs[0], /Model suggestion/);
+    assert.match(paragraphs[1], scenario === 'delivery-preference' ? /Atlas.*\$207\.00 USD.*2-day delivery estimate/ : /Cobalt.*\$201\.00 USD.*4-day delivery estimate/);
+    assert.equal(paragraphs[2], 'Unverified model explanation: ' + observed.advice.reason);
+    assert.match(paragraphs[3], /price, delivery or unit errors/);
+    assert.match(paragraphs[3], /confirm delivery meets your requirements/);
+    assert.equal(f.document.activeElement, f.elements.get('advice'));
+    assert.equal(f.elements.get('offer-review').hidden, true);
+    assert.equal(f.state.checkout, null);
+    assert.equal(f.calls.some(c => c.path.endsWith('/checkout') || c.path.endsWith('/capture')), false);
+  });
+}
 
 test('a successful advice retry clears the previous error and focuses the returned evaluation', async () => {
   const f = await consoleFixture({ open: true });

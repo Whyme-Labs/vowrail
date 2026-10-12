@@ -29,7 +29,7 @@ T0: Buyer-input boundary: form values are untrusted; parse maximum spend as **in
 
 T1: Merchant boundary: project only `intentId`, round, item, quantity and whitelisted requirements. Never serialize a raw mandate or send private notes. A seller may infer urgency from a deadline, but cannot directly read the buyer's max budget from this request.
 
-T2: Model boundary: only eligible normalized offers + public requirements go to the optional remote AI provider. The model returns a candidate ID and rationale; the engine validates the ID and continues independently. Remote-model provider sees those inputs, subject to its own data policy.
+T2: Model boundary: only eligible normalized offers + public requirements go to the optional remote AI provider. The model returns a candidate ID and rationale; the engine validates the ID and continues independently. Rationale accuracy and interpretation of delivery requirements are not validated. The browser labels the explanation unverified, shows the stored quote separately and requires explicit buyer review. Remote-model provider sees those inputs, subject to its own data policy.
 
 T3: Payment boundary: PayPal order is built from a stored validated offer and locked intent. The demo uses one PayPal Sandbox merchant account and payer approval. It does **not** settle to the three simulated merchants.
 

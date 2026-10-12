@@ -254,8 +254,15 @@ $('refresh-status').addEventListener('click', () => perform(async () => {
 $('recommend').addEventListener('click', () => perform(async () => {
   const advice = await request('/api/intents/' + intent.intentId + '/recommend', 'POST');
   const offer = intent.offers.find(o => o.offerId === advice.offerId);
-  $('advice').replaceChildren(node('strong', advice.mode === 'ai_advisory' ? 'Model advice' : 'Deterministic fallback'),
-    node('p', (offer ? offer.merchantName + ': ' : '') + advice.reason));
+  const modelAdvice = advice.mode === 'ai_advisory';
+  const box = $('advice');
+  box.replaceChildren(node('strong', modelAdvice ? 'Model suggestion' : 'Deterministic fallback'));
+  if (modelAdvice) {
+    box.append(node('p', offer ? offer.merchantName + ' · Stored quote: ' + format(offer.amountMinor)
+      + ' USD · ' + offer.deliveryDays + '-day delivery estimate.' : 'Suggested quote is not loaded. Refresh status before choosing an offer.'),
+      node('p', 'Unverified model explanation: ' + advice.reason),
+      node('p', 'The explanation may contain price, delivery or unit errors. Compare stored quotes and confirm delivery meets your requirements before choosing an offer.'));
+  } else box.append(node('p', (offer ? offer.merchantName + ': ' : '') + advice.reason));
   notice('Offer evaluation loaded. Advice does not authorize checkout.');
 }, 'advice'));
 async function main() {

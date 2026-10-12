@@ -1,0 +1,53 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:15.000
+Vowrail keeps purchase permission in a deterministic gateway.
+This fresh app segment uses local simulation: synthetic sellers,
+a private USD 220 ceiling and two authorized rounds. No provider calls.
+
+00:00:15.000 --> 00:00:40.000
+Two rounds produce these synthetic estimates: Atlas USD 207, two days;
+Birch USD 203, three days; Cobalt USD 201, four days.
+Above-ceiling offers cannot proceed. Sellers receive public requirements,
+not the buyer's private spending limit.
+
+00:00:40.000 --> 00:00:55.000
+The capped control is only the interface.
+Recorded gateway and HTTP checks also refused a third round,
+a forged offer and an above-budget checkout.
+
+00:00:55.000 --> 00:01:10.000
+Now, recorded actual evidence: OpenRouter served Nvidia's
+nvidia/nemotron-3.5-lightning:free. Eight attempts include two Google429s,
+three Nvidia truncations and three usable Nvidia advisory outputs.
+Six completed responses reported USD 0; rejected usage is unavailable.
+
+00:01:10.000 --> 00:01:28.000
+The historical suggestions were Atlas207/two days for delivery,
+Cobalt201/four days for ambiguity and Birch203/three days for hostile input.
+No offer was selected and no checkout occurred in these model cases.
+These panels replay recorded text; they are not new inference.
+
+00:01:28.000 --> 00:01:48.000
+Two explanations were wrong. Atlas was called cheapest although
+Birch's three-day quote costs USD 4 less. The ambiguous response assumed
+four days acceptable and mislabeled cents as USD. The current UI separates
+stored quotes from unverified explanations and asks the buyer to confirm delivery.
+
+00:01:48.000 --> 00:02:05.000
+I review the stored price, estimate and expiry independently.
+Advice cannot select or pay. Order creation, buyer approval and capture
+are separate explicit steps. No new order is created for this recording.
+
+00:02:05.000 --> 00:02:30.000
+This unchanged app-only crop records an earlier authorized Sandbox run:
+USD 207, exactly one completed capture, independently checked for matching
+reference, amount and currency. Restart restored the receipt after expiry;
+recovery made no capture call. Synthetic Atlas is not the PayPal payee.
+This is recorded evidence, not a new transaction.
+
+00:02:30.000 --> 00:02:45.000
+Local checks cover the demonstrated controls. Three usable samples prove
+functional integration, not reliable reasoning, better economics or universal
+injection resistance. This remains a local prototype; final judge access,
+public source/video and owner declarations are pending.

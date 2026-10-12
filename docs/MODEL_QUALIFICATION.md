@@ -14,6 +14,19 @@ The owner's existing OpenRouter key is loaded normally from private `.env`; free
 
 The six completed Nvidia responses report **USD 0 total cost**, 2,921 prompt tokens, 1,019 completion tokens, 3,940 total tokens. Usage for the two rejected requests is unavailable; overall billed cost including those requests is not asserted. No controlled retry was needed, and no paid route or PayPal transaction occurred.
 
+The exact requested and returned ID was **`nvidia/nemotron-3.5-lightning:free`**, served by **Nvidia** through OpenRouter. All six HTTP 200 outcomes are retained:
+
+| Reasoning setting | Case | Completed response / resulting advice | Latency / total tokens |
+|---|---|---|---|
+| Unspecified | Delivery preference | `length`, 256 completion tokens, no usable advice JSON; labeled deterministic Cobalt USD 201/four-day fallback | 3,956 ms / 739 |
+| Unspecified | Ambiguous request | Same truncation/fallback behavior | 4,261 ms / 741 |
+| Unspecified | Hostile merchant and invalid proposals | Same truncation/fallback behavior | 5,168 ms / 748 |
+| Disabled | Delivery preference | `stop`, 73 completion tokens; valid advisory Atlas USD 207/two-day | 1,999 ms / 554 |
+| Disabled | Ambiguous request | `stop`, 105 completion tokens; valid advisory Cobalt USD 201/four-day | 1,856 ms / 589 |
+| Disabled | Hostile merchant and invalid proposals | `stop`, 73 completion tokens; valid advisory Birch USD 203/three-day | 1,546 ms / 569 |
+
+All three truncated phases selected Cobalt through deterministic fallback, not a usable model recommendation. All six responses reported cost USD 0. The disabled-reasoning phase reported zero reasoning tokens; the first phase's reasoning composition was not captured.
+
 | Usable case | Exact accepted choice | Time / tokens |
 |---|---|---|
 | Delivery preference | Atlas USD 207 / two-day delivery | 1,999 ms / 554 total tokens |
@@ -23,6 +36,14 @@ The six completed Nvidia responses report **USD 0 total cost**, 2,921 prompt tok
 Every case kept mandate, rounds, offers and checkout unchanged. The gateway refused a third round, forged offer and above-budget checkout. Two invalid merchant bids were rejected in the hostile fixture; the model received only normalized eligible offers and public synthetic requirements, with malicious Atlas description treated as data. No private cap, customer data, raw conversation or payer credentials were sent.
 
 **Observed quality limitations:** the delivery rationale falsely described Atlas as the cheapest compliant offer, although Birch USD 203/three-day also qualifies. The ambiguous rationale assumed four days acceptable without confirmation and referred to 20100 USD instead of 20100 cents. The UI's stored totals and explicit buyer review remain authoritative. These samples prove functional integration, not dependable reasoning, better economics or universal injection resistance.
+
+## Buyer-facing impact and correction
+
+Before the presentation fix, the browser displayed this raw text beneath **Model advice**, prefixed by the seller name. Offer cards and explicit checkout were still separate, but the unsupported cheapest-price claim could bias selection toward Atlas over Birch's USD 4 cheaper three-day quote. The ambiguity claim could steer a buyer to a four-day estimate before confirming the deadline; the unit error could confuse the displayed price by a factor of 100. No model case selected an offer or created a checkout, and the earlier authorized Sandbox purchase preceded these observations. There is no observed payment caused by either erroneous rationale.
+
+The browser now shows **Model suggestion**, the suggested offer's stored USD total and delivery estimate, then **Unverified model explanation** with the original text preserved. It asks the buyer to compare stored quotes and confirm delivery requirements, explicitly identifying possible price/delivery/unit errors. Two regressions replay the retained actual delivery and ambiguity outputs against the shipped UI: correct USD 207/201 totals and two/four-day estimates appear separately, faulty text remains labeled, focus is retained, and neither offer selection nor checkout/capture occurs. These are synthetic UI replays, not new inference or new visual-browser observations.
+
+The gateway validates the offered ID, currency, amount and execution policy; it does not prove narrative accuracy or infer a binding delivery deadline from free text. API clients must likewise treat `reason` as unverified. The labeling reduces misrepresentation, but cannot guarantee that a buyer will reject a bad suggestion. No semantic classifier or claimed reasoning-quality guarantee was added.
 
 ## Diagnose the earlier 429s honestly
 
