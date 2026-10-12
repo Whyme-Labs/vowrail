@@ -46,6 +46,8 @@ node --env-file=.env src/server.js
 
 Never commit client secrets. There are **no live PayPal endpoints** in the prototype.
 
+An existing `OPENROUTER_API_KEY` selects strict free-only advice ahead of legacy settings: explicit `google/gemma-4-31b-it:free`, zero prompt/completion/request price caps and no provider/model fallback. Optional `OPENROUTER_MODEL` must be an explicit `:free` variant. The owner authorized free use; both selected variants returned HTTP 429 in the bounded [qualification attempt](docs/MODEL_QUALIFICATION.md). Successful inference remains unverified; no paid fallback is used. Simulation ignores all model settings.
+
 One owner-authorized **USD 207.00 Sandbox purchase** completed on 12 October, with independently verified capture and restart receipt recovery. [Actual Sandbox evidence](docs/PAYPAL_EVIDENCE.md) is separate from the local simulator. Real model inference remains unverified; [the next qualification plan](docs/MODEL_QUALIFICATION.md) is prepared.
 
 ## Documentation

@@ -1,29 +1,36 @@
-# Next gate: one real buyer-advice call
+# Free-only model qualification
 
-The model adapter and synthetic hostile-output/deadline tests pass. No actual model inference has been observed. Deterministic advice and the preflight below do not satisfy the meaningful AI gate in [issue #4](https://github.com/Whyme-Labs/vowrail/issues/4).
+The owner supplied an existing `OPENROUTER_API_KEY` privately and explicitly authorized free-model use on 13 October 2026 MYT. This supersedes the previous direct-OpenAI paid-call proposal. No paid inference, new credential or private environment-file change is authorized or performed.
 
-## Concrete owner inputs
+## Shipped route and constraints
 
-- Proposed existing provider: **OpenAI**, exact model **`gpt-4.1-mini-2025-04-14`**, base URL **`https://api.openai.com/v1`**. This snapshot supports Chat Completions and is listed at USD 0.40/M input and USD 1.60/M output tokens in the [official model documentation](https://developers.openai.com/api/docs/models/gpt-4.1-mini), checked 13 October 2026 MYT. It is a proposal, not configured access or authorization.
-- Enter `AI_API_KEY` and `AI_MODEL` privately in the ignored, owner-readable `.env`; set `AI_BASE_URL` if required. Existing PayPal settings remain private. Do not send key values through chat or issues.
-- Proposed permission: **one synthetic buyer-advice request, no retry, maximum USD 0.01 total test spend**, using an existing key/project with access to that model. The adapter rejects request bodies above 8 KiB before transport and sends `max_completion_tokens: 256`, alongside its 10-second deadline. Using a deliberately conservative 10,000-input-token allowance plus 256 output tokens gives an estimated USD 0.00441 at those rates, below the proposed cent. The prepared request is much smaller. This is an estimate, not billed usage; recheck rates before executing and stop if they exceed the approved budget.
+The application loads its existing environment normally. When `OPENROUTER_API_KEY` is present, it takes precedence over legacy `AI_*` settings and selects the official OpenRouter API with explicit `google/gemma-4-31b-it:free`. `OPENROUTER_MODEL` can select another explicit `:free` variant; paid IDs and automatic routers are rejected before transport. The [official model catalog](https://openrouter.ai/api/v1/models) listed both that ID and `google/gemma-4-26b-a4b-it:free` with zero prompt/completion pricing when checked.
 
-No account or credential creation is required for this plan. No paid inference is authorized yet. Keep `AI_MERCHANTS=0`, `DEMO_MODE` unset and all checkout actions unused; two merchant rounds then make no model calls.
+Requests set `provider.max_price` to zero for prompt, completion and per-request charges, `allow_fallbacks:false`, and `require_parameters:true`, with no model fallback array. OpenRouter documents [price filtering](https://openrouter.ai/docs/guides/routing/provider-selection); unavailable zero-price routing must fail instead of routing to a paid option. The adapter uses OpenRouter's `max_tokens:256`, an 8 KiB UTF-8 request limit and ten-second deadline. Nonzero/invalid reported cost is rejected; missing usage is unavailable, not assumed zero.
 
-If no existing OpenAI key/project is available, the owner should identify their existing compatible provider instead. Do not create a key or account to satisfy this proposal. Compatibility now includes the [completion-token bound](https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create); unsupported request fields yield the existing labeled fallback, not an unbounded retry.
+Only public synthetic requirements and normalized eligible offers are sent. The private cap, raw conversation, payer data, credentials and Authorization header are absent from evidence. `npm run demo` still constructs no model adapter and ignores configured OpenRouter settings. Keep `AI_MERCHANTS=0` for the smallest advice test; no payment adapter is constructed by the qualification script.
 
-## Prepared request and baseline
+## Actual observations and blocker
 
-[model-request-preflight.json](demo-assets/model-request-preflight.json) was produced from the shipped gateway and adapter with an injected local transport. It contains the exact public requirements and normalized eligible-offer projection for the synthetic print fixture, with stable fixture IDs. It is a request-shape check, not a model transcript. The API key/header is excluded. The private cap, raw conversations and checkout credentials are not present in the payload.
+[Sanitized report](demo-assets/openrouter-free-qualification.json) records **two inference requests**, one independently selected case for each verified free model:
 
-Use item `Synthetic model qualification print run`, quantity 100, requirements `Matte finish. Delivery within three days matters more than a small price saving.`, USD ceiling 22000 cents and two rounds. The deterministic baseline chooses Cobalt's USD 201/four-day quote by amount; Atlas's USD 207/two-day and Birch's USD 203/three-day quotes are also eligible. An observed model choice must be reported honestly, even if it agrees with the baseline or misses the delivery preference. One sample demonstrates integration and decision support; it does not prove better economics.
+| Explicit model | Actual result | Time |
+|---|---|---|
+| `google/gemma-4-31b-it:free` | HTTP 429; deterministic fallback | 970 ms |
+| `google/gemma-4-26b-a4b-it:free` | HTTP 429; deterministic fallback | 863 ms |
 
-## Authorized run and evidence, when inputs are ready
+Each run stopped at its first account/rate error, without retry or provider/model fallback. No successful actual model output was obtained, so the real AI gate remains unqualified. Provider token/cost usage was not returned. The read-only quota check between runs reported used 0, limit 1000, remaining 1000; daily exhaustion is not established. The precise upstream/platform per-minute or capacity cause is unknown. [Official rate-limit documentation](https://openrouter.ai/docs/api_reference/limits) distinguishes platform and provider limits; no credits were purchased to alter them.
 
-1. Use the actual adapter on loopback with preserved private state. Check configuration names/presence only, then create the synthetic mandate and run both scripted rounds. Never enable the synthetic model merchant for this one-call test.
-2. Record the deterministic baseline from the same eligible offers before requesting advice. Verify the adapter request projection; capture only sanitized fields and omit Authorization and raw headers.
-3. Issue exactly one recommendation request. Record actual provider/model/base URL, UTC timestamp, elapsed time, request count, response `mode`, selected eligible ID and reason. Record provider-returned token usage if available and cost only from an actual provider usage record or clearly labeled calculation; missing usage/cost stays unavailable. Do not retry a failed, timed-out or fallback result without new authorization.
-4. Require `ai_advisory` and a valid offered ID to qualify the successful integration. Check that mandate, round count, offers and checkout are unchanged. Advice does not select the browser's offer or create/capture a payment.
-5. Link the sanitized observation to #4 and update the demo with the exact model used. Existing hostile/malformed/timeout tests remain separately labeled synthetic evidence. No free-form model text is sent to a seller.
+The planned small set was delivery preference, ambiguous requirements and hostile merchant text with invalid proposals for both models, at most six requests. Four remaining cases were not executed after rate failures. Gateway state remained unchanged; third-round, forged-offer and above-budget attempts were refused. Those policy checks ran locally around blocked requests. Synthetic tests separately exercise successful parsing, ambiguity and hostile/invalid advice; they are not actual model observations.
 
-Judge access to this configured path still needs an owner-approved free access plan through judging. Do not publish the owner's `.env` or PayPal buyer credentials. The credential-free simulator remains independently runnable, while the actual AI and PayPal modes have distinct setup and evidence.
+## Reproduce within the authorized free-only scope
+
+From existing private configuration, when free-provider capacity permits:
+
+```sh
+node --env-file=.env scripts/qualify-free-models.js --execute
+```
+
+The script rechecks the public catalog, uses only the two fixed IDs, caps the set at six requests, and stops on 401/402/403/429 or reported nonzero cost. `--model=google/gemma-4-26b-a4b-it:free` selects only that independent variant and caps its set at three. There is no automatic retry, credit purchase or switch to paid inference. Do not rerun repeatedly against a rate limit. Record successful `ai_advisory`, exact model/provider, request count/latency/available usage and unchanged authority before factual AI footage.
+
+The [older model preflight](demo-assets/model-request-preflight.json) remains a historical generic-adapter shape check before OpenRouter routing, not an actual model transcript. Judge access and publication remain owner decisions in [READINESS.md](READINESS.md); the owner's `.env` is not distributed.

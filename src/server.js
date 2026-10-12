@@ -2,7 +2,7 @@ import { NegotiationGateway } from './core.js';
 import { simulatedMerchants } from './adapters/merchants.js';
 import { createAIMerchant } from './adapters/ai-merchant.js';
 import { PayPalSandbox } from './adapters/paypal.js';
-import { AdvisoryModel } from './adapters/ai.js';
+import { configuredAdvisoryModel } from './adapters/ai.js';
 import { createApp } from './http.js';
 import { FileJournal } from './store.js';
 import { SimulatedPayments } from './adapters/simulated-payments.js';
@@ -29,11 +29,7 @@ const payments = simulation ? new SimulatedPayments({
   clientId: process.env.PAYPAL_CLIENT_ID || '',
   clientSecret: process.env.PAYPAL_CLIENT_SECRET || ''
 });
-const ai = simulation ? null : new AdvisoryModel({
-  apiKey: process.env.AI_API_KEY || '',
-  model: process.env.AI_MODEL || '',
-  baseUrl: process.env.AI_BASE_URL || 'https://api.openai.com/v1'
-});
+const ai = simulation ? null : configuredAdvisoryModel();
 const aiMerchantEnabled = process.env.AI_MERCHANTS === '1' && Boolean(ai?.isConfigured());
 const merchants = aiMerchantEnabled
   ? [simulatedMerchants[0], createAIMerchant(ai), simulatedMerchants[2]]

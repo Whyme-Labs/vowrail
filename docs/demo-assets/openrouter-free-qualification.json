@@ -1,0 +1,210 @@
+{
+  "observedAt": "2026-10-12T17:46:08.623Z",
+  "provider": "OpenRouter",
+  "models": [
+    {
+      "id": "google/gemma-4-31b-it:free",
+      "pricing": {
+        "prompt": "0",
+        "completion": "0"
+      },
+      "supported": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "response_format",
+        "seed",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ]
+    },
+    {
+      "id": "google/gemma-4-26b-a4b-it:free",
+      "pricing": {
+        "prompt": "0",
+        "completion": "0"
+      },
+      "supported": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "response_format",
+        "seed",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ]
+    }
+  ],
+  "maxInferenceRequestsAuthorizedForSet": 6,
+  "inferenceRequests": 2,
+  "actualAdvisoryResults": 0,
+  "reportedCostUsd": null,
+  "requestLimitBytes": 8192,
+  "completionLimitTokens": 256,
+  "deadlineMs": 10000,
+  "paidFallbacks": false,
+  "realPayments": 0,
+  "cases": [
+    {
+      "model": "google/gemma-4-31b-it:free",
+      "scenario": "delivery-preference",
+      "httpStatus": 429,
+      "usage": null,
+      "requestInput": {
+        "item": "Synthetic free-model print qualification",
+        "quantity": 100,
+        "requirements": "Matte finish. Delivery within three days matters more than a small price saving.",
+        "offers": [
+          {
+            "offerId": "45942e13-28d7-4303-874c-cb2d2c159c9c",
+            "merchantName": "Cobalt Press (simulated)",
+            "amountMinor": 20100,
+            "currency": "USD",
+            "deliveryDays": 4,
+            "description": "100-unit custom matte print run, all demo charges included. Synthetic estimate, not binding."
+          },
+          {
+            "offerId": "aa0462d1-809d-4a3e-a1dd-42e11fdb746d",
+            "merchantName": "Birch Studio (simulated)",
+            "amountMinor": 20300,
+            "currency": "USD",
+            "deliveryDays": 3,
+            "description": "100-unit custom matte print run, all demo charges included. Synthetic estimate, not binding."
+          },
+          {
+            "offerId": "a573df95-fd4f-42cd-8ada-d8d41960012e",
+            "merchantName": "Atlas Print (simulated)",
+            "amountMinor": 20700,
+            "currency": "USD",
+            "deliveryDays": 2,
+            "description": "100-unit custom matte print run, all demo charges included. Synthetic estimate, not binding."
+          },
+          {
+            "offerId": "9e616a1d-25f4-40f3-b856-8b6e5fd5f426",
+            "merchantName": "Birch Studio (simulated)",
+            "amountMinor": 21600,
+            "currency": "USD",
+            "deliveryDays": 3,
+            "description": "100-unit custom matte print run, all demo charges included. Synthetic estimate, not binding."
+          }
+        ]
+      },
+      "latencyMs": 970,
+      "transportError": null,
+      "advice": {
+        "offerId": "45942e13-28d7-4303-874c-cb2d2c159c9c",
+        "reason": "Model unavailable; using eligible lowest-price fallback",
+        "mode": "deterministic"
+      },
+      "checks": {
+        "gatewayStateUnchanged": true,
+        "privateCapOmitted": true,
+        "roundLimit": "ROUND_LIMIT",
+        "forgedOffer": "INVALID_OFFER",
+        "aboveBudget": "INVALID_OFFER",
+        "checkout": null,
+        "invalidMerchantBidsRejected": 0
+      }
+    },
+    {
+      "model": "google/gemma-4-26b-a4b-it:free",
+      "scenario": "delivery-preference",
+      "httpStatus": 429,
+      "usage": null,
+      "requestInput": {
+        "item": "Synthetic free-model print qualification",
+        "quantity": 100,
+        "requirements": "Matte finish. Delivery within three days matters more than a small price saving.",
+        "offers": [
+          {
+            "offerId": "8ca5b1a0-c8a5-49ae-b117-6974a6700cb6",
+            "merchantName": "Cobalt Press (simulated)",
+            "amountMinor": 20100,
+            "currency": "USD",
+            "deliveryDays": 4,
+            "description": "100-unit custom matte print run, all demo charges included. Synthetic estimate, not binding."
+          },
+          {
+            "offerId": "cf0520cf-0958-45e7-baa5-0ceb3041d159",
+            "merchantName": "Birch Studio (simulated)",
+            "amountMinor": 20300,
+            "currency": "USD",
+            "deliveryDays": 3,
+            "description": "100-unit custom matte print run, all demo charges included. Synthetic estimate, not binding."
+          },
+          {
+            "offerId": "33ad5833-1365-4954-9e21-f4c5a96d9f21",
+            "merchantName": "Atlas Print (simulated)",
+            "amountMinor": 20700,
+            "currency": "USD",
+            "deliveryDays": 2,
+            "description": "100-unit custom matte print run, all demo charges included. Synthetic estimate, not binding."
+          },
+          {
+            "offerId": "0e23ca04-f8dd-47fd-b641-199a87597521",
+            "merchantName": "Birch Studio (simulated)",
+            "amountMinor": 21600,
+            "currency": "USD",
+            "deliveryDays": 3,
+            "description": "100-unit custom matte print run, all demo charges included. Synthetic estimate, not binding."
+          }
+        ]
+      },
+      "providerError": {
+        "code": 429,
+        "type": null,
+        "providerCode": null
+      },
+      "latencyMs": 863,
+      "transportError": null,
+      "advice": {
+        "offerId": "8ca5b1a0-c8a5-49ae-b117-6974a6700cb6",
+        "reason": "Model unavailable; using eligible lowest-price fallback",
+        "mode": "deterministic"
+      },
+      "checks": {
+        "gatewayStateUnchanged": true,
+        "privateCapOmitted": true,
+        "roundLimit": "ROUND_LIMIT",
+        "forgedOffer": "INVALID_OFFER",
+        "aboveBudget": "INVALID_OFFER",
+        "checkout": null,
+        "invalidMerchantBidsRejected": 0
+      }
+    }
+  ],
+  "freeQuotaCheck": {
+    "observedAt": "2026-10-12T17:44:42.819Z",
+    "endpoint": "OpenRouter read-only quota metadata",
+    "httpStatus": 200,
+    "freeModelDailyRequests": {
+      "used": 0,
+      "limit": 1000,
+      "remaining": 1000
+    }
+  },
+  "blocker": "Both explicitly selected free variants returned HTTP429 on their first independent case. Each run stopped, with no retry, paid/provider/model fallback or further inference. Daily quota metadata reports1000 remaining; precise upstream/platform per-minute capacity cause is not established.",
+  "limitation": "No successful actual model output; ambiguous/hostile live cases not executed. Costs/tokens unavailable, not assumed zero. Synthetic policy and free-routing tests are separate evidence.",
+  "casesNotExecuted": [
+    {
+      "model": "google/gemma-4-31b-it:free",
+      "scenario": "ambiguous-request"
+    },
+    {
+      "model": "google/gemma-4-31b-it:free",
+      "scenario": "hostile-merchant-and-invalid-proposals"
+    },
+    {
+      "model": "google/gemma-4-26b-a4b-it:free",
+      "scenario": "ambiguous-request"
+    },
+    {
+      "model": "google/gemma-4-26b-a4b-it:free",
+      "scenario": "hostile-merchant-and-invalid-proposals"
+    }
+  ]
+}

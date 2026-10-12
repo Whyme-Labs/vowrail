@@ -45,7 +45,7 @@ The supported configuration inputs are inherited environment variables or a deve
 
 ## Real AI advisory demonstration
 
-Before an actual call, use the [one-call qualification plan](MODEL_QUALIFICATION.md) to confirm provider/model compatibility, private configuration and explicit cost permission. No paid model call is currently authorized.
+Before an actual call, use the [one-call qualification plan](MODEL_QUALIFICATION.md) to confirm provider/model compatibility, private configuration and explicit cost permission. Free-only OpenRouter use is authorized through the existing key; actual attempts currently return HTTP 429. No paid model call is authorized.
 
 Set `AI_API_KEY`, `AI_MODEL`, and optionally `AI_BASE_URL`, using a provider compatible with chat completions. Restart. Ask for an offer recommendation. Inspect `ai_advisory` vs fallback in the HTTP response. The source `src/adapters/ai.js` makes an actual remote API call only when configured. There is no model key included in the repo. By default the merchant agents remain synthetic scripted price functions. Set `AI_MERCHANTS=1` to use one optional synthetic LLM merchant, with merchant-side price bounds still enforced by code. This is not a real merchant.
 
@@ -102,3 +102,5 @@ These tests kill synthetic workers at negotiation, order-create, known-order, pr
 - Video under three minutes on public YouTube.
 - Repo open source/public before submission, secrets/IP checked, license visible.
 - All factual claims match recorded artifacts and event trail.
+
+Existing `OPENROUTER_API_KEY` selects the official free-only route ahead of legacy `AI_*` settings. Optional `OPENROUTER_MODEL` must be an explicit `:free` variant; paid IDs/routers are rejected, all price caps are zero and fallbacks are disabled. OpenRouter uses `max_tokens:256`; generic providers retain `max_completion_tokens:256`. The owner environment file is loaded normally and never printed or rewritten. See [free-only qualification](MODEL_QUALIFICATION.md).

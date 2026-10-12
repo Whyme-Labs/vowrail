@@ -62,6 +62,7 @@ test('simulation server entry ignores inherited provider configuration and never
     'globalThis.fetch = () => { console.error("EXTERNAL_FETCH_ATTEMPT"); throw Error("No provider calls allowed"); }; await import(' + JSON.stringify(serverUrl) + ');'], {
     cwd: dir, env: { HOST: '127.0.0.1', PORT: String(port), DEMO_MODE: '1',
       AI_API_KEY: 'synthetic-unused', AI_MODEL: 'synthetic-unused', AI_MERCHANTS: '1',
+      OPENROUTER_API_KEY: 'synthetic-unused', OPENROUTER_MODEL: 'paid/model-unused',
       AI_BASE_URL: 'invalid-unused', PAYPAL_CLIENT_ID: 'synthetic-unused', PAYPAL_CLIENT_SECRET: 'synthetic-unused',
       PUBLIC_BASE_URL: 'https://unused.example' }, stdio: ['ignore', 'pipe', 'pipe']
   });

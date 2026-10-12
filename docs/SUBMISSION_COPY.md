@@ -20,7 +20,7 @@ The buyer defines an item, quantity, private USD ceiling and maximum rounds. Thr
 
 The buyer reviews the stored amount, delivery and expiry before creating an order. Approval and capture remain separate. If a capture response is lost, an immutable attempt lock prevents another capture; read-only receipt reconciliation recovers a verified matching result.
 
-The credential-free demo completes this journey using clearly labeled local approval and receipt simulation, with no PayPal/model requests or money movement. Separately, the Sandbox-only PayPal Orders v2 adapter completed one owner-authorized USD 207.00 synthetic print purchase. Independent API checks verified one matching completed capture; the Sandbox buyer dashboard confirmed completion, and restart restored the locked receipt after mandate expiry. The configured Sandbox merchant receives the payment; the three synthetic sellers are not PayPal payees. The compatible model adapter still awaits an authorized actual provider call.
+The credential-free demo completes this journey using clearly labeled local approval and receipt simulation, with no PayPal/model requests or money movement. Separately, the Sandbox-only PayPal Orders v2 adapter completed one owner-authorized USD 207.00 synthetic print purchase. Independent API checks verified one matching completed capture; the Sandbox buyer dashboard confirmed completion, and restart restored the locked receipt after mandate expiry. The configured Sandbox merchant receives the payment; the three synthetic sellers are not PayPal payees. Two owner-authorized OpenRouter free-model requests were attempted; both returned HTTP 429 and retained labeled deterministic fallback. No successful model inference is claimed.
 
 ## How it is built
 

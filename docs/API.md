@@ -23,6 +23,7 @@ Environment:
 - `PUBLIC_BASE_URL` for PayPal Sandbox approval callbacks; choose a reachable approved origin.
 - `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`: PayPal **Sandbox** only.
 - `AI_API_KEY`, `AI_MODEL`, `AI_BASE_URL`: optional compatible chat-completions API.
+- `OPENROUTER_API_KEY`: existing key selects official free-only routing; optional `OPENROUTER_MODEL` must end in `:free` and cannot be an automatic router. It takes precedence over legacy settings.
 - No runtime secrets in client-side JS.
 
 Model HTTP requests have a 10-second deadline, an 8 KiB UTF-8 serialized-body limit and `max_completion_tokens: 256`. Oversized input rejects before transport rather than truncating policy text. A compatible chat-completions provider must accept that output bound; failures follow the labeled deterministic fallback without retry. These limits do not authorize inference spending.
@@ -51,3 +52,5 @@ For a known order whose create response was interrupted before the approval link
 ## Optional synthetic AI merchant
 
 Set `AI_MERCHANTS=1` **with** `AI_API_KEY` and `AI_MODEL` to replace one scripted merchant with a model-driven simulated merchant. Each run makes up to one additional model API call per negotiation round. The AI merchant receives only the public request and its own synthetic price floor/ceiling. Gateway checks the output independently; failed or invalid bids are rejected. The AI merchant is not a real business, cannot receive actual PayPal payouts, and does not establish fairness or reliable negotiation performance.
+
+OpenRouter requests use `max_tokens:256`, zero `provider.max_price` for prompt/completion/request, `allow_fallbacks:false`, `require_parameters:true` and no model fallback array. Rate errors follow labeled deterministic fallback without another request. Explicit simulation ignores OpenRouter settings.
