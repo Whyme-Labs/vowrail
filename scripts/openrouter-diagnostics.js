@@ -18,8 +18,8 @@ export function rateDiagnostics(status, headers, error, now = Date.now()) {
   const retry = rateHeaders['retry-after'];
   let delay = retry == null ? 0 : /^\d+(?:\.\d+)?$/.test(retry) ? Number(retry) * 1000 : Date.parse(retry) - now;
   if (!Number.isFinite(delay) || delay < 0) delay = 0;
-  const reset = rateHeaders['x-ratelimit-reset'];
-  if (reset != null) {
+  for (const reset of [rateHeaders['x-ratelimit-reset'], metadata.resets_at]) {
+    if (reset == null) continue;
     const numeric = Number(reset);
     const resetAt = Number.isFinite(numeric) && numeric > 1e9 ? numeric * (numeric < 1e12 ? 1000 : 1) : Date.parse(reset);
     if (Number.isFinite(resetAt)) delay = Math.max(delay, resetAt - now);

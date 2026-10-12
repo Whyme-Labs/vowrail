@@ -13,6 +13,9 @@ test('retry timing honors seconds, HTTP date and later reset with a minimum back
   assert.equal(rateDiagnostics(429, new Headers({ 'Retry-After': '90' }), {}, now).retryDelayMs, 90000);
   assert.equal(rateDiagnostics(429, new Headers({ 'Retry-After': 'Mon, 12 Oct 2026 18:01:00 GMT' }), {}, now).retryDelayMs, 60000);
   assert.equal(rateDiagnostics(429, new Headers({ 'Retry-After': '1', 'X-RateLimit-Reset': String((now + 120000) / 1000) }), {}, now).retryDelayMs, 120000);
+  assert.equal(rateDiagnostics(429, new Headers({ 'Retry-After': '1' }), {
+    metadata: { provider_name: 'Nvidia', resets_at: new Date(now + 90000).toISOString() }
+  }, now).retryDelayMs, 90000);
   assert.equal(rateDiagnostics(503, new Headers({ 'Retry-After': 'invalid' }), {}, now).retryDelayMs, 30000);
 });
 test('diagnostics redact secrets and omit raw provider errors and unrelated headers', () => {

@@ -7,8 +7,12 @@ import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
 const script = fileURLToPath(new URL('../scripts/qualify-free-models.js', import.meta.url));
-for (const platformLimit of [false, true]) {
-  test('qualification runner ' + (platformLimit ? 'stops on platform limit' : 'backs off once for provider capacity'), () => {
+for (const scenario of ['provider', 'platform', 'later-metadata-reset']) {
+  const platformLimit = scenario === 'platform';
+  const laterMetadataReset = scenario === 'later-metadata-reset';
+  const shouldRetry = scenario === 'provider';
+  test('qualification runner ' + ({ provider: 'backs off once for provider capacity', platform: 'stops on platform limit',
+    'later-metadata-reset': 'stops when provider metadata requires more than 60 seconds' })[scenario], () => {
     const directory = mkdtempSync(join(tmpdir(), 'vowrail-qualification-test-'));
     try {
       const preload = join(directory, 'preload.mjs');
@@ -29,7 +33,8 @@ for (const platformLimit of [false, true]) {
           if (body.provider.max_price.prompt !== 0 || body.provider.allow_fallbacks !== false) throw Error('Unsafe route');
           calls++;
           if (calls === 1) return Response.json({ error: { code: 429, message: 'Synthetic limit',
-            metadata: { provider_name: 'Nvidia', provider_code: 429 } } }, { status: 429,
+            metadata: { provider_name: 'Nvidia', provider_code: 429
+              ${laterMetadataReset ? ", resets_at: new Date(Date.now() + 90000).toISOString()" : ''} } } }, { status: 429,
             headers: ${platformLimit ? "{ 'Retry-After': '1', 'X-RateLimit-Remaining': '0' }" : "{ 'Retry-After': '1' }"} });
           if (calls > 2) throw Error('Exceeded bounded retry');
           const input = JSON.parse(body.messages[1].content);
@@ -43,11 +48,11 @@ for (const platformLimit of [false, true]) {
       });
       assert.equal(run.status, 0, run.stderr);
       const report = JSON.parse(run.stdout);
-      assert.equal(report.inferenceRequests, platformLimit ? 1 : 2);
-      assert.equal(report.runnerRetries, platformLimit ? 0 : 1);
-      assert.equal(report.actualAdvisoryResults, platformLimit ? 0 : 1);
-      assert.equal(report.stoppedForAccountOrPricingConstraint, platformLimit);
-      assert.equal(run.stderr.includes('SYNTHETIC_BACKOFF_30000'), !platformLimit);
+      assert.equal(report.inferenceRequests, shouldRetry ? 2 : 1);
+      assert.equal(report.runnerRetries, shouldRetry ? 1 : 0);
+      assert.equal(report.actualAdvisoryResults, shouldRetry ? 1 : 0);
+      assert.equal(report.stoppedForAccountOrPricingConstraint, !shouldRetry);
+      assert.equal(run.stderr.includes('SYNTHETIC_BACKOFF_'), shouldRetry);
       assert.equal(report.cases.at(-1).checks.checkout, null);
     } finally { rmSync(directory, { recursive: true, force: true }); }
   });
