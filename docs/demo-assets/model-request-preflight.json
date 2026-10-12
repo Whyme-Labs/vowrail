@@ -1,5 +1,5 @@
 {
-  "observedAt": "2026-10-12T16:42:22.635Z",
+  "observedAt": "2026-10-12T17:02:44.591Z",
   "evidenceKind": "local-injected-transport-request-shape-only",
   "actualModelInference": false,
   "externalRequests": 0,
@@ -16,8 +16,10 @@
         "content": "{\"item\":\"Synthetic model qualification print run\",\"quantity\":100,\"requirements\":\"Matte finish. Delivery within three days matters more than a small price saving.\",\"offers\":[{\"offerId\":\"00000000-0000-4000-8000-000000000007\",\"merchantName\":\"Cobalt Press (simulated)\",\"amountMinor\":20100,\"currency\":\"USD\",\"deliveryDays\":4,\"description\":\"100-unit custom matte print run, all demo charges included. Synthetic estimate, not binding.\"},{\"offerId\":\"00000000-0000-4000-8000-000000000006\",\"merchantName\":\"Birch Studio (simulated)\",\"amountMinor\":20300,\"currency\":\"USD\",\"deliveryDays\":3,\"description\":\"100-unit custom matte print run, all demo charges included. Synthetic estimate, not binding.\"},{\"offerId\":\"00000000-0000-4000-8000-000000000005\",\"merchantName\":\"Atlas Print (simulated)\",\"amountMinor\":20700,\"currency\":\"USD\",\"deliveryDays\":2,\"description\":\"100-unit custom matte print run, all demo charges included. Synthetic estimate, not binding.\"},{\"offerId\":\"00000000-0000-4000-8000-000000000003\",\"merchantName\":\"Birch Studio (simulated)\",\"amountMinor\":21600,\"currency\":\"USD\",\"deliveryDays\":3,\"description\":\"100-unit custom matte print run, all demo charges included. Synthetic estimate, not binding.\"}]}"
       }
     ],
-    "temperature": 0
+    "temperature": 0,
+    "max_completion_tokens": 256
   },
+  "requestBytes": 1766,
   "baseline": {
     "merchantName": "Cobalt Press (simulated)",
     "amountMinor": 20100,

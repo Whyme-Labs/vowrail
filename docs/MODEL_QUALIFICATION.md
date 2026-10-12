@@ -4,11 +4,13 @@ The model adapter and synthetic hostile-output/deadline tests pass. No actual mo
 
 ## Concrete owner inputs
 
-- An existing compatible provider, exact model identifier and approved API base URL. The adapter uses `/chat/completions`; check that the chosen model supports its request fields.
+- Proposed existing provider: **OpenAI**, exact model **`gpt-4.1-mini-2025-04-14`**, base URL **`https://api.openai.com/v1`**. This snapshot supports Chat Completions and is listed at USD 0.40/M input and USD 1.60/M output tokens in the [official model documentation](https://developers.openai.com/api/docs/models/gpt-4.1-mini), checked 13 October 2026 MYT. It is a proposal, not configured access or authorization.
 - Enter `AI_API_KEY` and `AI_MODEL` privately in the ignored, owner-readable `.env`; set `AI_BASE_URL` if required. Existing PayPal settings remain private. Do not send key values through chat or issues.
-- Explicitly permit one synthetic buyer-advice request and set its maximum allowed spend or confirm an existing free quota. A 10-second timeout is not a token or monetary cap. The current adapter does not impose a completion-token cap, so confirm a provider-side limit or implement a compatible bounded output before any paid call.
+- Proposed permission: **one synthetic buyer-advice request, no retry, maximum USD 0.01 total test spend**, using an existing key/project with access to that model. The adapter rejects request bodies above 8 KiB before transport and sends `max_completion_tokens: 256`, alongside its 10-second deadline. Using a deliberately conservative 10,000-input-token allowance plus 256 output tokens gives an estimated USD 0.00441 at those rates, below the proposed cent. The prepared request is much smaller. This is an estimate, not billed usage; recheck rates before executing and stop if they exceed the approved budget.
 
 No account or credential creation is required for this plan. No paid inference is authorized yet. Keep `AI_MERCHANTS=0`, `DEMO_MODE` unset and all checkout actions unused; two merchant rounds then make no model calls.
+
+If no existing OpenAI key/project is available, the owner should identify their existing compatible provider instead. Do not create a key or account to satisfy this proposal. Compatibility now includes the [completion-token bound](https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create); unsupported request fields yield the existing labeled fallback, not an unbounded retry.
 
 ## Prepared request and baseline
 

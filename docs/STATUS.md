@@ -37,7 +37,7 @@
 
 ## Priority blockers
 
-1. [#1 Verify CI execution](https://github.com/Whyme-Labs/vowrail/issues/1): have a working GitHub Actions runner, then confirm npm test + smoke.
+1. [#1 Hosted CI status](https://github.com/Whyme-Labs/vowrail/issues/1): hosted Actions is restricted before execution by account billing/spending limits. Routine engineering verification proceeds on the existing Mac without new permission; [exact-head local evidence and runner status](VERIFICATION.md) keep those outcomes distinct.
 2. [#4 Real buyer and merchant AI](https://github.com/Whyme-Labs/vowrail/issues/4): choose an existing provider/model, enter its key privately and authorize one bounded synthetic advice call. [Qualification plan](MODEL_QUALIFICATION.md) includes the exact request shape and baseline.
 3. [#5 PayPal Sandbox E2E](https://github.com/Whyme-Labs/vowrail/issues/5): success path and restart receipt verified; actual canceled/declined buyer approval remains open. No further transaction is authorized for this preparation work.
 4. [#6 Durable state and reconciliation](https://github.com/Whyme-Labs/vowrail/issues/6): mandatory before any publicly exposed or unattended payment service.

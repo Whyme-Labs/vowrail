@@ -19,18 +19,21 @@ export class AdvisoryModel {
     if (endpoint.protocol !== 'https:' && !['127.0.0.1', 'localhost'].includes(endpoint.hostname)) {
       throw new Error('AI endpoint must be HTTPS or loopback');
     }
+    const body = JSON.stringify({
+      model: this.model,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: JSON.stringify(payload) }
+      ],
+      temperature: 0,
+      max_completion_tokens: 256
+    });
+    if (Buffer.byteLength(body, 'utf8') > 8192) throw new Error('Model request exceeds 8 KiB');
     const response = await this.fetchImpl(endpoint.toString(), {
       method: 'POST',
       signal: AbortSignal.timeout(this.timeoutMs),
       headers: { Authorization: 'Bearer ' + this.apiKey, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: this.model,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: JSON.stringify(payload) }
-        ],
-        temperature: 0
-      })
+      body
     });
     if (!response.ok) throw new Error('Recommendation model returned an error');
     const data = await response.json();

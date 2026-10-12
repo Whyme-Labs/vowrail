@@ -25,6 +25,8 @@ Environment:
 - `AI_API_KEY`, `AI_MODEL`, `AI_BASE_URL`: optional compatible chat-completions API.
 - No runtime secrets in client-side JS.
 
+Model HTTP requests have a 10-second deadline, an 8 KiB UTF-8 serialized-body limit and `max_completion_tokens: 256`. Oversized input rejects before transport rather than truncating policy text. A compatible chat-completions provider must accept that output bound; failures follow the labeled deterministic fallback without retry. These limits do not authorize inference spending.
+
 `DEMO_MODE=1` explicitly selects the local simulator (`npm run demo`). It constructs neither PayPal nor model adapter, ignores inherited provider configuration and uses local approval links only. `SIMULATE_LOST_CAPTURE=1` is accepted only in this mode (`npm run demo:recovery`) and injects one persisted capture with a lost response per process. Default startup is unchanged: `paypal_sandbox`, never a live provider or an automatic simulator fallback. Simulation pages/endpoints return 404 in the default mode.
 
 Checkout responses persist `checkout.mode` as `simulation` or `paypal_sandbox`. Legacy records without the field are interpreted as PayPal Sandbox. Loading records from the other mode refuses startup. The shipped browser sends `X-Vowrail-Checkout-Mode` on every POST; a mismatch returns 409 `CHECKOUT_MODE_MISMATCH` before mutation. This header detects stale tabs, is not authentication, and cannot select a server mode. It remains optional for existing clients. `paypalConfigured` is always false in simulation; `checkoutConfigured` refers to the active adapter. Simulated receipts/events remain explicitly labeled.

@@ -28,7 +28,7 @@ Use the [rehearsal and final-video shot plan](DEMO.md). The separate [actual San
 ## Submission gates
 
 G0 docs and issue roadmap reviewed.
-G1 backend state machine, deterministic tests and CI green.
+G1 backend state machine and reproducible actual Node tests/smoke pass at the release head; report hosted/local check status separately. Hosted Actions billing is not a competition requirement or approval gate for routine local verification.
 G2 complete accessible local demo for creating mandates and comparing offers.
 G3 required meaningful real AI use demonstrated with exact provider/model and observed advice; deterministic policy remains authoritative. The app can run without AI, but fallback does not qualify this competition gate.
 G4 PayPal Sandbox order, buyer approval, API-verified capture demonstrated; ambiguity and retry behavior tested.

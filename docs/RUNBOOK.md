@@ -51,6 +51,8 @@ Set `AI_API_KEY`, `AI_MODEL`, and optionally `AI_BASE_URL`, using a provider com
 
 Model requests have a 10-second deadline covering both headers and response body. A timeout rejects the synthetic merchant's bid, preserves the consumed negotiation round and lets the other merchants' offers finish. Buyer recommendation failures return the explicitly labeled deterministic fallback. No model request is automatically retried.
 
+The adapter also rejects serialized UTF-8 requests above 8 KiB before transport and limits each completion to 256 tokens. Compatible providers must accept `max_completion_tokens`; provider errors retain the labeled fallback, without retrying with an omitted limit. These limits bound work, not authority, and paid inference still needs the specific owner cost authorization.
+
 ## Real PayPal Sandbox test
 
 The success path has already been observed once with independent capture and restart evidence: [PAYPAL_EVIDENCE.md](PAYPAL_EVIDENCE.md). The procedure below documents that path; preparing a video or inspecting its stored receipt does not authorize another transaction.

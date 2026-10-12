@@ -62,6 +62,8 @@ Remote AI providers receive data sent to their API. The initial AI adapter only 
 
 Model requests use a 10-second abort deadline through response-body consumption. Timeout follows the existing rejected-bid or deterministic-advice fallback paths; it never adds a round, retries a model call or grants execution authority.
 
+Model request bodies are limited to 8 KiB in UTF-8 and completions to 256 tokens. Oversized input fails before transport without truncating or dropping policy text; output limits do not grant payment authority. Price/billing checks and actual call authorization remain separate from these technical bounds.
+
 ## Payment caveats
 
 - The selected simulated merchant is not a PayPal payee. Real payment is made only to the sandbox merchant configured in the app.
