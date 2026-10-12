@@ -1,6 +1,6 @@
 # Roadmap, issue plan and acceptance gates
 
-Baseline: 11 October 2026. Deadline: 13 November 2026, 04:00 MYT.
+Updated: 13 October 2026 MYT. Deadline: 13 November 2026, 04:00 MYT. [Current readiness](READINESS.md) separates observed gates from owner inputs.
 
 ## Milestone M0: project foundation (target 11 Oct)
 - Product/architecture/protocol/security docs, source layout, MIT license, CONTRIBUTING/AGENTS, issue backlog and CI.
@@ -21,6 +21,7 @@ Baseline: 11 October 2026. Deadline: 13 November 2026, 04:00 MYT.
 ## Milestone M4: PayPal Sandbox transaction (target 30 Oct)
 - OAuth2 credentials, Orders v2 creation, buyer approval return, amount/currency re-read, capture, idempotency and recovery tests.
 - Gate: real Sandbox create/approve/capture flow observed and sanitized proof in docs. No live credentials/routes.
+- Success observation: [one USD 207.00 order, independent API/dashboard receipt and restart restoration](PAYPAL_EVIDENCE.md). Actual canceled/declined approval checks remain in #5; no further transaction is authorized here.
 
 ## Milestone M5: resilience + evaluation (target 5 Nov)
 - Durable intent/outbox design or implementation, reconciliation/cleanup, authentication for any hosted deployment, fail-closed cases and reproducible experiments.
@@ -52,8 +53,8 @@ Not in hackathon scope: full multi-merchant settlement, paid customer onboarding
 | [#1](https://github.com/Whyme-Labs/vowrail/issues/1) foundation CI | P0 | Verify runner and actual Node test output |
 | [#2](https://github.com/Whyme-Labs/vowrail/issues/2) negotiation policy | P0 | Harden and prove mandate invariants |
 | [#3](https://github.com/Whyme-Labs/vowrail/issues/3) buyer console | P0 | Accessibility and browser usability verification |
-| [#4](https://github.com/Whyme-Labs/vowrail/issues/4) real AI | P0 | Actual model-driven seller/buyer experiment |
-| [#5](https://github.com/Whyme-Labs/vowrail/issues/5) PayPal Sandbox | P0 | End-to-end real Sandbox receipt |
+| [#4](https://github.com/Whyme-Labs/vowrail/issues/4) real AI | P0 | Existing provider/model, private key and one-call cost authorization; prepared buyer-advice qualification |
+| [#5](https://github.com/Whyme-Labs/vowrail/issues/5) PayPal Sandbox | P0 | Success/receipt/restart observed; actual canceled/declined approval checks remain |
 | [#6](https://github.com/Whyme-Labs/vowrail/issues/6) durability | P0 | Local restart recovery implemented; hosted storage, outbox and multi-worker qualification remain |
 | [#7](https://github.com/Whyme-Labs/vowrail/issues/7) benchmark | P0 | Reproducible adversarial and economic metrics |
 | [#8](https://github.com/Whyme-Labs/vowrail/issues/8) deployment security | P0 | Access control before hosted service |

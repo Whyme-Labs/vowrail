@@ -46,9 +46,12 @@ node --env-file=.env src/server.js
 
 Never commit client secrets. There are **no live PayPal endpoints** in the prototype.
 
+One owner-authorized **USD 207.00 Sandbox purchase** completed on 12 October, with independently verified capture and restart receipt recovery. [Actual Sandbox evidence](docs/PAYPAL_EVIDENCE.md) is separate from the local simulator. Real model inference remains unverified; [the next qualification plan](docs/MODEL_QUALIFICATION.md) is prepared.
+
 ## Documentation
 
 - [Current implementation status and blockers](docs/STATUS.md)
+- [Submission readiness and exact remaining inputs](docs/READINESS.md)
 - [Current honest demo script and submission checklist](docs/DEMO.md)
 - [Reusable demo assets and evidence provenance](docs/demo-assets/README.md)
 - [Factual English project-description draft](docs/SUBMISSION_COPY.md)
@@ -63,7 +66,7 @@ Never commit client secrets. There are **no live PayPal endpoints** in the proto
 - [Architecture decisions](docs/DECISIONS.md)
 - [Local journal and restart recovery](docs/LOCAL_JOURNAL.md)
 
-Progress is tracked in [GitHub issues](../../issues). The focus is a functional, experimentally validated submission for the [PayPal AI Hackathon 2026](https://paypalaihackathon.devpost.com/). Deadline: **12 November 2026, 12:00 PST** (**13 November, 04:00 MYT**). The rules require a working AI + PayPal application, public open-source repository, and public demo video under three minutes.
+Progress is tracked in [GitHub issues](https://github.com/Whyme-Labs/vowrail/issues). The focus is a functional, experimentally validated submission for the [PayPal AI Hackathon 2026](https://paypalaihackathon.devpost.com/). Deadline: **12 November 2026, 12:00 PST** (**13 November, 04:00 MYT**). The rules require a working AI + PayPal application, public open-source repository, and public demo video under three minutes.
 
 **Repository visibility is currently private.** This must be changed to public before submission, after secret/license/IP review. No connected GitHub action in this workflow changes repository visibility automatically.
 

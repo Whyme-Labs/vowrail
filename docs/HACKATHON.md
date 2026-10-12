@@ -23,14 +23,14 @@ Official rules score technological implementation, design, potential impact, inn
 
 ## Demo preparation
 
-Use the [current 2:30 rehearsal script and submission checklist](DEMO.md). It shows the observed local flow, labeled deterministic advice and disabled Sandbox checkout. Actual model and Sandbox completion footage must be added only after those integrations are observed. Neither has been verified yet. Do not imply a synthetic seller is a real PayPal recipient or claim live merchant negotiation, universal lowest prices or a certified standard.
+Use the [rehearsal and final-video shot plan](DEMO.md). The separate [actual Sandbox purchase](PAYPAL_EVIDENCE.md) now has verified API, dashboard and restart evidence. Real model qualification remains pending; its [one-call plan](MODEL_QUALIFICATION.md) is prepared. Keep simulated sellers distinct from the receiving Sandbox merchant and factual claims tied to observations.
 
 ## Submission gates
 
 G0 docs and issue roadmap reviewed.
 G1 backend state machine, deterministic tests and CI green.
 G2 complete accessible local demo for creating mandates and comparing offers.
-G3 optional real AI model issues meaningful advice while deterministic policy remains authoritative.
+G3 required meaningful real AI use demonstrated with exact provider/model and observed advice; deterministic policy remains authoritative. The app can run without AI, but fallback does not qualify this competition gate.
 G4 PayPal Sandbox order, buyer approval, API-verified capture demonstrated; ambiguity and retry behavior tested.
 G5 product usability, failure flows, accessibility and video recording finished.
 G6 public repo license/IP/secrets review, no fake functionality, Devpost fields submitted before deadline.

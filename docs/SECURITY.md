@@ -1,6 +1,6 @@
 # Threat model and verification plan
 
-**Classification:** early contest demo, **NOT** production software. No live payments or real secrets.
+**Classification:** early contest demo, **NOT** production software. No live payments. Owner-configured Sandbox secrets stay in a private ignored environment file; none are included in source or evidence.
 
 ## Security objectives
 
