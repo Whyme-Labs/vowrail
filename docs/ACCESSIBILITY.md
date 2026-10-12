@@ -28,7 +28,7 @@ Safari's [keyboard shortcuts documentation](https://support.apple.com/guide/safa
 
 Run `node --test test/browser-state.test.js test/accessibility.test.js`, then `npm start` with credentials unset. In Safari Responsive Design Mode check 320, 390, 768 and 1024 pixel widths. Create a synthetic mandate, use both rounds, ask for advice, review/back out and reload. Repeat with a long item, keyboard only, a network failure and quote expiry. The shipped-script tests cover focus after creation/final round/advice/checkout, expiry with no request, stale-error recovery and lost-capture errors. The full sequential Node 22.23.0 coverage run passed all 86 tests with no failures/cancellations. Provider transport and payment recovery remain synthetic in the automated end-to-end tests.
 
-Physical touch devices, zoom at 200%/400%, auditory screen readers, real Sandbox approval/cancellation and configured-model output remain unverified. No full accessibility completion is claimed for #3. Responsive screenshots and the native accessibility tree were inspected during the session; they contain only synthetic app data.
+Physical touch devices, zoom at 200%/400%, auditory screen readers, real Sandbox approval/cancellation accessibility and configured-model output accessibility remain unverified. Actual model API evidence is separately recorded in [MODEL_QUALIFICATION.md](MODEL_QUALIFICATION.md); it is not a new visual or auditory check. No full accessibility completion is claimed for #3. Responsive screenshots and the native accessibility tree were inspected during the session; they contain only synthetic app data.
 
 ## Complete simulator rehearsal
 

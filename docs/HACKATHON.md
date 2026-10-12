@@ -23,7 +23,7 @@ Official rules score technological implementation, design, potential impact, inn
 
 ## Demo preparation
 
-Use the [rehearsal and final-video shot plan](DEMO.md). The separate [actual Sandbox purchase](PAYPAL_EVIDENCE.md) now has verified API, dashboard and restart evidence. Real model qualification remains pending; its [one-call plan](MODEL_QUALIFICATION.md) is prepared. Keep simulated sellers distinct from the receiving Sandbox merchant and factual claims tied to observations.
+Use the [rehearsal and final-video shot plan](DEMO.md). The separate [actual Sandbox purchase](PAYPAL_EVIDENCE.md) has verified API, dashboard and restart evidence. Three actual free-model advisory cases are now observed in the [cumulative qualification report](MODEL_QUALIFICATION.md), with rationale/ambiguity quality errors disclosed. Keep simulated sellers distinct from the receiving Sandbox merchant and factual claims tied to observations.
 
 ## Submission gates
 
