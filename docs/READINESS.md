@@ -8,10 +8,10 @@ Accepted file: `vowrail-sanitized-review-90s.mp4`, 90 seconds, 1920×1080, 30fps
 
 | Owner decision | Concrete item to resolve |
 |---|---|
-| Audio rights | Confirm ownership or permission covering the supplied track's public YouTube and competition use. Attachment and cut acceptance do not establish those rights. |
-| Public release | Select the YouTube channel and explicitly authorize publishing this accepted MP4 and changing Whyme-Labs/vowrail to public at the final reviewed release SHA. Source/history/assets review and preparation of that exact SHA are engineering work before the release request. |
-| Judge access | Choose a secure private handoff for usable dedicated Sandbox-only test access and a restricted free-model test key throughout judging. Confirm dedicated resources exist; the owner's current `.env` and personal buyer password stay private. No credential provisioning is assumed. |
-| Entrant and final entry | Confirm individual/team/organization details and representative if needed, eligibility/ownership/integration declarations, final form/copy, then explicitly authorize the final submission. No agreement is accepted here. |
+| Audio/video | The owner confirmed audio public-use permission and chose the existing Whyme Labs channel. Channel identity was verified; publication is authorized for the accepted cut, but the upload's completion/public visibility is unverified after browser transport disconnected during file selection. Inspect any retained Studio draft before retrying. |
+| Repository release | Explicit approval to make Whyme-Labs/vowrail public remains outstanding. The [source/history/assets audit](RELEASE_AUDIT.md) found private Sandbox references in receipt evidence, so the release/history must be sanitized or specifically authorized before visibility changes. |
+| Judge access | Use the local Node 22 route. Dedicated entrant test access is recommended, not mandated by the rules; judge-owned existing credentials are technically supported. The rules leave credential ownership unspecified while requiring usable free testing. [Access choices and prerequisites](JUDGE_GUIDE.md) distinguish the rule from the recommendation. |
+| Final declarations/entry | Individual entry is already confirmed; do not ask again about team/organization. Reuse verified profile facts after sign-in. Eligibility, ownership/integration declarations and final submission approval remain owner-only. The saved form's exact unanswered fields have not been freshly verified during the browser outage. |
 
 The [official rules](https://paypalaihackathon.devpost.com/rules) were read again on 13 October: public open-source repository, public YouTube video under three minutes, functional free judge access and permitted third-party material. Deadline: **13 November 2026, 04:00 MYT**. Keep the private package and Library metadata out of the public repository.
 

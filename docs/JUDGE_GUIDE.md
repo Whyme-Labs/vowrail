@@ -2,6 +2,12 @@
 
 This private pre-release prototype has a complete credential-free simulator and a separately verified actual USD 207.00 Sandbox purchase. Three actual free-model advisory cases are observed; private judge access is still pending; this guide does not claim the final competition entry is ready. It targets a desktop browser and Node 22+; commands below were checked on macOS.
 
+## Rule and access choices
+
+The [official Testing requirements](https://paypalaihackathon.devpost.com/rules) require a working build, free access through judging, and the credentials or instructions needed to test it. They do not specify who must own provider credentials. Entrant-supplied dedicated credentials are a recommendation, not a stated competition requirement. Judge-owned existing Sandbox/model credentials are technically supported and not expressly prohibited; the rules do not explicitly guarantee acceptance of a bring-your-own-credentials-only route. Ensure the chosen instructions provide usable access, rather than claiming configuration alone satisfies the requirement.
+
+The local build needs no public server or app login. Its credential-free simulation demonstrates the controls. To exercise actual AI and PayPal, use either authorized dedicated test access handed to judges privately, or the judge's own existing free provider accounts. No owner credential, buyer password or filled `.env` belongs in the public repository. This preparation creates or transmits no credentials or provider accounts.
+
 ## Run from source without accounts or keys
 
 Use an authorized source checkout. The repository is currently private; public clone access awaits owner approval. There are no npm dependencies to install. No `.env` is required or loaded for this walkthrough.
@@ -41,6 +47,18 @@ PORT=8788 VOWRAIL_STATE_DIR=.vowrail/judge-simulation npm run demo:recovery
 Create a new synthetic mandate and repeat the selection/approval steps. The first simulated capture records completion but loses its response. The app requires read-only recovery and removes capture. Use **Check simulated receipt (read only)**; completion returns without another capture. Restart with the same simulation state root to verify that the stored receipt remains available. Never delete journals or switch their mode to reset a payment attempt.
 
 The bounded `npm run rehearse` command automates both normal and lost-response/restart paths on temporary loopback servers. [Current judge rehearsal JSON](demo-assets/judge-rehearsal.json) records the USD 201 advice, independent USD 207 choice, amount-tampering rejection, separate consent, policy denials and zero captures during recovery. Its asset-serving checks verify HTTP content/headers; they are not new visual-browser observations. It cleans only its own temporary synthetic records.
+
+## Actual integrations with existing judge credentials
+
+Prerequisites: Node 22+, an existing PayPal Sandbox application client ID/secret, an existing Personal Sandbox buyer login for browser approval, and an existing OpenRouter key able to use an explicit free model. Free-provider quotas/availability must remain usable for judging; no paid fallback is configured in this route. The observed model is `nvidia/nemotron-3.5-lightning:free`. The buyer login stays in PayPal's browser flow, never in Vowrail source or logs.
+
+1. In the judge's own checkout, copy `.env.example` to ignored `.env`. Fill only the judge-owned or privately authorized test credentials. Keep legacy `AI_API_KEY`/`AI_MODEL` blank and `AI_MERCHANTS=0`; configure `OPENROUTER_API_KEY` and the explicit free model. Do not copy the entrant's existing environment file.
+2. Set `HOST=127.0.0.1`, an unused `PORT` such as `8789`, `PUBLIC_BASE_URL=http://127.0.0.1:8789`, and a fresh private `VOWRAIL_STATE_DIR=.vowrail/judge-sandbox`. Use a clean test terminal with inherited legacy `AI_API_KEY`, `AI_MODEL`, `AI_BASE_URL`, `DEMO_MODE` and `SIMULATE_LOST_CAPTURE` unset; existing shell values take precedence over an env file. Preserve credential files and any existing journals.
+3. Start `node --env-file=.env src/server.js`, then open the matching loopback URL. This selects the Sandbox adapter; `npm run demo` would deliberately ignore the real credentials. Configuration labels are not evidence of provider success.
+4. Create a synthetic mandate and two rounds. Ask for advice to exercise the actual free-model route; model output remains unverified and advisory. Review a stored offer explicitly. Order creation, Sandbox buyer approval and capture are distinct actions the tester controls. The configured Sandbox merchant is the payee; the three displayed sellers remain synthetic.
+5. Check the completed receipt, or use read-only receipt reconciliation if the result is uncertain. Restart with the same private state root to inspect recovery. Never repeat capture to resolve uncertainty. Stop only this test server afterward.
+
+These instructions are derived from the current source and existing observations. No new model request, order or capture was executed while preparing them. Existing integration limits remain in [READINESS.md](READINESS.md).
 
 ## Inspect actual integration evidence separately
 
