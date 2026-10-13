@@ -1,5 +1,7 @@
 # Problem-led private video review
 
+The owner accepted the final 90-second Library version 4 on 13 October 2026 (MYT). File SHA256: `6f663e4bcfdb017c994f99b6b051178a81919a8764181044d711fb06c5208338`; picture source `fbf79114a3bc6975108500c9abd5ef769d79a7e9`, audio-edit source `dc07718619b8ed838f5d09965f61b4cd7638692b`. This accepted cut is frozen in the private submission package. Public release/audio rights and final entry remain separate owner decisions in [READINESS.md](READINESS.md). The preparation history below is preserved; its earlier version guards are historical.
+
 ## Focused 90-second edit with supplied audio
 
 The owner requested the uploaded audio, looping if needed, and a cut to the point. `Vowrail90` now keeps the core buyer journey in **90 seconds / 1920×1080 / 30fps**, with nine scenes and [15 continuous authored captions](../video/short-captions.vtt). Vowrail appears at six seconds. The comparison/model detour is removed; model explanations remain explicitly unverified in the outcome. The original 165-second composition and all previous exports remain preserved.
