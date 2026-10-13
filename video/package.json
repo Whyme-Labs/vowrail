@@ -1,0 +1,23 @@
+{
+  "name": "vowrail-private-video",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Private problem-led Vowrail film, built with Remotion (https://remotion.pro/license)",
+  "scripts": {
+    "studio": "node --require ./loopback.cjs node_modules/@remotion/cli/remotion-cli.js studio src/index.jsx --no-open --port=3277",
+    "preview": "node render.mjs --stills",
+    "render": "node render.mjs --render",
+    "verify": "node verify.mjs"
+  },
+  "dependencies": {
+    "@remotion/bundler": "4.0.535",
+    "@remotion/cli": "4.0.535",
+    "@remotion/media": "4.0.535",
+    "@remotion/renderer": "4.0.535",
+    "@remotion/transitions": "4.0.535",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "remotion": "4.0.535"
+  }
+}

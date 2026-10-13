@@ -1,5 +1,15 @@
 # Problem-led private video review
 
+## Dynamic Remotion revision
+
+The owner subsequently requested Remotion. The isolated [video package](../video/README.md) now authors a 165-second, 1920×1080, 30fps film with eleven scenes, kinetic headings, deliberate offer highlights, smooth crossfades and focused camera moves through the existing local app recording. The prior captioned cut is preserved. Its [28 continuous script captions](../video/captions.vtt) are separate from any speech transcription; no voice or music is included.
+
+Timing: buyer concern0–12s; synthetic price/deadline comparison12–30s; historical model mistakes30–48s; Vowrail introduction48–56s; recorded mandate56–74s; recorded negotiation74–90s; recorded review90–108s; synthetic expiry108–120s; earlier separate Sandbox text summary120–136s; recovery evidence136–150s; buyer outcome150–165s. Historical model text is reconstructed as readable evidence cards; only the mandate/bidding motion is existing real local UI footage, with edited playback speed. Review and expiry use labeled existing stills. No continuous live provider purchase is implied.
+
+The owner confirmed personal work / at most three people for Remotion's free-license scope. Dependencies come from the official npm registry, pinned in an independent package. Vowrail's application remains dependency-free. Rendering is local, with one renderer, sequential bounded chunks and one encoding thread; no paid service, license signup, external fonts, new model call or payment. Preview frames, script continuity, final frame count/duration, decode and sanitized-content checks qualify the actual final movie. Replace the same private Library item using its retained version1 guard only after those checks pass. Source remains in the existing private draft PR; no publication or submission.
+
+The earlier plan below remains the preserved version1 provenance record.
+
 Revised 13 October 2026 after the owner asked to focus on the problem. Target **2:45**, English captions, private review only. The prior technical review cut is preserved locally. No new inference, order, approval or capture; no publication or final entry.
 
 ## Buyer story and actual problem
