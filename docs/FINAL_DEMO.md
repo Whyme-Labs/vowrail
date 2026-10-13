@@ -6,7 +6,7 @@ The owner requested the uploaded audio, looping if needed, and a cut to the poin
 
 Timing: buyer problem 0–6s; Vowrail 6–12s; recorded mandate 12–24s; recorded negotiation 24–34s; buyer review 34–48s; synthetic expiry 48–56s; earlier separate Sandbox text summary 56–68s; recovery 68–78s; outcome 78–90s. All existing evidence labels and buyer-review limitations remain visible. Order creation, provider approval and capture remain separate; read-only recovery does not imply retrying payment.
 
-Only the uploaded clip's audio is used. Its 29-second track is normalized to a quieter level, repeated with 0.5-second crossfades, and faded out for the final 1.2 seconds. The uploaded video imagery is excluded. The derivative is an ignored private asset with a SHA/size receipt. No public-use rights are assumed. Rendering uses one worker; audio is muxed once after verified silent chunks to keep it continuous. After final checks, replace the same private Library identity using the retained version 2 guard. No publication or entry submission.
+Only the uploaded clip's audio is used. The owner then requested cutting two seconds from its end: the 29-second original track is trimmed to about 27 seconds before normalization/repetition, so the removed ending does not recur. It repeats with 0.5-second crossfades and fades out for the final 1.2 seconds of the 90-second movie. The uploaded video imagery is excluded. The derivative is an ignored private asset with a SHA/size receipt. No public-use rights are assumed. The verified existing video can be remuxed without rerendering frames. After final checks, replace the same private Library identity using the retained version 3 guard. No publication or entry submission.
 
 ## Dynamic Remotion revision
 

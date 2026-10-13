@@ -29,6 +29,8 @@ REMOTION_BROWSER_EXECUTABLE=/path/to/verified/chrome-headless-shell VOWRAIL_VIDE
 REMOTION_BROWSER_EXECUTABLE=/path/to/verified/chrome-headless-shell VOWRAIL_VIDEO_OUT=/private/path/to/new-output node render.mjs --short --render
 ```
 
+The owner requested removing the final two seconds of the original track. Use `node prepare-audio.mjs /private/path/to/user-uploaded-clip.MP4 --trim-end-seconds=2`. Trimming happens before normalization and repetition, so the removed ending does not recur in the loops. The video remains 90 seconds; a previously verified silent video stream can be remuxed with the new checked audio without rerendering its frames. Preserve the previous audio asset/manifest and movie first.
+
 The short composition previews its prepared audio with Remotion's Audio component. Export renders silent chunks and muxes that same checked 90-second audio once, preserving continuous audio across chunk boundaries. The file is not a speech transcription; captions are authored story text.
 
 The renderer refuses a complete export from an uncommitted working tree. Each chunk has a source/asset fingerprint, composition ID and SHA256 receipt; only a matching completed chunk is resumed. Missing/changed chunks are preserved under a different name. Every chunk has a 180-second watchdog; the cumulative work budget is 25 minutes. Source, footage and final files stay private. Local assets are limited to three existing app-media files plus the optional checked supplied-audio derivative; the historical Sandbox section is authored text, never a receipt screenshot.
