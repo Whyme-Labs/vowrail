@@ -1,0 +1,55 @@
+{
+  "evidenceKind": "actual-owner-authorized-paypal-sandbox-observations",
+  "livePayment": false,
+  "syntheticMerchant": true,
+  "receipt": {
+    "observedAt": "2026-10-12T15:56:22.097Z",
+    "orderId": "32559119TH0114416",
+    "orderStatus": "COMPLETED",
+    "intent": "CAPTURE",
+    "referenceMatches": true,
+    "captureCount": 1,
+    "captureId": "0UE226455L081041X",
+    "captureStatus": "COMPLETED",
+    "amount": "207.00",
+    "currency": "USD"
+  },
+  "recovery": {
+    "observedAt": "2026-10-12T16:00:51.884Z",
+    "completedReceiptRestoredBeforeProviderRead": true,
+    "readOnlyReconciliationVerified": true,
+    "orderId": "32559119TH0114416",
+    "captureId": "0UE226455L081041X",
+    "amountMinor": 20700,
+    "currency": "USD",
+    "captureAttemptedLockRetained": true,
+    "mandateExpiredAtRecovery": true,
+    "noCaptureEndpointCalledDuringRecovery": true,
+    "olderOrders": [
+      {
+        "intentId": "b28db504-abea-4894-b5bf-a7e44ae8d2de",
+        "orderId": "0Y445176J1595260P",
+        "state": "AWAITING_BUYER_APPROVAL",
+        "captureAttempted": false,
+        "captureId": null
+      },
+      {
+        "intentId": "c69764db-ce0f-405d-97c1-40ce72f07461",
+        "orderId": "79W02070N8877924U",
+        "state": "AWAITING_BUYER_APPROVAL",
+        "captureAttempted": false,
+        "captureId": null
+      }
+    ]
+  },
+  "dashboard": {
+    "observedAt": "2026-10-12T16:09:54.464Z",
+    "sandboxHost": true,
+    "status": "Completed",
+    "amount": "207.00",
+    "currency": "USD",
+    "store": "Test Store",
+    "descriptionMatches": true,
+    "buyerAndMerchantReferencesDiffer": true
+  }
+}

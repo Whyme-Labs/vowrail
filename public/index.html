@@ -12,7 +12,7 @@
 <body>
   <header class="topbar">
     <div class="brand"><span class="mark" aria-hidden="true">V</span><span>VOWRAIL</span></div>
-    <div class="top-right"><span class="dot"></span> LOCAL SANDBOX PROTOTYPE</div>
+    <div class="top-right"><span class="dot"></span><span id="environment-label">LOCAL SANDBOX PROTOTYPE</span></div>
   </header>
   <main class="container">
     <section class="hero">
@@ -22,11 +22,12 @@
       <div class="hero-facts">
         <span>01 / Private buyer mandate</span>
         <span>02 / Bounded negotiation</span>
-        <span>03 / Verified Sandbox checkout</span>
+        <span>03 / Explicit checkout controls</span>
       </div>
     </section>
 
-    <div id="notice" class="notice" role="status" aria-live="polite"></div>
+    <p id="simulation-banner" class="simulation-banner" hidden>Local payment simulation — no PayPal or model calls. No money moves. This is rehearsal evidence, not a verified provider integration.</p>
+    <div id="notice" class="notice" role="status" aria-live="polite" tabindex="-1"></div>
     <div id="integration" class="integration"></div>
 
     <div class="columns">
@@ -50,10 +51,11 @@
           <button class="primary" type="submit">Create purchasing mandate <span aria-hidden="true">→</span></button>
         </form>
         <div id="mandate-summary" hidden></div>
+        <a id="new-purchase" href="/" class="text-button" hidden>Start a new purchase · existing records are retained</a>
       </section>
 
       <section class="panel" aria-labelledby="activity-heading">
-        <div class="panel-header"><span class="step">02</span><h2 id="activity-heading">Negotiation console</h2></div>
+        <div class="panel-header"><span class="step">02</span><h2 id="activity-heading" tabindex="-1">Negotiation console</h2></div>
         <p class="hint">Three independent <strong>simulated</strong> merchants. Their offers are not real or legally binding.</p>
         <div id="empty-state" class="empty-state"><div class="empty-ring">V</div><p>Create a mandate to begin a verifiable negotiation.</p></div>
         <div id="console" hidden>
@@ -63,16 +65,24 @@
           </div>
           <button id="run-round" class="secondary">Run next bidding round <span aria-hidden="true">→</span></button>
           <button id="recommend" class="text-button">Ask buyer agent to evaluate eligible offers</button>
-          <div id="advice" aria-live="polite"></div>
-          <h3>Merchant offers</h3>
+          <button id="refresh-status" class="text-button">Refresh gateway status</button>
+          <div id="advice" role="region" aria-label="Buyer advice" aria-live="polite" tabindex="-1"></div>
+          <h3 id="offers-heading" tabindex="-1">Merchant offers</h3>
           <div id="offers"></div>
-          <div id="payment"></div>
+          <section id="offer-review" class="review" aria-labelledby="review-heading" hidden>
+            <h3 id="review-heading" tabindex="-1">Review your selected offer</h3>
+            <div id="review-details"></div>
+            <p id="review-message" role="status" class="hint"></p>
+            <button id="create-order" class="primary" type="button">Create PayPal Sandbox order</button>
+            <button id="clear-review" class="text-button" type="button">Back to comparing offers</button>
+          </section>
+          <div id="payment" role="region" aria-label="Sandbox checkout" aria-live="polite" tabindex="-1"></div>
         </div>
       </section>
     </div>
     <section class="panel audit" aria-labelledby="audit-heading">
       <div class="panel-header"><span class="step">03</span><h2 id="audit-heading">Policy evidence</h2></div>
-      <p class="hint">Recorded policy transitions, not an LLM-written explanation. This demo keeps records in process memory only.</p>
+      <p class="hint">Recorded policy transitions. The local demo preserves these records across server restarts.</p>
       <ol id="events" class="events"><li class="event-empty">No activity yet.</li></ol>
     </section>
     <footer>VOWRAIL / OPEN EXPERIMENTAL PROFILE <span>Sandbox only. No buyer login, merchant authentication, or production guarantees.</span></footer>

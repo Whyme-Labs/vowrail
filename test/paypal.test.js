@@ -63,3 +63,19 @@ test('invalid order IDs cannot be used in PayPal request path', async () => {
   await assert.rejects(api.getOrder('../production'), e => e.code === 'INVALID_ORDER_ID');
   assert.equal(calls.length, 0);
 });
+
+test('OAuth and order requests receive a bounded abort signal', async () => {
+  const signals = [];
+  const api = new PayPalSandbox({ clientId: 'synthetic-id', clientSecret: 'synthetic-secret', timeoutMs: 20,
+    fetchImpl: async (_url, config) => {
+      signals.push(config.signal);
+      return { ok: true, json: async () => ({ access_token: 'SYNTHETIC_TOKEN', expires_in: 3600 }) };
+    }
+  });
+  await api.getOrder('ORDER123');
+  assert.equal(signals.length, 2);
+  assert.ok(signals.every(s => s instanceof AbortSignal));
+  await new Promise(resolve => setTimeout(resolve, 40));
+  assert.ok(signals.every(s => s.aborted));
+  for (const timeoutMs of [0, -1, 30001, Infinity]) assert.throws(() => new PayPalSandbox({ timeoutMs }));
+});

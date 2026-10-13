@@ -21,22 +21,16 @@
 
 Official rules score technological implementation, design, potential impact, innovation and presentation equally at 20% each. A functional UI and real payment matter as much as novel policy ideas.
 
-## Proposed 2:55 video script
+## Demo preparation
 
-- 0:00–0:25: show the risk, agent may overspend or reveal a private cap.
-- 0:25–1:00: buyer sets mandate, synthetic sellers bid in round 1.
-- 1:00–1:40: optional AI advice, second round and blocked unauthorized third round; event trail.
-- 1:40–2:20: PayPal Sandbox order approval and completed capture.
-- 2:20–2:55: adversarial tests, transparent caveats, interoperability vision.
-
-Show real, repeatable behavior. Do not imply a synthetic seller is a real PayPal recipient. Do not claim live merchant negotiation, universal lowest prices or a certified standard.
+Use the [rehearsal and final-video shot plan](DEMO.md). The separate [actual Sandbox purchase](PAYPAL_EVIDENCE.md) has verified API, dashboard and restart evidence. Three actual free-model advisory cases are now observed in the [cumulative qualification report](MODEL_QUALIFICATION.md), with rationale/ambiguity quality errors disclosed. Keep simulated sellers distinct from the receiving Sandbox merchant and factual claims tied to observations.
 
 ## Submission gates
 
 G0 docs and issue roadmap reviewed.
-G1 backend state machine, deterministic tests and CI green.
+G1 backend state machine and reproducible actual Node tests/smoke pass at the release head; report hosted/local check status separately. Hosted Actions billing is not a competition requirement or approval gate for routine local verification.
 G2 complete accessible local demo for creating mandates and comparing offers.
-G3 optional real AI model issues meaningful advice while deterministic policy remains authoritative.
+G3 required meaningful real AI use demonstrated with exact provider/model and observed advice; deterministic policy remains authoritative. The app can run without AI, but fallback does not qualify this competition gate.
 G4 PayPal Sandbox order, buyer approval, API-verified capture demonstrated; ambiguity and retry behavior tested.
 G5 product usability, failure flows, accessibility and video recording finished.
 G6 public repo license/IP/secrets review, no fake functionality, Devpost fields submitted before deadline.

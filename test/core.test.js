@@ -20,11 +20,14 @@ const fakePayments = (overrides = {}) => {
     },
     async getOrder(id) {
       calls.get++;
-      return { id, status: 'APPROVED', purchase_units: [{ amount: { currency_code: 'USD', value: '200.00' } }] };
+      return { id, intent: 'CAPTURE', status: 'APPROVED', purchase_units: [{
+        reference_id: calls.args[0].intentId, amount: { currency_code: 'USD', value: '200.00' }
+      }] };
     },
     async captureOrder(id) {
       calls.capture++;
-      return { id, purchase_units: [{ payments: { captures: [{
+      return { id, intent: 'CAPTURE', status: 'COMPLETED', purchase_units: [{ reference_id: calls.args[0].intentId,
+        amount: { currency_code: 'USD', value: '200.00' }, payments: { captures: [{
         id: 'CAPTURE123', status: 'COMPLETED', amount: { currency_code: 'USD', value: '200.00' }
       }] } }] };
     }, ...overrides
@@ -208,7 +211,9 @@ test('parallel checkouts do not create two payment orders', async () => {
 test('PayPal order must be approved and match currency and amount before capture', async () => {
   const { payments, calls } = fakePayments({ async getOrder(id) {
     calls.get++;
-    return { id, status: 'APPROVED', purchase_units: [{ amount: { currency_code: 'USD', value: '201.00' } }] };
+    return { id, intent: 'CAPTURE', status: 'APPROVED', purchase_units: [{
+      reference_id: calls.args[0].intentId, amount: { currency_code: 'USD', value: '201.00' }
+    }] };
   } });
   const gateway = build({ payments }), id = create(gateway);
   await round(gateway, id);
@@ -229,7 +234,7 @@ test('valid checkout and capture transitions to completed exactly once', async (
   const completed = await gateway.captureCheckout(id, 'SANDBOXORDER123');
   assert.equal(completed.state, 'COMPLETED');
   assert.equal(completed.checkout.captureId, 'CAPTURE123');
-  await assert.rejects(gateway.captureCheckout(id, 'SANDBOXORDER123'), e => e.code === 'INVALID_STATE');
+  assert.equal((await gateway.captureCheckout(id, 'SANDBOXORDER123')).checkout.captureId, 'CAPTURE123');
   assert.equal(calls.capture, 1);
 });
 
@@ -266,4 +271,18 @@ test('earlier valid quote remains eligible even when revised quote costs more', 
   assert.equal(gateway.eligibleOffers(id).length, 2);
   const checkout = await gateway.createCheckout(id, firstId, 'http://127.0.0.1:8787');
   assert.equal(checkout.checkout.amountMinor, 19000);
+});
+
+test('checkout never exposes a live or untrusted approval link but retains its order reference', async () => {
+  for (const approveUrl of ['https://www.paypal.com/checkoutnow', 'https://sandbox.paypal.com.attacker.example/',
+    'javascript:alert(1)', 'http://www.sandbox.paypal.com/', 'https://user:pass@www.sandbox.paypal.com/']) {
+    const { payments } = fakePayments({ createOrder: async () => ({ id: 'ORDER123', approveUrl }) });
+    const gateway = build({ payments }), id = create(gateway);
+    await round(gateway, id);
+    await assert.rejects(gateway.createCheckout(id, gateway.eligibleOffers(id)[0].offerId, 'http://127.0.0.1:8787'));
+    const state = gateway.getIntent(id);
+    assert.equal(state.checkout.orderId, 'ORDER123');
+    assert.equal(state.checkout.approveUrl, null);
+    assert.equal(state.state, 'RECONCILIATION_REQUIRED');
+  }
 });

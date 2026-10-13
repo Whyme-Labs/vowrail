@@ -4,11 +4,13 @@ const SANDBOX = 'https://api-m.sandbox.paypal.com';
 
 /** No live-host configuration is supported. Inject fetch only for tests. */
 export class PayPalSandbox {
-  constructor({ clientId = '', clientSecret = '', fetchImpl = globalThis.fetch, now = () => Date.now() } = {}) {
+  constructor({ clientId = '', clientSecret = '', fetchImpl = globalThis.fetch, now = () => Date.now(), timeoutMs = 10000 } = {}) {
+    if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 30000) throw new Error('Invalid PayPal timeout');
     this.clientId = clientId;
     this.clientSecret = clientSecret;
     this.fetchImpl = fetchImpl;
     this.now = now;
+    this.timeoutMs = timeoutMs;
     this.accessToken = null;
     this.tokenExpiry = 0;
   }
@@ -21,6 +23,7 @@ export class PayPalSandbox {
     const auth = Buffer.from(this.clientId + ':' + this.clientSecret).toString('base64');
     const response = await this.fetchImpl(SANDBOX + '/v1/oauth2/token', {
       method: 'POST',
+      signal: AbortSignal.timeout(this.timeoutMs),
       headers: { Authorization: 'Basic ' + auth, 'Content-Type': 'application/x-www-form-urlencoded' },
       body: 'grant_type=client_credentials'
     });
@@ -36,7 +39,7 @@ export class PayPalSandbox {
     const headers = { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json', Prefer: 'return=representation' };
     if (idempotencyKey) headers['PayPal-Request-Id'] = idempotencyKey;
     const response = await this.fetchImpl(SANDBOX + path, {
-      method, headers, ...(body !== undefined ? { body: JSON.stringify(body) } : {})
+      method, headers, signal: AbortSignal.timeout(this.timeoutMs), ...(body !== undefined ? { body: JSON.stringify(body) } : {})
     });
     if (!response.ok) {
       // Never leak the provider's raw response, which may contain sensitive data.

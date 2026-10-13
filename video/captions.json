@@ -1,0 +1,226 @@
+[
+  {
+    "scene": "opening",
+    "text": "I need 100 matte prints for an event in three days.",
+    "startMs": 0,
+    "endMs": 6000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "opening",
+    "text": "I want AI help. I still need control over the purchase.",
+    "startMs": 6000,
+    "endMs": 12000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "tradeoff",
+    "text": "The cheapest offer may arrive too late.",
+    "startMs": 12000,
+    "endMs": 18000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "tradeoff",
+    "text": "Price, timing and terms all shape the choice.",
+    "startMs": 18000,
+    "endMs": 24000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "tradeoff",
+    "text": "These are illustrative quotes, not merchant commitments.",
+    "startMs": 24000,
+    "endMs": 30000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "advice",
+    "text": "An actual model explanation called Atlas cheapest. Birch cost less with a three-day estimate.",
+    "startMs": 30000,
+    "endMs": 39000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "advice",
+    "text": "Another assumed an uncertain deadline was acceptable and mislabeled cents as USD.",
+    "startMs": 39000,
+    "endMs": 48000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "intro",
+    "text": "Vowrail keeps purchase permission explicit.",
+    "startMs": 48000,
+    "endMs": 52000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "intro",
+    "text": "Agents propose. The deterministic gateway enforces the bounds.",
+    "startMs": 52000,
+    "endMs": 56000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "mandate",
+    "text": "Here the buyer permits at most USD 220 and two negotiation rounds.",
+    "startMs": 56000,
+    "endMs": 62000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "mandate",
+    "text": "The stored mandate stays outside the model’s reasoning.",
+    "startMs": 62000,
+    "endMs": 68000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "mandate",
+    "text": "Sellers receive public requirements, not the private ceiling.",
+    "startMs": 68000,
+    "endMs": 74000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "negotiation",
+    "text": "The gateway authorizes each round. Two means two.",
+    "startMs": 74000,
+    "endMs": 79000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "negotiation",
+    "text": "Retained checks refused a third round, invented offers and above-budget checkout.",
+    "startMs": 79000,
+    "endMs": 84000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "negotiation",
+    "text": "The gateway enforces the rule. A disabled button only displays it.",
+    "startMs": 84000,
+    "endMs": 90000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "review",
+    "text": "I compare the stored price, delivery estimate and expiry before choosing.",
+    "startMs": 90000,
+    "endMs": 96000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "review",
+    "text": "Delivery and missing tax or refund terms still need buyer review.",
+    "startMs": 96000,
+    "endMs": 102000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "review",
+    "text": "Order creation, buyer approval and capture remain separate steps.",
+    "startMs": 102000,
+    "endMs": 108000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "expiry",
+    "text": "An expired quote cannot begin checkout. An expired mandate cannot authorize capture.",
+    "startMs": 108000,
+    "endMs": 114000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "expiry",
+    "text": "Previously completed payment status remains readable. This is a synthetic expiry replay.",
+    "startMs": 114000,
+    "endMs": 120000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "sandbox",
+    "text": "In an earlier separate Sandbox run, one authorized USD 207 purchase completed.",
+    "startMs": 120000,
+    "endMs": 125000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "sandbox",
+    "text": "Independent checks matched the amount, currency and reference.",
+    "startMs": 125000,
+    "endMs": 131000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "sandbox",
+    "text": "This is a text summary. The synthetic seller was not the configured payee.",
+    "startMs": 131000,
+    "endMs": 136000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "recovery",
+    "text": "If a payment response is uncertain, verify the stored outcome with a read-only check.",
+    "startMs": 136000,
+    "endMs": 143000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "recovery",
+    "text": "Earlier restart restored the completed receipt after expiry. Recovery made no capture call.",
+    "startMs": 143000,
+    "endMs": 150000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "outcome",
+    "text": "Use AI help while keeping purchase permission explicit and the outcome checkable.",
+    "startMs": 150000,
+    "endMs": 155000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "outcome",
+    "text": "Delivery terms need review. Model explanations remain unverified.",
+    "startMs": 155000,
+    "endMs": 160000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "outcome",
+    "text": "Model tests and the Sandbox purchase were separate runs. Private review only.",
+    "startMs": 160000,
+    "endMs": 165000,
+    "timestampMs": null,
+    "confidence": null
+  }
+]

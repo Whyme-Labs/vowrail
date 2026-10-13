@@ -1,0 +1,122 @@
+[
+  {
+    "scene": "opening",
+    "text": "I need 100 prints in three days. I still control the purchase.",
+    "startMs": 0,
+    "endMs": 6000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "intro",
+    "text": "Agents propose. Vowrail’s gateway enforces spending permission.",
+    "startMs": 6000,
+    "endMs": 12000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "mandate",
+    "text": "The buyer allows USD 220 and two negotiation rounds.",
+    "startMs": 12000,
+    "endMs": 18000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "mandate",
+    "text": "Sellers receive public requirements, never the private ceiling.",
+    "startMs": 18000,
+    "endMs": 24000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "negotiation",
+    "text": "Two rounds means two. The gateway refuses another.",
+    "startMs": 24000,
+    "endMs": 29000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "negotiation",
+    "text": "Invented offers and above-budget checkout are blocked.",
+    "startMs": 29000,
+    "endMs": 34000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "review",
+    "text": "Choose a stored offer. Delivery, tax and refund terms still need review.",
+    "startMs": 34000,
+    "endMs": 41000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "review",
+    "text": "Order creation, buyer approval and capture are separate.",
+    "startMs": 41000,
+    "endMs": 48000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "expiry",
+    "text": "Expired permission blocks checkout or capture. This is a synthetic expiry replay.",
+    "startMs": 48000,
+    "endMs": 56000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "sandbox",
+    "text": "An earlier separate Sandbox run completed one authorized USD 207 purchase.",
+    "startMs": 56000,
+    "endMs": 62000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "sandbox",
+    "text": "Amount and currency matched. The synthetic seller was not the configured payee.",
+    "startMs": 62000,
+    "endMs": 68000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "recovery",
+    "text": "When a response is uncertain, check the stored outcome without another capture.",
+    "startMs": 68000,
+    "endMs": 73000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "recovery",
+    "text": "Earlier restart restored the completed receipt after expiry.",
+    "startMs": 73000,
+    "endMs": 78000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "outcome",
+    "text": "AI helps. Your permission stays explicit and the result stays checkable.",
+    "startMs": 78000,
+    "endMs": 84000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "scene": "outcome",
+    "text": "Model explanations remain unverified. Evidence comes from separate runs. Private review only.",
+    "startMs": 84000,
+    "endMs": 90000,
+    "timestampMs": null,
+    "confidence": null
+  }
+]

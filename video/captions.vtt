@@ -1,0 +1,85 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:06.000
+I need 100 matte prints for an event in three days.
+
+00:00:06.000 --> 00:00:12.000
+I want AI help. I still need control over the purchase.
+
+00:00:12.000 --> 00:00:18.000
+The cheapest offer may arrive too late.
+
+00:00:18.000 --> 00:00:24.000
+Price, timing and terms all shape the choice.
+
+00:00:24.000 --> 00:00:30.000
+These are illustrative quotes, not merchant commitments.
+
+00:00:30.000 --> 00:00:39.000
+An actual model explanation called Atlas cheapest. Birch cost less with a three-day estimate.
+
+00:00:39.000 --> 00:00:48.000
+Another assumed an uncertain deadline was acceptable and mislabeled cents as USD.
+
+00:00:48.000 --> 00:00:52.000
+Vowrail keeps purchase permission explicit.
+
+00:00:52.000 --> 00:00:56.000
+Agents propose. The deterministic gateway enforces the bounds.
+
+00:00:56.000 --> 00:01:02.000
+Here the buyer permits at most USD 220 and two negotiation rounds.
+
+00:01:02.000 --> 00:01:08.000
+The stored mandate stays outside the model’s reasoning.
+
+00:01:08.000 --> 00:01:14.000
+Sellers receive public requirements, not the private ceiling.
+
+00:01:14.000 --> 00:01:19.000
+The gateway authorizes each round. Two means two.
+
+00:01:19.000 --> 00:01:24.000
+Retained checks refused a third round, invented offers and above-budget checkout.
+
+00:01:24.000 --> 00:01:30.000
+The gateway enforces the rule. A disabled button only displays it.
+
+00:01:30.000 --> 00:01:36.000
+I compare the stored price, delivery estimate and expiry before choosing.
+
+00:01:36.000 --> 00:01:42.000
+Delivery and missing tax or refund terms still need buyer review.
+
+00:01:42.000 --> 00:01:48.000
+Order creation, buyer approval and capture remain separate steps.
+
+00:01:48.000 --> 00:01:54.000
+An expired quote cannot begin checkout. An expired mandate cannot authorize capture.
+
+00:01:54.000 --> 00:02:00.000
+Previously completed payment status remains readable. This is a synthetic expiry replay.
+
+00:02:00.000 --> 00:02:05.000
+In an earlier separate Sandbox run, one authorized USD 207 purchase completed.
+
+00:02:05.000 --> 00:02:11.000
+Independent checks matched the amount, currency and reference.
+
+00:02:11.000 --> 00:02:16.000
+This is a text summary. The synthetic seller was not the configured payee.
+
+00:02:16.000 --> 00:02:23.000
+If a payment response is uncertain, verify the stored outcome with a read-only check.
+
+00:02:23.000 --> 00:02:30.000
+Earlier restart restored the completed receipt after expiry. Recovery made no capture call.
+
+00:02:30.000 --> 00:02:35.000
+Use AI help while keeping purchase permission explicit and the outcome checkable.
+
+00:02:35.000 --> 00:02:40.000
+Delivery terms need review. Model explanations remain unverified.
+
+00:02:40.000 --> 00:02:45.000
+Model tests and the Sandbox purchase were separate runs. Private review only.

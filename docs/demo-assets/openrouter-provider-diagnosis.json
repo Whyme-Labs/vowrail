@@ -1,0 +1,156 @@
+{
+  "observedAt": "2026-10-12T18:04:53.841Z",
+  "keyMetadataHttpStatus": 200,
+  "freeQuota": {
+    "used": 0,
+    "limit": 1000,
+    "remaining": 1000
+  },
+  "providers": [
+    {
+      "id": "google/gemma-4-31b-it:free",
+      "httpStatus": 200,
+      "endpoints": [
+        {
+          "name": "Google AI Studio | google/gemma-4-31b-it-20260402:free",
+          "provider": "Google AI Studio",
+          "tag": "google-ai-studio",
+          "pricing": {
+            "prompt": "0",
+            "completion": "0",
+            "discount": 0
+          },
+          "status": 0,
+          "supported": [
+            "reasoning",
+            "include_reasoning",
+            "max_tokens",
+            "temperature",
+            "top_p",
+            "seed",
+            "response_format",
+            "tools",
+            "tool_choice"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "google/gemma-4-26b-a4b-it:free",
+      "httpStatus": 200,
+      "endpoints": [
+        {
+          "name": "Google AI Studio | google/gemma-4-26b-a4b-it-20260403:free",
+          "provider": "Google AI Studio",
+          "tag": "google-ai-studio",
+          "pricing": {
+            "prompt": "0",
+            "completion": "0",
+            "discount": 0
+          },
+          "status": 0,
+          "supported": [
+            "reasoning",
+            "include_reasoning",
+            "max_tokens",
+            "temperature",
+            "top_p",
+            "seed",
+            "response_format",
+            "tools",
+            "tool_choice"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "nvidia/nemotron-3.5-lightning:free",
+      "httpStatus": 200,
+      "endpoints": [
+        {
+          "name": "Nvidia | nvidia/nemotron-3.5-lightning-20260807:free",
+          "provider": "Nvidia",
+          "tag": "nvidia/nvfp4",
+          "pricing": {
+            "prompt": "0",
+            "completion": "0",
+            "discount": 0
+          },
+          "status": 0,
+          "supported": [
+            "reasoning",
+            "include_reasoning",
+            "temperature",
+            "max_tokens",
+            "seed",
+            "top_p",
+            "tools",
+            "tool_choice"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "apodex/apodex-1.1-mini:free",
+      "httpStatus": 200,
+      "endpoints": [
+        {
+          "name": "Novita | apodex/apodex-1.1-mini-20261001:free",
+          "provider": "Novita",
+          "tag": "novita/bf16",
+          "pricing": {
+            "prompt": "0",
+            "completion": "0",
+            "discount": 0
+          },
+          "status": 0,
+          "supported": [
+            "reasoning",
+            "include_reasoning",
+            "max_tokens",
+            "temperature",
+            "top_p",
+            "stop",
+            "frequency_penalty",
+            "presence_penalty",
+            "seed",
+            "top_k",
+            "repetition_penalty",
+            "response_format",
+            "structured_outputs",
+            "tools",
+            "tool_choice"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dots-studio/dots-3-note-preview:free",
+      "httpStatus": 200,
+      "endpoints": [
+        {
+          "name": "AtlasCloud | dots-studio/dots-3-note-preview-20260813:free",
+          "provider": "AtlasCloud",
+          "tag": "atlas-cloud/fp8",
+          "pricing": {
+            "prompt": "0",
+            "completion": "0",
+            "discount": 0
+          },
+          "status": 0,
+          "supported": [
+            "reasoning",
+            "include_reasoning",
+            "max_tokens",
+            "temperature",
+            "top_p",
+            "response_format",
+            "structured_outputs",
+            "tools",
+            "tool_choice"
+          ]
+        }
+      ]
+    }
+  ]
+}

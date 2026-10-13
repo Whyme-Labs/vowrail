@@ -17,3 +17,6 @@
 
 ## ADR-006: do not build another payment authorization standard
 **Accepted 2026-10-11.** Vowrail is an experimental negotiation policy profile. Reuse well-supported OAuth and PayPal constructs; study AP2/UCP/A2A for interoperability later. Avoid falsely claiming certification or adoption.
+
+## ADR-007: local checkpoints for restart recovery
+**Accepted 2026-10-11.** Extend the existing Map state with a dependency-free local file journal. Flush a staged JSON checkpoint, publish it as a new immutable revision without replacing an existing record, and flush the directory before external execution. Restore interrupted operations conservatively; never retry a capture attempt. A stale writer or disk failure stops the gateway. This advances local crash recovery while preserving ADR-003's restrictions: no hosted database, background payment retries, distributed deployment or production readiness claims.

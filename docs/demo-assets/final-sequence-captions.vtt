@@ -1,0 +1,52 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:20.000
+I need 100 matte prints for an event in three days.
+I want an AI to help buy them. But I still need control over the price
+and terms I agree to, when permission ends, and whether payment completed.
+The cheapest offer may miss the event. This is an illustrative buyer story.
+
+00:00:20.000 --> 00:00:38.000
+In separate actual model tests, explanations got prices and deadline
+assumptions wrong. Advice cannot settle what I meant or authorize purchase.
+An uncertain payment response needs a checkable answer before anyone pays again.
+No purchase occurred in these model cases; the explanation stays unverified.
+
+00:00:38.000 --> 00:01:00.000
+Vowrail starts with bounded permission stored outside the model's reasoning.
+Here I allow at most USD 220 and two negotiation rounds.
+Sellers receive public requirements, not my private ceiling.
+This prototype keeps buyer review and approval explicit.
+This is recorded local simulation, with no new provider calls.
+
+00:01:00.000 --> 00:01:18.000
+The gateway enforces those bounds even when an adviser proposes something else.
+Above-budget and invented offers cannot start checkout.
+The gateway checks the round limit; a disabled button is only the interface.
+The displayed policy checks are retained evidence, not a new operation.
+
+00:01:18.000 --> 00:01:40.000
+I compare the stored price, delivery estimate and expiry,
+then choose the offer myself. Delivery and missing tax or refund terms
+still need my review. Order creation, buyer approval and capture are separate.
+The model explanation stays unverified. No new order is created here.
+
+00:01:40.000 --> 00:01:55.000
+Permission has a lifetime. An expired quote cannot begin checkout,
+and an expired mandate cannot authorize capture.
+Previously completed payment status can still be checked.
+This screen is a synthetic expiry replay, with no checkout or capture.
+
+00:01:55.000 --> 00:02:25.000
+In an earlier, separate PayPal Sandbox run, one USD 207 purchase completed.
+Independent checks matched the stored amount, currency and reference.
+Restart restored the completed receipt after expiry; recovery made no capture call.
+This text summary omits private references. The synthetic seller was not the payee.
+These were separate runs, not a new model-led purchase or transaction.
+
+00:02:25.000 --> 00:02:45.000
+The goal is to use AI help while keeping purchase permission explicit
+and the outcome checkable. This local prototype demonstrates those controls,
+not dependable model reasoning or guaranteed delivery.
+The model cases and Sandbox purchase were separate runs.
+This remains a private review, not a submitted or public video.

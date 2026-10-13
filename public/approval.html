@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simulated buyer approval | Vowrail</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/approval.js"></script>
+</head>
+<body>
+  <header class="topbar"><div class="brand"><span class="mark" aria-hidden="true">V</span>VOWRAIL</div><div class="top-right">LOCAL SIMULATION</div></header>
+  <main class="container approval-container">
+    <p class="simulation-banner">Local simulation — not a PayPal page or transaction. No credentials are requested and no money moves.</p>
+    <section class="panel" aria-labelledby="approval-heading">
+      <h1 id="approval-heading" tabindex="-1">Simulated buyer approval</h1>
+      <p class="hint">This separate step rehearses buyer consent. Approval alone cannot capture; you must return to Vowrail and explicitly request the simulated capture.</p>
+      <div id="approval-notice" class="notice" role="status" aria-live="polite" tabindex="-1">Loading the locked simulated order…</div>
+      <div id="approval-details"></div>
+      <form id="approval-form">
+        <button id="approve-simulation" class="primary" type="submit" disabled>Simulate buyer approval — no payment</button>
+        <button id="cancel-simulation" class="text-button" type="button" disabled>Return without approving</button>
+      </form>
+    </section>
+  </main>
+</body>
+</html>
