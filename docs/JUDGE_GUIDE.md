@@ -1,6 +1,6 @@
 # Judge walkthrough: working local build and evidence
 
-This private pre-release prototype has a complete credential-free simulator and a separately verified actual USD 207.00 Sandbox purchase. Three actual free-model advisory cases are observed; private judge access is still pending; this guide does not claim the final competition entry is ready. It targets a desktop browser and Node 22+; commands below were checked on macOS.
+This public pre-release prototype has a complete credential-free simulator and a separately verified actual USD 207.00 Sandbox purchase. Three actual free-model advisory cases are observed. Private integration test access is still pending; this guide does not claim the final competition entry is ready. It targets a desktop browser and Node 22+; commands below were checked on macOS.
 
 ## Rule and access choices
 
@@ -10,9 +10,10 @@ The local build needs no public server or app login. Its credential-free simulat
 
 ## Run from source without accounts or keys
 
-Use an authorized source checkout. The repository is currently private; public clone access awaits owner approval. There are no npm dependencies to install. No `.env` is required or loaded for this walkthrough.
+Clone the [public MIT repository](https://github.com/Whyme-Labs/vowrail). There are no npm dependencies to install. No `.env` is required or loaded for this walkthrough. Use a new directory rather than replacing an existing checkout.
 
 ```sh
+git clone https://github.com/Whyme-Labs/vowrail.git
 cd vowrail
 node --version
 npm test -- --test-concurrency=1
