@@ -1,8 +1,24 @@
-# Judge walkthrough: working local build and evidence
+# Judge walkthrough: hosted and local builds
 
-This public pre-release prototype has a complete credential-free simulator and a separately verified actual USD 207.00 Sandbox purchase. Three actual free-model advisory cases are observed. Private integration test access is still pending; this guide does not claim the final competition entry is ready. It targets a desktop browser and Node 22+; commands below were checked on macOS.
+This public pre-release prototype has a complete credential-free simulator and a separately verified actual USD 207.00 Sandbox purchase. Three actual free-model advisory cases are observed. The hosted route provides the server integrations; judges use their own Personal Sandbox buyer account for approval. Final terms/submission remain pending. It targets a desktop browser and Node 22+; commands below were checked on macOS.
 
-## Rule and access choices
+## Hosted browser route
+
+The Workers deployment targets [Sandbox + free AI](https://vowrail-judges.swmengappdev.workers.dev/) and [provider-free simulation](https://vowrail-judges.swmengappdev.workers.dev/demo/). Deployment availability is verified separately in its implementation PR. No Vowrail account, software installation or API key is required in the browser. Server-side Workers secrets provide the existing merchant/model integrations. Actual PayPal approval uses the judge's own Personal **Sandbox** buyer account; never use a live PayPal account. The simulator needs no buyer login and makes no provider calls.
+
+For the hosted Sandbox route, create the default synthetic mandate, run two rounds, ask the free buyer model for advisory evaluation, review and select a stored quote, create the Sandbox order, approve it in PayPal Sandbox and return for explicit capture. Advice has no execution authority. A provider quota/error produces a labeled deterministic fallback. Configuration flags do not prove an actual provider request succeeded. Keep this browser's session cookie to reopen a pending purchase. For uncertain capture, use read-only status recovery rather than another capture.
+
+For the simulator, follow the interactive walkthrough below, replacing the local URL with the hosted `/demo/` URL. Its separate approval page and receipt remain labeled simulation. Temporary hosted traffic limits return `429` with a retry delay; they do not change the mandate, extend rounds or reset payment locks. See [deployment boundaries and traffic limits](WORKERS.md), including the permanent session-capacity exception.
+
+## Judge-owned Sandbox buyer access
+
+Use your own Personal Sandbox buyer account with enough test balance for the selected quote. Sign in only on PayPal's `sandbox.paypal.com` checkout page. Vowrail does not ask for or store that password, and the entrant does not share a buyer login. No Sandbox merchant app credentials or model API key is needed for the hosted app.
+
+If you do not have a Sandbox buyer account, use the [PayPal Developer Dashboard](https://developer.paypal.com/) to access the free Sandbox environment. PayPal automatically supplies a default Personal account when you register as a developer. Open **Sandbox > Accounts**, find the **Personal** account, then choose **View/Edit Account** to obtain its Sandbox email/password. See [PayPal's account instructions](https://developer.paypal.com/sandbox-testing/accounts). Account setup belongs to the judge; this project creates no provider account or credential on their behalf.
+
+The [official Testing requirements](https://paypalaihackathon.devpost.com/rules) require free access and complete instructions, including any necessary Sandbox login details or instructions for obtaining access. They do not specify the owner of a buyer account or expressly guarantee acceptance of a bring-your-own-account route. These instructions state that prerequisite, while the hosted server integrations and simulator require no judge-supplied API secrets. The simulator is immediately usable without a PayPal login.
+
+## Rules and local access choices
 
 The [official Testing requirements](https://paypalaihackathon.devpost.com/rules) require a working build, free access through judging, and the credentials or instructions needed to test it. They do not specify who must own provider credentials. Entrant-supplied dedicated credentials are a recommendation, not a stated competition requirement. Judge-owned existing Sandbox/model credentials are technically supported and not expressly prohibited; the rules do not explicitly guarantee acceptance of a bring-your-own-credentials-only route. Ensure the chosen instructions provide usable access, rather than claiming configuration alone satisfies the requirement.
 
@@ -10,7 +26,7 @@ The local build needs no public server or app login. Its credential-free simulat
 
 ## Run from source without accounts or keys
 
-Clone the [public MIT repository](https://github.com/Whyme-Labs/vowrail). There are no npm dependencies to install. No `.env` is required or loaded for this walkthrough. Use a new directory rather than replacing an existing checkout.
+Clone the [public MIT repository](https://github.com/Whyme-Labs/vowrail). There are no runtime npm dependencies to install for this local path; the optional Workers development tools use `npm ci`. No `.env` is required or loaded for this walkthrough. Use a new directory rather than replacing an existing checkout.
 
 ```sh
 git clone https://github.com/Whyme-Labs/vowrail.git

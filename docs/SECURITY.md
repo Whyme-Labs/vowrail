@@ -26,6 +26,8 @@ Assume a trustworthy Node process and code, sandbox PayPal account, correct host
 
 ## Required attack tests
 
+The [Workers path](WORKERS.md) adds isolated anonymous session principals, signed secure cookies, per-intent ownership, session-bound CSRF, fixed host/Origin validation, bounded bodies, native and durable rate limits, private SQLite snapshots and secret-backed fixed provider routes. The Node server above remains a loopback-only development route. A stolen valid session cookie or malicious operator is still outside those session guarantees; the hosted demo is not production account authentication or live financial software.
+
 | Test | Expected behavior |
 |---|---|
 | Third round when max is 2 | Reject with stable policy error; no merchant call |

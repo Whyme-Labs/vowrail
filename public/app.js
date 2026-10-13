@@ -9,6 +9,7 @@ let expiryTimer;
 const isSimulation = () => health?.checkoutMode === 'simulation';
 const checkoutConfigured = () => Boolean(health?.checkoutConfigured ?? health?.paypalConfigured);
 const params = new URLSearchParams(window.location.search);
+const apiPrefix = window.location.pathname?.startsWith('/demo/') ? '/demo' : '';
 
 function notice(message, isError = false) {
   const box = $('notice');
@@ -16,10 +17,11 @@ function notice(message, isError = false) {
   box.classList.toggle('error', isError);
 }
 async function request(path, method = 'GET', body = undefined, extra = {}) {
-  const response = await fetch(path, {
+  const response = await fetch(apiPrefix + path, {
     method,
     headers: method === 'POST' ? { 'Content-Type': 'application/json', ...extra,
-      ...(health?.checkoutMode ? { 'X-Vowrail-Checkout-Mode': health.checkoutMode } : {}) } : {},
+      ...(health?.checkoutMode ? { 'X-Vowrail-Checkout-Mode': health.checkoutMode } : {}),
+      ...(health?.csrfToken ? { 'X-Vowrail-CSRF': health.csrfToken } : {}) } : {},
     ...(method === 'POST' ? { body: JSON.stringify(body ?? {}) } : {})
   });
   const data = await response.json();
@@ -237,7 +239,7 @@ $('mandate-form').addEventListener('submit', event => {
       item: $('item').value, quantity: Number($('quantity').value), requirements: $('requirements').value,
       currency: 'USD', maxTotalMinor, maxRounds: Number($('rounds').value)
     });
-    history.replaceState(null, '', '/?intent=' + encodeURIComponent(intent.intentId));
+    history.replaceState(null, '', apiPrefix + '/?intent=' + encodeURIComponent(intent.intentId));
     notice('Mandate created. The private budget will not be sent to simulated merchants.');
   }, 'activity-heading');
 });
@@ -268,6 +270,14 @@ $('recommend').addEventListener('click', () => perform(async () => {
 async function main() {
   try {
     health = await request('/api/health');
+    if (health.hosted) {
+      $('hosted-modes').hidden = false;
+      $('new-purchase').href = apiPrefix + '/';
+      $('environment-label').textContent = isSimulation() ? 'HOSTED SIMULATION / NO PAYPAL' : 'PAYPAL SANDBOX / FREE AI';
+      $('storage-note').textContent = 'Your session records persist in cloud storage. Keep this browser session to reopen your purchases.';
+      $('trust-note').textContent = 'Sandbox only. Isolated browser sessions and synthetic merchants. No production guarantees.';
+      if (isSimulation()) $('simulation-banner').textContent = 'Payment simulation: no PayPal or model calls. No money moves. Use the Sandbox + free AI link to test the actual integrations.';
+    }
     const status = $('integration');
     const paypal = node('span', isSimulation() ? '● Local checkout simulation · no PayPal connection'
       : health.paypalConfigured ? '● PayPal Sandbox configured' : '○ PayPal Sandbox not configured',
@@ -276,7 +286,7 @@ async function main() {
       health.aiConfigured ? 'yes' : 'no');
     status.append(paypal, ai);
     $('simulation-banner').hidden = !isSimulation();
-    if (isSimulation()) $('environment-label').textContent = 'LOCAL SIMULATION / NO PAYPAL';
+    if (isSimulation() && !health.hosted) $('environment-label').textContent = 'LOCAL SIMULATION / NO PAYPAL';
     const intentId = params.get('intent');
     if (intentId && /^[0-9a-fA-F-]{36}$/.test(intentId)) {
       try {
@@ -293,7 +303,7 @@ async function main() {
       }
     }
   } catch (error) {
-    notice('Unable to connect to local Vowrail service: ' + error.message, true);
+    notice('Unable to connect to Vowrail: ' + error.message, true);
   }
   render();
   if (intent && (params.get('cancelled') === '1' || params.get('token')

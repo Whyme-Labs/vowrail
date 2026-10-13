@@ -25,7 +25,13 @@ jobs:
           node --check src/adapters/ai.js
           node --check src/adapters/ai-merchant.js
           node --check public/app.js
+      - name: Install deployment development tools
+        run: npm ci
       - name: Unit and HTTP tests
-        run: npm test
+        run: npm test -- --test-concurrency=1
+      - name: Workers runtime integration tests
+        run: npm run test:workers
+        env:
+          WRANGLER_SEND_METRICS: 'false'
       - name: Reproducible smoke demo
         run: npm run smoke

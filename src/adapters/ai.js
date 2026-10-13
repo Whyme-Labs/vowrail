@@ -1,3 +1,5 @@
+import { Buffer } from 'node:buffer';
+
 /**
  * Optional remote model service for buyer advice and one synthetic seller agent.
  * ALL model responses are untrusted suggestions. Deterministic policy remains authoritative.
