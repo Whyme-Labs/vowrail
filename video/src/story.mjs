@@ -55,7 +55,7 @@ const lines = {
     [11,16,'This is a text summary. The synthetic seller was not the configured payee.'],
   ],
   recovery:[
-    [0,7,'If a payment response is uncertain, check the stored outcome before trying again.'],
+    [0,7,'If a payment response is uncertain, verify the stored outcome with a read-only check.'],
     [7,14,'Earlier restart restored the completed receipt after expiry. Recovery made no capture call.'],
   ],
   outcome:[

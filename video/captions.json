@@ -185,7 +185,7 @@
   },
   {
     "scene": "recovery",
-    "text": "If a payment response is uncertain, check the stored outcome before trying again.",
+    "text": "If a payment response is uncertain, verify the stored outcome with a read-only check.",
     "startMs": 136000,
     "endMs": 143000,
     "timestampMs": null,

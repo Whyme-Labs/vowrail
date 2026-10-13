@@ -70,7 +70,7 @@ Independent checks matched the amount, currency and reference.
 This is a text summary. The synthetic seller was not the configured payee.
 
 00:02:16.000 --> 00:02:23.000
-If a payment response is uncertain, check the stored outcome before trying again.
+If a payment response is uncertain, verify the stored outcome with a read-only check.
 
 00:02:23.000 --> 00:02:30.000
 Earlier restart restored the completed receipt after expiry. Recovery made no capture call.

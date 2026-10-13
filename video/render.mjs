@@ -6,7 +6,7 @@ import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {resolve,join} from 'node:path';
 import {execFileSync} from 'node:child_process';
-import {sections} from './src/story.mjs';
+import {validateAssets} from './validate-assets.mjs';
 const here=fileURLToPath(new URL('.',import.meta.url));
 const out=resolve(process.env.VOWRAIL_VIDEO_OUT??join(here,'renders'));mkdirSync(out,{recursive:true});
 const browserExecutable=process.env.REMOTION_BROWSER_EXECUTABLE;
@@ -14,9 +14,14 @@ if(!browserExecutable)throw Error('Set REMOTION_BROWSER_EXECUTABLE to a verified
 const sourceCommit=execFileSync('git',['rev-parse','HEAD'],{cwd:here,encoding:'utf8'}).trim();
 const sourceWorkingTreeDirty=Boolean(execFileSync('git',['status','--porcelain'],{cwd:here,encoding:'utf8'}).trim());
 if(process.argv.includes('--render')&&sourceWorkingTreeDirty)throw Error('Commit the reviewed composition before the complete render.');
-const assetFingerprint=createHash('sha256').update(readFileSync(join(here,'public/asset-manifest.json'))).update(readFileSync(join(here,'public/model-text.json'))).digest('hex');
+const assetFingerprint=validateAssets(join(here,'public'),join(here,'../docs/demo-assets/openrouter-free-qualification.json'));
+const assertInputsStable=()=>{
+  if(execFileSync('git',['rev-parse','HEAD'],{cwd:here,encoding:'utf8'}).trim()!==sourceCommit||execFileSync('git',['status','--porcelain'],{cwd:here,encoding:'utf8'}).trim())throw Error('Source changed during export; prior work is preserved.');
+  if(validateAssets(join(here,'public'),join(here,'../docs/demo-assets/openrouter-free-qualification.json'))!==assetFingerprint)throw Error('Assets changed during export; prior work is preserved.');
+};
 const bundlePath=join(here,'.bundle');
-const serveUrl=process.argv.includes('--reuse-bundle')?bundlePath:await bundle({entryPoint:join(here,'src/index.jsx'),outDir:bundlePath,publicDir:join(here,'public'),onProgress:p=>{if(p===100)console.log('Bundle ready');}});
+// Always rebuild: a cached bundle cannot certify the current source revision.
+const serveUrl=await bundle({entryPoint:join(here,'src/index.jsx'),outDir:bundlePath,publicDir:join(here,'public'),onProgress:p=>{if(p===100)console.log('Bundle ready');}});
 const browser=await openBrowser('chrome',{browserExecutable,logLevel:'warn',chromiumOptions:{headless:true}});
 const report={sourceCommit,sourceWorkingTreeDirty,assetFingerprint,remotionVersion:'4.0.535',width:1920,height:1080,fps:30,frames:4950,seconds:165,concurrency:1,encoderThreads:1,parallelEncoding:false,audio:'none; authored burned captions and VTT',externalProviderCalls:0,newPayments:0,foregroundAppsControlled:false,stills:[],chunks:[]};
 const limitEncodingThreads=({args})=>[...args.slice(0,-1),'-threads','1',args.at(-1)];
@@ -37,7 +42,9 @@ try {
    const limit=Number(process.env.VOWRAIL_CHUNK_FRAMES??450);
    if(!Number.isSafeInteger(limit)||limit<90||limit>900)throw Error('Bound chunks to 90–900 frames');
    const totalStarted=Date.now();
+   const remainingBudget=()=>25*60*1000-(Date.now()-totalStarted);
    for(let start=0;start<4950;start+=limit){
+     assertInputsStable();
      const end=Math.min(4949,start+limit-1);const file=join(chunks,`${String(start).padStart(5,'0')}.mp4`);
      const receipt=file+'.json';
      if(existsSync(file)){
@@ -46,17 +53,19 @@ try {
        if(saved?.sourceCommit===sourceCommit&&saved?.assetFingerprint===assetFingerprint&&saved?.start===start&&saved?.end===end&&saved?.sha256===digest){console.log(`Preserved verified completed chunk ${start}-${end}`);report.chunks.push({...saved,file,reused:true});continue;}
        renameSync(file,file+'.preserved-'+Date.now());
      }
-     if(Date.now()-totalStarted>25*60*1000)throw Error('Total render budget reached; completed chunks preserved');
-     const cancellation=makeCancelSignal();const watchdog=setTimeout(()=>cancellation.cancel(),180000);
+     if(remainingBudget()<=0)throw Error('Total render budget reached; completed chunks preserved');
+     const cancellation=makeCancelSignal();const watchdog=setTimeout(()=>cancellation.cancel(),Math.min(180000,remainingBudget()));
      const begun=Date.now();let last=0;
      try {await renderMedia({composition,serveUrl,puppeteerInstance:browser,outputLocation:file,codec:'h264',frameRange:[start,end],concurrency:1,disallowParallelEncoding:true,cancelSignal:cancellation.cancelSignal,muted:true,x264Preset:'veryfast',crf:20,timeoutInMilliseconds:20000,logLevel:'warn',ffmpegOverride:limitEncodingThreads,onProgress:({renderedFrames})=>{if(renderedFrames>=last+90){last=renderedFrames;console.log(`Chunk ${start}-${end}: ${renderedFrames} frames`);}}});}
      finally{clearTimeout(watchdog);}
+     assertInputsStable();
      const item={start,end,file,sourceCommit,assetFingerprint,wallMs:Date.now()-begun,sha256:createHash('sha256').update(readFileSync(file)).digest('hex')};
      writeFileSync(receipt,JSON.stringify(item,null,2)+'\n');report.chunks.push(item);console.log(`Finished ${start}-${end}`);
      writeFileSync(join(out,'render-progress.json'),JSON.stringify(report,null,2)+'\n');
    }
    const list=join(out,'concat.txt');writeFileSync(list,report.chunks.map(c=>`file '${c.file.replaceAll("'","'\\''")}'`).join('\n')+'\n');
-   execFileSync('ffmpeg',['-v','error','-nostdin','-y','-f','concat','-safe','0','-i',list,'-map_metadata','-1','-c','copy','-movflags','+faststart',join(out,'vowrail-sanitized-review-2m45.mp4')],{timeout:60000});
+   if(remainingBudget()<=0)throw Error('Render budget reached; verified chunks preserved before concatenation');
+   execFileSync('ffmpeg',['-v','error','-nostdin','-y','-f','concat','-safe','0','-i',list,'-map_metadata','-1','-c','copy','-movflags','+faststart',join(out,'vowrail-sanitized-review-2m45.mp4')],{timeout:Math.min(60000,remainingBudget())});
    report.renderWallMs=Date.now()-totalStarted;report.output=join(out,'vowrail-sanitized-review-2m45.mp4');
  }
  writeFileSync(join(out,'renderer-report.json'),JSON.stringify(report,null,2)+'\n');
