@@ -2,7 +2,7 @@
 
 Base URL: `http://127.0.0.1:8787`. JSON only for POST. **No authentication; do not expose publicly.**
 
-The separate [Workers transport](WORKERS.md) exposes the same operations with mandatory session ownership and CSRF. `GET /api/health` bootstraps a signed HttpOnly browser cookie and returns its CSRF proof; subsequent POST requests must send that cookie, the exact website Origin and `X-Vowrail-CSRF`. `/demo/api/...` selects the isolated hosted simulator. The existing checkout-mode header detects stale tabs and cannot change an intent's stored mode. Traffic limits return `429` with `Retry-After`. The Worker health includes `hosted`, `sourceCommit`, `store: "durable-object-sqlite"` and explicit free-model metadata, never credentials.
+The separate [Workers transport](WORKERS.md) exposes the same operations with mandatory session ownership and CSRF. `GET /api/health` bootstraps a signed HttpOnly browser cookie and returns its CSRF proof; subsequent POST requests must send that cookie, the exact website Origin and `X-Vowrail-CSRF`. `/demo/api/...` selects the isolated hosted simulator. The existing checkout-mode header detects stale tabs and cannot change an intent's stored mode. Time-window traffic limits return `429` with `Retry-After`. The permanent per-session intent-capacity limit returns `429 SESSION_LIMIT` without a retry window or that header. The Worker health includes `hosted`, `sourceCommit`, `store: "durable-object-sqlite"` and explicit free-model metadata, never credentials.
 
 | Endpoint | Function |
 |---|---|

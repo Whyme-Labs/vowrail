@@ -14,7 +14,7 @@ These are anonymous demo sessions, not verified personal accounts. A stolen vali
 
 ## Secrets and egress
 
-Only `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `OPENROUTER_API_KEY` and `SESSION_SECRET` are uploaded as Workers secrets. The Personal Sandbox buyer password is not stored on the Worker. Judges use that login only in PayPal's Sandbox browser approval flow; supply it privately in Devpost's judges-only instructions.
+Only `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `OPENROUTER_API_KEY` and `SESSION_SECRET` are uploaded as Workers secrets. The Personal Sandbox buyer password is not stored on the Worker. Judges use their own Personal Sandbox buyer account and enter its login only in PayPal's Sandbox browser approval flow. No entrant buyer login is shared. [Buyer-account setup](JUDGE_GUIDE.md#judge-owned-sandbox-buyer-access) is free; the simulator requires no PayPal login.
 
 `scripts/deploy-workers.js` reads the three existing provider values from the ignored `.env`, preserves a separate private session-signing key in `.vowrail/workers/`, and uploads a whitelist through Wrangler's supported `--secrets-file` mechanism. The temporary file is mode 0600 inside a mode 0700 directory and is removed after the command. No credential value is a shell argument, public asset, source file or log field. The signing key stays stable between deployments so pending sessions continue to work. No provider account or API key is created.
 
@@ -32,7 +32,7 @@ Outbound provider requests allow only the official PayPal Sandbox OAuth/Orders p
 | All free-model advice attempts | 500/day | Dedicated durable budget counter |
 | Sandbox checkout/capture/reconciliation attempts | 8/minute/IP, 100/day/IP | Durable SQL counter |
 
-Limits count attempts, including rejected requests, and return `429` with `Retry-After`. Per-IP durable object names are keyed hashes, not raw IP addresses. Cookie resets do not reset IP quotas. The low-volume global object handles only model-budget reservations, not general app traffic. Fixed daily windows reset at 00:00 UTC, or 08:00 MYT. Simulator advice and checkout do not consume provider budgets. Gateway mandate and round checks remain separate from traffic limits.
+The native API limiter counts requests after host, Origin and method checks, including requests later rejected for session, CSRF, checkout-mode or JSON validation. Durable operation counters count requests that pass those transport checks, including later gateway policy rejections. Time-window quotas return `429` with `Retry-After`. The permanent 50-intent session/mode capacity cap returns `429 SESSION_LIMIT` without that header because it has no retry window. Per-IP durable object names are keyed hashes, not raw IP addresses. Cookie resets do not reset IP quotas. The low-volume global object handles only model-budget reservations, not general app traffic. Fixed daily windows reset at 00:00 UTC, or 08:00 MYT. Simulator advice and checkout do not consume provider budgets. Gateway mandate and round checks remain separate from traffic limits.
 
 ## Local verification and deployment
 
