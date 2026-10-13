@@ -1,14 +1,17 @@
 import {readFileSync,readdirSync} from 'node:fs';
 import {join} from 'node:path';
 import {createHash} from 'node:crypto';
-const media=['app-interactions.webm','explicit-review.png','expiry-replay.png'];
-const allowed=[...media,'asset-manifest.json','model-text.json'].sort();
+const baseMedia=['app-interactions.webm','explicit-review.png','expiry-replay.png'];
 const digest=value=>createHash('sha256').update(value).digest('hex');
 
-export function validateAssets(directory,qualificationPath) {
-  if(JSON.stringify(readdirSync(directory).sort())!==JSON.stringify(allowed))throw Error('Only the reviewed public asset allowlist may be bundled.');
+export function validateAssets(directory,qualificationPath,requireAudio=false) {
   const manifestBytes=readFileSync(join(directory,'asset-manifest.json'));
   const manifest=JSON.parse(manifestBytes);
+  const hasAudio=manifest.files.some(f=>f.file==='supplied-audio.m4a');
+  if(requireAudio&&!hasAudio)throw Error('The short film requires the supplied audio.');
+  const media=hasAudio?[...baseMedia,'supplied-audio.m4a']:baseMedia;
+  const allowed=[...media,'asset-manifest.json','model-text.json'].sort();
+  if(JSON.stringify(readdirSync(directory).sort())!==JSON.stringify(allowed))throw Error('Only the reviewed public asset allowlist may be bundled.');
   if(JSON.stringify(manifest.files.map(f=>f.file).sort())!==JSON.stringify(media.slice().sort()))throw Error('Asset manifest is incomplete or duplicated.');
   const actualHashes=[];
   for(const entry of manifest.files) {

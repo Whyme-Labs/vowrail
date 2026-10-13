@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtempSync,mkdirSync,writeFileSync,rmSync} from 'node:fs';
+import {mkdtempSync,mkdirSync,readFileSync,writeFileSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {createHash} from 'node:crypto';
@@ -33,5 +33,16 @@ test('unreviewed public files and altered historical explanations are rejected',
     assert.throws(()=>validateAssets(f.publicDir,f.source),/committed observation/);
     writeFileSync(join(f.publicDir,'unreviewed.txt'),'synthetic private placeholder');
     assert.throws(()=>validateAssets(f.publicDir,f.source),/allowlist/);
+  }finally{f.close();}
+});
+test('short-film audio is required and changed audio cannot retain its fingerprint',()=>{
+  const f=fixture();try{
+    assert.throws(()=>validateAssets(f.publicDir,f.source,true),/requires the supplied audio/);
+    const audio=Buffer.from('synthetic soundtrack');const path=join(f.publicDir,'supplied-audio.m4a');writeFileSync(path,audio);
+    const manifest=JSON.parse(readFileSync(join(f.publicDir,'asset-manifest.json')));
+    manifest.files.push({file:'supplied-audio.m4a',bytes:audio.length,sha256:createHash('sha256').update(audio).digest('hex')});
+    writeFileSync(join(f.publicDir,'asset-manifest.json'),JSON.stringify(manifest));
+    const original=validateAssets(f.publicDir,f.source,true);assert.ok(original);
+    writeFileSync(path,'changed soundtrack');assert.throws(()=>validateAssets(f.publicDir,f.source,true),/Retained media changed/);
   }finally{f.close();}
 });

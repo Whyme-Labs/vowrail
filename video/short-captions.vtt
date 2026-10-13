@@ -1,0 +1,61 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:06.000
+I need 100 prints in three days. I still control the purchase.
+
+2
+00:00:06.000 --> 00:00:12.000
+Agents propose. Vowrail’s gateway enforces spending permission.
+
+3
+00:00:12.000 --> 00:00:18.000
+The buyer allows USD 220 and two negotiation rounds.
+
+4
+00:00:18.000 --> 00:00:24.000
+Sellers receive public requirements, never the private ceiling.
+
+5
+00:00:24.000 --> 00:00:29.000
+Two rounds means two. The gateway refuses another.
+
+6
+00:00:29.000 --> 00:00:34.000
+Invented offers and above-budget checkout are blocked.
+
+7
+00:00:34.000 --> 00:00:41.000
+Choose a stored offer. Delivery, tax and refund terms still need review.
+
+8
+00:00:41.000 --> 00:00:48.000
+Order creation, buyer approval and capture are separate.
+
+9
+00:00:48.000 --> 00:00:56.000
+Expired permission blocks checkout or capture. This is a synthetic expiry replay.
+
+10
+00:00:56.000 --> 00:01:02.000
+An earlier separate Sandbox run completed one authorized USD 207 purchase.
+
+11
+00:01:02.000 --> 00:01:08.000
+Amount and currency matched. The synthetic seller was not the configured payee.
+
+12
+00:01:08.000 --> 00:01:13.000
+When a response is uncertain, check the stored outcome without another capture.
+
+13
+00:01:13.000 --> 00:01:18.000
+Earlier restart restored the completed receipt after expiry.
+
+14
+00:01:18.000 --> 00:01:24.000
+AI helps. Your permission stays explicit and the result stays checkable.
+
+15
+00:01:24.000 --> 00:01:30.000
+Model explanations remain unverified. Evidence comes from separate runs. Private review only.

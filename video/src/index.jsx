@@ -13,6 +13,7 @@ import {Expiry} from './scenes/Expiry';
 import {Sandbox} from './scenes/Sandbox';
 import {Recovery} from './scenes/Recovery';
 import {Outcome} from './scenes/Outcome';
+import {ShortFilm} from './ShortFilm';
 
 function Film(){const {fps}=useVideoConfig();const cut=()=> <TransitionSeries.Transition presentation={fade()} timing={linearTiming({durationInFrames:12})}/>;return <TransitionSeries>
   <TransitionSeries.Sequence name="Buyer problem" durationInFrames={12*fps+12} premountFor={fps}><Opening/></TransitionSeries.Sequence>{cut()}
@@ -30,6 +31,7 @@ function Film(){const {fps}=useVideoConfig();const cut=()=> <TransitionSeries.Tr
 
 registerRoot(()=> <>
   <Composition id="Vowrail" component={Film} durationInFrames={4950} fps={30} width={1920} height={1080}/>
+  <Composition id="Vowrail90" component={ShortFilm} durationInFrames={2700} fps={30} width={1920} height={1080}/>
   <Folder name="Scenes">
     <Composition id="Opening" component={Opening} durationInFrames={360} fps={30} width={1920} height={1080}/>
     <Composition id="Tradeoff" component={Tradeoff} durationInFrames={540} fps={30} width={1920} height={1080}/>

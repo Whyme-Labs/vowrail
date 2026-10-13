@@ -1,8 +1,16 @@
 # Problem-led private video review
 
+## Focused 90-second edit with supplied audio
+
+The owner requested the uploaded audio, looping if needed, and a cut to the point. `Vowrail90` now keeps the core buyer journey in **90 seconds / 1920×1080 / 30fps**, with nine scenes and [15 continuous authored captions](../video/short-captions.vtt). Vowrail appears at six seconds. The comparison/model detour is removed; model explanations remain explicitly unverified in the outcome. The original 165-second composition and all previous exports remain preserved.
+
+Timing: buyer problem 0–6s; Vowrail 6–12s; recorded mandate 12–24s; recorded negotiation 24–34s; buyer review 34–48s; synthetic expiry 48–56s; earlier separate Sandbox text summary 56–68s; recovery 68–78s; outcome 78–90s. All existing evidence labels and buyer-review limitations remain visible. Order creation, provider approval and capture remain separate; read-only recovery does not imply retrying payment.
+
+Only the uploaded clip's audio is used. Its 29-second track is normalized to a quieter level, repeated with 0.5-second crossfades, and faded out for the final 1.2 seconds. The uploaded video imagery is excluded. The derivative is an ignored private asset with a SHA/size receipt. No public-use rights are assumed. Rendering uses one worker; audio is muxed once after verified silent chunks to keep it continuous. After final checks, replace the same private Library identity using the retained version 2 guard. No publication or entry submission.
+
 ## Dynamic Remotion revision
 
-The owner subsequently requested Remotion. The isolated [video package](../video/README.md) now authors a 165-second, 1920×1080, 30fps film with eleven scenes, kinetic headings, deliberate offer highlights, smooth crossfades and focused camera moves through the existing local app recording. The prior captioned cut is preserved. Its [28 continuous script captions](../video/captions.vtt) are separate from any speech transcription; no voice or music is included.
+The owner previously requested Remotion. The isolated [video package](../video/README.md) retains the original 165-second, 1920×1080, 30fps film with eleven scenes, kinetic headings, deliberate offer highlights, smooth crossfades and focused camera moves through the existing local app recording. The prior captioned cut is preserved. Its [28 continuous script captions](../video/captions.vtt) are separate from any speech transcription; that original cut has no voice or music.
 
 Timing: buyer concern0–12s; synthetic price/deadline comparison12–30s; historical model mistakes30–48s; Vowrail introduction48–56s; recorded mandate56–74s; recorded negotiation74–90s; recorded review90–108s; synthetic expiry108–120s; earlier separate Sandbox text summary120–136s; recovery evidence136–150s; buyer outcome150–165s. Historical model text is reconstructed as readable evidence cards; only the mandate/bidding motion is existing real local UI footage, with edited playback speed. Review and expiry use labeled existing stills. No continuous live provider purchase is implied.
 
