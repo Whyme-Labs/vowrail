@@ -4,7 +4,11 @@
 
 **Current milestone:** one actual USD 207.00 PayPal Sandbox purchase is completed and independently verified, with the receipt restored after restart. Three actual free-model advisory cases now parse and preserve authority; [model evidence and quality limits](MODEL_QUALIFICATION.md) are recorded. No final entry or repository visibility change has occurred.
 
-The latest verified source head `5f32f76` passed 106 actual Node tests, smoke and both HTTP rehearsals from a clean export; its separate `local/node22` status is successful. Hosted Actions failed before steps for account billing/spending restrictions and does not prevent routine local verification. [Judge instructions](JUDGE_GUIDE.md), current simulation rehearsal and app-only caption preparation are ready. The owner subsequently supplied an existing OpenRouter key and authorized free-only use. Two earlier Google requests returned HTTP 429. Nvidia then completed six zero-reported-cost requests: three truncated outputs and three valid advisory results after disabling optional reasoning. Quality errors remain; no paid call or new credential occurred. See [current model evidence](MODEL_QUALIFICATION.md).
+The existing repository head `68683c25b4fe82f6a336e5a2c9e9dc348fb34117` passed **124 actual Node tests**, smoke and both HTTP rehearsals from a clean archive on Node 22.23.0. Sequential coverage took 6.411 seconds with zero failures/cancellations/skips. Hosted run [38367687466](https://github.com/Whyme-Labs/vowrail/actions/runs/38367687466) failed before any job steps for account billing/spending restrictions. This is separate from local code validation. Each later reviewed commit receives exact-head evidence in PR #16.
+
+The [published 90-second video](https://youtu.be/eAb3qrygLpA) is Public on the verified Whyme Labs channel. [Judge instructions](JUDGE_GUIDE.md) and the simulation rehearsal are ready. The source/history [audit](RELEASE_AUDIT.md) identified no real credentials within its scope; synthetic test tokens and nonsecret Sandbox references do not require a history rewrite. Source visibility, usable free judge access and final submission remain pending.
+
+Two earlier Google model requests returned HTTP 429. Nvidia then completed six zero-reported-cost requests: three truncated outputs and three valid advisory results after disabling optional reasoning. Quality errors remain; no paid call or new credential occurred. See [current model evidence](MODEL_QUALIFICATION.md).
 
 ## Committed
 

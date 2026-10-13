@@ -1,6 +1,8 @@
-# Problem-led private video review
+# Published 90-second demo and edit provenance
 
-The owner accepted the final 90-second Library version 4 on 13 October 2026 (MYT). File SHA256: `6f663e4bcfdb017c994f99b6b051178a81919a8764181044d711fb06c5208338`; picture source `fbf79114a3bc6975108500c9abd5ef769d79a7e9`, audio-edit source `dc07718619b8ed838f5d09965f61b4cd7638692b`. This accepted cut is frozen in the private submission package. Public release/audio rights and final entry remain separate owner decisions in [READINESS.md](READINESS.md). The preparation history below is preserved; its earlier version guards are historical.
+The owner published the [accepted 90-second video](https://youtu.be/eAb3qrygLpA) on the verified Whyme Labs channel on 13 October 2026 (MYT). Public/Published status and the 90-second player were verified. File SHA256: `6f663e4bcfdb017c994f99b6b051178a81919a8764181044d711fb06c5208338`; picture source `fbf79114a3bc6975108500c9abd5ef769d79a7e9`, audio-edit source `dc07718619b8ed838f5d09965f61b4cd7638692b`. The owner confirmed audio public-use permission. The accepted file and private inputs remain preserved; no further video edit or upload is planned. Source release, judge access and final submission remain in [READINESS.md](READINESS.md).
+
+The sections below preserve the earlier private edit and recording plans. Their publication instructions, Library version guards and longer runtimes are historical; they do not supersede the published 90-second movie.
 
 ## Focused 90-second edit with supplied audio
 

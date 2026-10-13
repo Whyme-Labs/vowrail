@@ -1,21 +1,30 @@
-# Private source release audit
+# Existing repository release audit
 
-Audited candidate `94d1eddadcf4ea7bd090d1259314c45fbaf4e64c` on 13 October 2026 (MYT): 32 reachable commits, 301 unique reachable blobs, including 299 text blobs and two binary blobs. The audit reads committed objects only; private environment files, journals and ignored media inputs are not opened or modified.
+Inspected `68683c25b4fe82f6a336e5a2c9e9dc348fb34117` on 13 October 2026 (MYT): 33 reachable commits and 304 unique reachable blobs, including 302 text blobs and two binary blobs. The audit reads committed objects only. Ignored environment files, journals, raw audio and renders are not opened or included. The owner chose to use **Whyme-Labs/vowrail**, retaining its development history and issue board.
 
-## Publication holds
+## Credential findings
 
-- The actual Sandbox receipt image `docs/demo-assets/paypal-sandbox-receipt.jpg` displays order/capture references. `docs/demo-assets/paypal-sandbox-proof.json`, `docs/demo-assets/recorded-evidence.html` and `docs/PAYPAL_EVIDENCE.md` also retain references, including older uncaptured orders. These are Sandbox test identifiers, not credentials or live-payment secrets. Current evidence and reachable history need sanitation before public exposure, unless the owner specifically authorizes publishing those values. Values are deliberately omitted from this report.
-- Changing current files alone does not remove their historical blobs. Preserve the private evidence and repository work; do not rewrite, delete or force-push history without an exact approved release plan.
-- Public repository approval is outstanding. The accepted video excludes the actual receipt image and private payment references; its SHA256 remains `6f663e4bcfdb017c994f99b6b051178a81919a8764181044d711fb06c5208338`.
+No real credential, private key or populated credential environment file was identified within the pattern scan's scope. No filled environment or private journal path is tracked. Commit-message credential patterns also produced zero matches. These checks are evidence within a defined scope, not a secrets certification.
 
-## Credential and asset checks
+- Two historical versions of `test/openrouter-diagnostics.test.js` contain a deliberately synthetic error-body token used to test redaction. It is not an owner key and requires no deletion or rotation.
+- The earlier scan reported 12 empty `.env.example` assignments because its whitespace pattern crossed a newline. The corrected scan excludes those false positives.
+- Static order IDs in `test/checkout-e2e.test.js` belong to an injected synthetic PayPal transport. They are test fixtures.
+- No current source contains absolute user-directory paths or native Library file identifiers.
 
-All 14 credential-pattern matches were manually classified: 12 empty historical `.env.example` assignments matched because the scan's whitespace expression crossed a newline; two were static error-body fixtures in the pure diagnostic-redaction unit test. No real credential was identified by these checks, and no tracked environment/journal/private-key path was found. Current `.env`, journal contents and supplied audio/media are ignored. This pattern scan is evidence, not a secrets certification.
+The PayPal adapter fixes its host to Sandbox. OpenRouter supports an explicit free model, zero-price routing and no fallback; legacy model settings should remain blank in judge instructions. The unauthenticated server refuses public network binding.
 
-The source adapter fixes PayPal to its Sandbox host. The model setup supports strict explicit free-only OpenRouter routing, while legacy model settings remain available and should be blank in judge instructions. The unauthenticated server refuses public network binding.
+## Sandbox evidence and assets
 
-Current media: original control-flow SVG, actual Sandbox receipt JPEG and simulated receipt PDF. The JPEG requires reference cleanup. Simulation media must retain its labels. The source is MIT-licensed; Remotion's separate terms and the owner's confirmed personal/small-team scope remain documented. The owner has now confirmed the supplied audio can be used publicly. Git history also contains author metadata; the eventual repository-release scope includes that history.
+Four actual Sandbox order/capture references occur in `docs/PAYPAL_EVIDENCE.md`, `docs/STATUS.md`, `docs/demo-assets/paypal-sandbox-proof.json`, `docs/demo-assets/recorded-evidence.html` and the receipt JPEG. These are **nonsecret Sandbox identifiers**, not credentials, bearer tokens or live-payment secrets. Values are omitted from this audit summary.
 
-## Current boundary
+Visual review of `docs/demo-assets/paypal-sandbox-receipt.jpg` showed only the Sandbox label, USD 207 amount and two references. No account name, email, password or funding-method details appear. The historical JPEG and labeled synthetic receipt PDF match the previously reviewed binary objects. The original control-flow SVG is authored documentation. Simulation and actual provider evidence retain distinct labels.
 
-No repository visibility change, history rewrite, credential provisioning, inference, payment or final submission occurred in this audit. Publication of the accepted video on the verified Whyme Labs channel is separately authorized; its outcome must be checked in Studio after the browser connection is restored. The private audit record contains object/path locations without printing credentials or transaction-reference values.
+The source is MIT-licensed. Optional Remotion tooling has separate terms; the owner confirmed personal work / at most three people for its free-license scope and confirmed public use of the supplied audio. Raw footage/audio and renders stay ignored. The [published 90-second movie](https://youtu.be/eAb3qrygLpA) preserves the accepted file and excludes the actual receipt image and transaction references.
+
+## Publication scope
+
+The findings do not require credential cleanup or history rewriting. The earlier unconditional hold for Sandbox-reference sanitation was too broad. Removing these nonsecret values from current files would not erase historical blobs and is not recommended solely because the references exist. Ordinary Git author metadata remains part of the existing history.
+
+The least disruptive release path is a factual documentation update, exact-head validation and normal merge of PR #16, followed by the owner's precise approval to make the existing repository public with its history and repository discussions. [GitHub's visibility documentation](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/setting-repository-visibility) also states that Actions history and logs become visible. No visibility change, history rewrite or final submission occurred in this audit.
+
+Public video publication is complete. Repository publication, usable free judge access and final terms/submission remain separate decisions in [READINESS.md](READINESS.md).

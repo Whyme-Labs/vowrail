@@ -6,6 +6,8 @@ Vowrail is an open-source, buyer-controlled negotiation and transaction policy g
 
 > **Status: pre-release hackathon prototype.** Sandbox only, local single-process development. Do not use with live payments, real purchasing authority, or sensitive customer data. This implementation is neither an industry standard nor a certified security product.
 
+Watch the [published 90-second demo](https://youtu.be/eAb3qrygLpA). It labels the local simulation and the separate historical model and PayPal Sandbox observations. Use the [Node 22 judge walkthrough](docs/JUDGE_GUIDE.md) to run the complete credential-free simulation locally.
+
 ## Why
 
 Autonomous agents can negotiate or shop on someone's behalf, yet the agent may see private information that merchants should not, and its recommendations may be biased or incorrect. A prompt cannot reliably enforce spending limits, a maximum negotiation round count, or a user's authorization.
@@ -25,6 +27,7 @@ Requires Node.js **22+**. The reference implementation has no runtime npm depend
 
 ```sh
 npm test -- --test-concurrency=1
+npm run smoke
 npm run rehearse
 npm run demo
 # Open http://127.0.0.1:8787

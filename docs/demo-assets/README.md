@@ -2,6 +2,8 @@
 
 Each asset states its source and scope. Simulation assets are reproducible without credentials. The separate Sandbox screenshot and checks record one actual authorized purchase; they are not reusable test fixtures. The model request preflight made no external request. None is a customer endorsement or submitted competition video.
 
+The owner-published [90-second demo](https://youtu.be/eAb3qrygLpA) is Public on Whyme Labs. It distinguishes recorded local simulation from separate historical model and Sandbox observations. The [final video record](../FINAL_DEMO.md) preserves its accepted file identity and earlier edit provenance.
+
 | Asset | Provenance and use |
 |---|---|
 | [simulated-receipt.pdf](simulated-receipt.pdf) | Native Safari **Export as PDF** of the actual rendered local app on 11 October 2026 at 15:41 UTC. Two rounds, Atlas's synthetic $207 quote, return without approval, resumed local consent, intentionally lost capture response, read-only reconciliation and completed simulated receipt. Export contains only app content; unrelated tabs/account pages are excluded. |
@@ -16,7 +18,7 @@ Each asset states its source and scope. Simulation assets are reproducible witho
 | [model-request-preflight.json](model-request-preflight.json) | Actual shipped gateway/adapter request serialized through an injected local transport, 13 October MYT. Stable synthetic IDs, private cap omitted, gateway state unchanged, zero external requests. No real model result; see [qualification plan](../MODEL_QUALIFICATION.md). |
 | [openrouter-free-qualification.json](openrouter-free-qualification.json) | Eight cumulative actual requests: two Google 429s, three truncated Nvidia results and three accepted Nvidia advisory cases. Completed Nvidia cost USD 0, usage coverage and quality errors stated. No paid fallback or real payment. |
 | [English description](../SUBMISSION_COPY.md) | Factual editable copy with real-provider and owner gates left open. No eligibility or rights declaration. |
-| [2:30 narration and shot plan](../DEMO.md) | Reproducible local recording plan. A public competition video has not been produced or uploaded. |
+| [2:30 narration and shot plan](../DEMO.md) | Historical local recording plan. The published movie is the separate accepted 90-second cut linked above. |
 
 From clean source with Node 22+: `npm test -- --test-concurrency=1`, `npm run smoke`, `npm run rehearse`, then `npm run demo`. Open http://127.0.0.1:8787 and follow [RUNBOOK.md](../RUNBOOK.md). Use `npm run demo:recovery` for an injected lost response. Provider settings are ignored in simulation. No npm installation or external provider request is required.
 
