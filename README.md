@@ -74,7 +74,7 @@ One owner-authorized **USD 207.00 Sandbox purchase** completed on 12 October, wi
 
 Progress is tracked in [GitHub issues](https://github.com/Whyme-Labs/vowrail/issues). The focus is a functional, experimentally validated submission for the [PayPal AI Hackathon 2026](https://paypalaihackathon.devpost.com/). Deadline: **12 November 2026, 12:00 PST** (**13 November, 04:00 MYT**). The rules require a working AI + PayPal application, public open-source repository, and public demo video under three minutes.
 
-**Repository visibility is currently private.** This must be changed to public before submission, after secret/license/IP review. No connected GitHub action in this workflow changes repository visibility automatically.
+**Repository visibility is public.** The owner published this existing MIT repository after PR #16 was merged and the source/history audit completed. The [judge guide](docs/JUDGE_GUIDE.md) includes public clone and local run instructions. Usable free integration access and final competition terms/submission remain pending; the credential-free simulator runs without accounts or keys.
 
 ## Scope and honesty
 
