@@ -8,3 +8,6 @@ coverage/
 dist/
 tmp/
 .vowrail/
+.wrangler/
+.dev.vars
+.dev.vars.*

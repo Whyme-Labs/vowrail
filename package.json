@@ -15,6 +15,14 @@
     "rehearse": "node scripts/rehearse.js",
     "test": "node --test",
     "test:coverage": "node --test --experimental-test-coverage",
-    "smoke": "node scripts/smoke.js"
+    "smoke": "node scripts/smoke.js",
+    "test:workers": "node --test --test-concurrency=1 worker-tests/runtime.js",
+    "workers:dev": "wrangler dev --local --port 8790 --var PUBLIC_ORIGIN:http://127.0.0.1:8790",
+    "workers:check": "wrangler deploy --dry-run",
+    "workers:deploy": "node scripts/deploy-workers.js"
+  },
+  "devDependencies": {
+    "miniflare": "5.20261006.1-alpha",
+    "wrangler": "4.149.0"
   }
 }

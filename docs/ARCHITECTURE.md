@@ -2,6 +2,8 @@
 
 ## Runtime slices
 
+The local Node path below remains restricted to loopback. The [Workers entry point](WORKERS.md) adds static assets, a signed anonymous browser session, CSRF/host/origin checks and rate limits. Each session owns SQLite-backed Durable Object state; different Worker instances route that session to the same coordinator. Sandbox and simulation snapshots are separate. The deterministic gateway and provider adapters are shared with Node. The hosted path uses server-side secrets and only explicit free models.
+
 ```text
 Buyer browser (untrusted)
   | creates mandate, requests rounds, selects offer

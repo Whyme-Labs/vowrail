@@ -1,4 +1,5 @@
 import { moneyToDecimal, PolicyError } from '../core.js';
+import { Buffer } from 'node:buffer';
 
 const SANDBOX = 'https://api-m.sandbox.paypal.com';
 

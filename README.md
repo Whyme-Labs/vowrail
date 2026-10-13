@@ -8,6 +8,8 @@ Vowrail is an open-source, buyer-controlled negotiation and transaction policy g
 
 Watch the [published 90-second demo](https://youtu.be/eAb3qrygLpA). It labels the local simulation and the separate historical model and PayPal Sandbox observations. Use the [Node 22 judge walkthrough](docs/JUDGE_GUIDE.md) to run the complete credential-free simulation locally.
 
+The [Workers judge deployment](docs/WORKERS.md) adds a browser-only route with isolated durable sessions, server-side secrets and rate limits. Its configured target is https://vowrail-judges.swmengappdev.workers.dev for Sandbox + free AI, with `/demo/` for a provider-free simulator. Deployment observations and the exact running source are reported in the implementation PR; configuration alone does not prove availability. The local Node route below remains available without installation.
+
 ## Why
 
 Autonomous agents can negotiate or shop on someone's behalf, yet the agent may see private information that merchants should not, and its recommendations may be biased or incorrect. A prompt cannot reliably enforce spending limits, a maximum negotiation round count, or a user's authorization.
@@ -57,6 +59,7 @@ One owner-authorized **USD 207.00 Sandbox purchase** completed on 12 October, wi
 
 - [Current implementation status and blockers](docs/STATUS.md)
 - [Judge walkthrough and evidence guide](docs/JUDGE_GUIDE.md)
+- [Cloudflare Workers deployment, session boundaries and limits](docs/WORKERS.md)
 - [Submission readiness and exact remaining inputs](docs/READINESS.md)
 - [Current honest demo script and submission checklist](docs/DEMO.md)
 - [Reusable demo assets and evidence provenance](docs/demo-assets/README.md)

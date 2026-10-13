@@ -29,6 +29,10 @@
     <p id="simulation-banner" class="simulation-banner" hidden>Local payment simulation — no PayPal or model calls. No money moves. This is rehearsal evidence, not a verified provider integration.</p>
     <div id="notice" class="notice" role="status" aria-live="polite" tabindex="-1"></div>
     <div id="integration" class="integration"></div>
+    <nav id="hosted-modes" class="integration" aria-label="Testing mode" hidden>
+      <a href="/">PayPal Sandbox + free AI</a>
+      <a href="/demo/">Try the simulator · no provider calls</a>
+    </nav>
 
     <div class="columns">
       <section class="panel" aria-labelledby="mandate-heading">
@@ -82,10 +86,10 @@
     </div>
     <section class="panel audit" aria-labelledby="audit-heading">
       <div class="panel-header"><span class="step">03</span><h2 id="audit-heading">Policy evidence</h2></div>
-      <p class="hint">Recorded policy transitions. The local demo preserves these records across server restarts.</p>
+      <p id="storage-note" class="hint">Recorded policy transitions. The local demo preserves these records across server restarts.</p>
       <ol id="events" class="events"><li class="event-empty">No activity yet.</li></ol>
     </section>
-    <footer>VOWRAIL / OPEN EXPERIMENTAL PROFILE <span>Sandbox only. No buyer login, merchant authentication, or production guarantees.</span></footer>
+    <footer>VOWRAIL / OPEN EXPERIMENTAL PROFILE <span id="trust-note">Sandbox only. No buyer login, merchant authentication, or production guarantees.</span></footer>
   </main>
 </body>
 </html>

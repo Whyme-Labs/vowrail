@@ -5,15 +5,18 @@ let order = null;
 let busy = false;
 let approvalUncertain = false;
 let expiryTimer;
-const returnUrl = '/?intent=' + encodeURIComponent(intentId ?? '');
-const path = '/api/intents/' + encodeURIComponent(intentId ?? '') + '/simulation-approval';
+let csrfToken;
+const apiPrefix = window.location.pathname?.startsWith('/demo/') ? '/demo' : '';
+const returnUrl = apiPrefix + '/?intent=' + encodeURIComponent(intentId ?? '');
+const path = apiPrefix + '/api/intents/' + encodeURIComponent(intentId ?? '') + '/simulation-approval';
 function message(text, error = false) {
   $('approval-notice').textContent = text;
   $('approval-notice').classList.toggle('error', error);
 }
 async function request(method = 'GET') {
   const response = await fetch(path, { method, headers: method === 'POST'
-    ? { 'Content-Type': 'application/json', 'X-Vowrail-Checkout-Mode': 'simulation' } : {},
+    ? { 'Content-Type': 'application/json', 'X-Vowrail-Checkout-Mode': 'simulation',
+      ...(csrfToken ? { 'X-Vowrail-CSRF': csrfToken } : {}) } : {},
     ...(method === 'POST' ? { body: JSON.stringify({ orderId }) } : {}) });
   const data = await response.json();
   if (!response.ok) throw Error(data?.error?.message || 'Simulated approval unavailable');
@@ -61,6 +64,11 @@ $('cancel-simulation').addEventListener('click', () => {
 async function main() {
   try {
     if (!/^[0-9a-f-]{36}$/i.test(intentId) || !/^SIMORDER_[0-9a-f]{32}$/i.test(orderId)) throw Error('Invalid simulated order reference');
+    if (apiPrefix) {
+      const health = await fetch(apiPrefix + '/api/health');
+      if (!health.ok) throw Error('Unable to load testing session');
+      csrfToken = (await health.json()).csrfToken;
+    }
     order = await request();
     details();
     message(order.orderStatus === 'PAYER_ACTION_REQUIRED' ? 'Review the locked amount. This is a local consent rehearsal, not a financial authorization.'
